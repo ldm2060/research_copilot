@@ -306,22 +306,22 @@ def add_skill_source(source: Path, target_base: Path, report: list[CopiedItem], 
         )
         return
 
-    if is_skill_container(source):
+    if source.is_dir():
         destination = target_base / source.name
         copy_tree(source, destination)
         report.append(
             CopiedItem(
-                kind="skill-container",
+                kind="skill-directory",
                 name=source.name,
                 source=str(source),
                 target=str(destination),
                 operation="add",
-                note="container-copied-verbatim",
+                note="directory-copied-verbatim",
             )
         )
         return
 
-    warnings.append(f"Skipped non-skill directory: {source}")
+    warnings.append(f"Skipped non-directory skill entry: {source}")
 
 
 def add_agent_source(source: Path, target_base: Path, report: list[CopiedItem], warnings: list[str]) -> None:
@@ -415,7 +415,16 @@ def write_summary(
         encoding="utf-8",
     )
 
-    skill_names = sorted(child.name for child in skills_target.iterdir() if child.is_dir())
+    skill_names = sorted(
+        child.name
+        for child in skills_target.iterdir()
+        if child.is_dir() and (child / "SKILL.md").is_file()
+    )
+    support_names = sorted(
+        child.name
+        for child in skills_target.iterdir()
+        if child.is_dir() and not (child / "SKILL.md").is_file()
+    )
     agent_names = sorted(child.name for child in agents_target.iterdir() if child.is_file())
     lines = [
         "# Copilot Workspace Bundle",
@@ -427,6 +436,9 @@ def write_summary(
         f"Skills: {len(skill_names)}",
     ]
     lines.extend(f"- {name}" for name in skill_names)
+    if support_names:
+        lines.extend(["", f"Support directories: {len(support_names)}"])
+        lines.extend(f"- {name}" for name in support_names)
     lines.extend(["", f"Agents: {len(agent_names)}"])
     lines.extend(f"- {name}" for name in agent_names)
     if warnings:
