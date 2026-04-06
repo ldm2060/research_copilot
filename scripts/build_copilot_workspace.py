@@ -13,11 +13,11 @@ FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*(?:\n|$)", re.DOTALL)
 SKIP_NAMES = {".git", "__pycache__", ".DS_Store"}
 VALID_SKILL_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 AGENT_TOOL_MAP = {
-    "conductor": ["read", "search", "edit", "execute", "agent", "todo", "dblp-bib/*"],
+    "conductor": ["read", "search", "edit", "execute", "agent", "todo", "arxiv-search/*", "dblp-bib/*"],
     "experiment-driver": ["read", "search", "edit", "execute", "todo"],
-    "literature-scout": ["read", "search", "web", "todo", "dblp-bib/*"],
-    "paper-writer": ["read", "search", "edit", "todo", "dblp-bib/*"],
-    "reviewer": ["read", "search", "todo", "dblp-bib/*"],
+    "literature-scout": ["read", "search", "web", "todo", "arxiv-search/*", "dblp-bib/*"],
+    "paper-writer": ["read", "search", "edit", "todo", "arxiv-search/*", "dblp-bib/*"],
+    "reviewer": ["read", "search", "todo", "arxiv-search/*", "dblp-bib/*"],
 }
 AGENT_DESCRIPTION_MAP = {
     "conductor": "研究与论文流程总控 agent。Use when: coordinating multi-step research or paper workflows, choosing the next step, or routing work to specialist agents.",
@@ -33,6 +33,7 @@ CITATION_POLICY_BLOCK = """## 引用修改约束
 - 当任务涉及新增、替换、修正或核对 BibTeX / references.bib / 引文元数据时，只能使用 `dblp-bib` MCP 工具作为外部引用来源。
 - 不得根据记忆、普通网页搜索结果、其他 MCP、或现有不可信草稿手工编造 BibTeX 条目。
 - 如果 `dblp-bib` 没有返回唯一且可信的记录，必须停止修改该条引用，并向用户报告缺口或保留占位符。
+- 当需要查找、检索、了解一篇论文时，必须优先使用 `arxiv-search` MCP；只有在无结果时才回退到普通 web 搜索。
 """
 
 

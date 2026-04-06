@@ -1,7 +1,7 @@
 ---
 name: novelty
 description: "论文创新点挖掘助手。Use when: brainstorming research innovations on a baseline, mining novel contributions for a paper, checking whether an idea overlaps with existing work, evaluating feasibility and novelty of proposed improvements, comparing candidate innovations by reviewer acceptance likelihood, or when user says '找创新点', '挖掘创新', 'innovation mining', 'what can I improve', '创新点设计', '改进方案'."
-tools: [read, search, web, browser, agent, todo]
+tools: [read, search, web, browser, agent, 'arxiv-search/*', todo]
 argument-hint: "研究目标、baseline 方法名或论文、目标会议/期刊、已有想法（可选）"
 agents: [literature-scout, reviewer]
 ---
@@ -119,7 +119,8 @@ agents: [literature-scout, reviewer]
 
 ## 工具使用策略
 
-- 搜索论文：优先使用 `research-lit`、`paper-lookup`、`arxiv`、`novelty-check` 等 skill
+- 搜索论文：**优先使用 `arxiv-search` MCP**（`search_arxiv` 工具），只有在无结果时才回退到 `research-lit`、`paper-lookup`、`arxiv`、`novelty-check` 等 skill
+- 获取论文 PDF：使用 `arxiv-search` MCP 的 `get_arxiv_pdf_url` 工具
 - 文献整理：委派 `literature-scout` 子 agent
 - 质量把关：必要时调用 `reviewer` 子 agent 做独立评审
 - 网页阅读：用 `web` / `browser` 查看论文详情和代码仓库

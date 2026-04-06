@@ -1,5 +1,17 @@
 {
   "servers": {
+    "arxiv-search": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "${workspaceFolder}/.vscode/mcp-servers/arxiv-search/server.py"
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1"
+      }
+    },
     "dblp-bib": {
       "type": "stdio",
       "command": "python",
