@@ -1,0 +1,2 @@
+add third_party\oh-my-paper\plugins\oh-my-paper\agents\*
+add self\agents\*

@@ -1,0 +1,16 @@
+add self\skills
+add third_party\anthropics\skills\doc-coauthoring
+add third_party\anthropics\skills\canvas-design
+add third_party\humanizer
+add third_party\orchestra\20-ml-paper-writing\*
+add third_party\orchestra\0-autoresearch-skill
+add third_party\oh-my-paper\skills\*
+add third_party\auto-research\skills\*
+del skills-codex
+del skills-codex-claude-review
+del skills-codex-gemini-review
+add third_party\auto-research\skills\skills-codex\*
+add third_party\imbad0202-research\academic-paper
+add third_party\imbad0202-research\academic-paper-reviewer
+add third_party\imbad0202-research\academic-pipeline
+add third_party\imbad0202-research\deep-research

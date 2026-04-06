@@ -1,0 +1,42 @@
+name: Package Copilot Workspace
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/package-copilot-workspace.yml
+      - .gitmodules
+      - agent.txt
+      - skill.txt
+      - scripts/build_copilot_workspace.py
+      - self/**
+      - third_party/**
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build Copilot workspace bundle
+        run: python scripts/build_copilot_workspace.py --repo-root . --output dist/copilot-workspace
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: copilot-workspace-config
+          if-no-files-found: error
+          path: |
+            dist/copilot-workspace
+            dist/copilot-workspace.zip
