@@ -1,0 +1,21 @@
+[submodule "third_party/anthropics"]
+	path = third_party/anthropics
+	url = https://github.com/anthropics/skills
+[submodule "third_party/humanizer"]
+	path = third_party/humanizer
+	url = https://github.com/blader/humanizer
+[submodule "third_party/orchestra"]
+	path = third_party/orchestra
+	url = https://github.com/Orchestra-Research/AI-Research-SKILLs
+[submodule "third_party/k-dense-ai"]
+	path = third_party/k-dense-ai
+	url = https://github.com/K-Dense-AI/claude-scientific-skills
+[submodule "third_party/oh-my-paper"]
+	path = third_party/oh-my-paper
+	url = https://github.com/LigphiDonk/Oh-my--paper
+[submodule "third_party/auto-research"]
+	path = third_party/auto-research
+	url = https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep
+[submodule "third_party/imbad0202-research"]
+	path = third_party/imbad0202-research
+	url = https://github.com/Imbad0202/academic-research-skills
