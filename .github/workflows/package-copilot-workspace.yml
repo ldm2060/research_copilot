@@ -2,9 +2,24 @@ name: Package Copilot Workspace
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish the generated bundle as a GitHub release
+        type: boolean
+        default: false
+      release_tag:
+        description: Release tag to create when publish_release is true
+        type: string
+        required: false
+      release_name:
+        description: Optional release name override
+        type: string
+        required: false
   push:
     branches:
       - main
+    tags:
+      - copilot-workspace-v*
     paths:
       - .github/workflows/package-copilot-workspace.yml
       - .gitmodules
@@ -13,6 +28,9 @@ on:
       - scripts/build_copilot_workspace.py
       - self/**
       - third_party/**
+
+permissions:
+  contents: write
 
 jobs:
   package:
@@ -40,3 +58,47 @@ jobs:
           path: |
             dist/copilot-workspace
             dist/copilot-workspace.zip
+
+      - name: Prepare release metadata
+        id: release_meta
+        if: github.ref_type == 'tag' || github.event.inputs.publish_release == 'true'
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            tag="${{ github.event.inputs.release_tag }}"
+            name="${{ github.event.inputs.release_name }}"
+            if [[ -z "$tag" ]]; then
+              echo "release_tag is required when publish_release is true" >&2
+              exit 1
+            fi
+          else
+            tag="${GITHUB_REF_NAME}"
+            name="${GITHUB_REF_NAME}"
+          fi
+
+          if [[ -z "$name" ]]; then
+            name="$tag"
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          {
+            echo "body<<EOF"
+            echo "Packaged GitHub Copilot workspace bundle."
+            echo
+            cat dist/copilot-workspace/README.md
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish bundle release
+        if: github.ref_type == 'tag' || github.event.inputs.publish_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_meta.outputs.tag }}
+          name: ${{ steps.release_meta.outputs.name }}
+          body: ${{ steps.release_meta.outputs.body }}
+          target_commitish: ${{ github.sha }}
+          files: |
+            dist/copilot-workspace.zip
+            dist/copilot-workspace/BUILD_MANIFEST.json
+            dist/copilot-workspace/README.md

@@ -13,11 +13,11 @@ FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*(?:\n|$)", re.DOTALL)
 SKIP_NAMES = {".git", "__pycache__", ".DS_Store"}
 VALID_SKILL_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 AGENT_TOOL_MAP = {
-    "conductor": ["read", "search", "edit", "execute", "agent", "todo"],
+    "conductor": ["read", "search", "edit", "execute", "agent", "todo", "dblp-bib/*"],
     "experiment-driver": ["read", "search", "edit", "execute", "todo"],
-    "literature-scout": ["read", "search", "web", "todo"],
-    "paper-writer": ["read", "search", "edit", "todo"],
-    "reviewer": ["read", "search", "todo"],
+    "literature-scout": ["read", "search", "web", "todo", "dblp-bib/*"],
+    "paper-writer": ["read", "search", "edit", "todo", "dblp-bib/*"],
+    "reviewer": ["read", "search", "todo", "dblp-bib/*"],
 }
 AGENT_DESCRIPTION_MAP = {
     "conductor": "研究与论文流程总控 agent。Use when: coordinating multi-step research or paper workflows, choosing the next step, or routing work to specialist agents.",
@@ -26,6 +26,14 @@ AGENT_DESCRIPTION_MAP = {
     "paper-writer": "论文写作 agent。Use when: drafting or revising sections, polishing LaTeX prose, writing captions, or turning results into paper-ready text.",
     "reviewer": "论文审稿式质量检查 agent。Use when: critically reviewing a paper, stress-testing claims, finding narrative or citation risks, or preparing for submission.",
 }
+CITATION_POLICY_AGENT_NAMES = {"conductor", "literature-scout", "paper-writer", "reviewer"}
+CITATION_POLICY_HEADER = "## 引用修改约束"
+CITATION_POLICY_BLOCK = """## 引用修改约束
+
+- 当任务涉及新增、替换、修正或核对 BibTeX / references.bib / 引文元数据时，只能使用 `dblp-bib` MCP 工具作为外部引用来源。
+- 不得根据记忆、普通网页搜索结果、其他 MCP、或现有不可信草稿手工编造 BibTeX 条目。
+- 如果 `dblp-bib` 没有返回唯一且可信的记录，必须停止修改该条引用，并向用户报告缺口或保留占位符。
+"""
 
 
 @dataclass
@@ -222,6 +230,12 @@ def normalize_agent_body(text: str) -> str:
     )
 
 
+def apply_citation_policy(source_name: str, body: str) -> str:
+    if source_name not in CITATION_POLICY_AGENT_NAMES or CITATION_POLICY_HEADER in body:
+        return body
+    return body.rstrip() + "\n\n" + CITATION_POLICY_BLOCK.strip() + "\n"
+
+
 def fallback_agent_description(source_name: str, body: str) -> str:
     mapped = AGENT_DESCRIPTION_MAP.get(source_name)
     if mapped:
@@ -250,7 +264,10 @@ def build_agent_frontmatter(source_name: str, body: str) -> str:
 
 
 def normalize_agent_markdown(source_file: Path) -> tuple[str, bool]:
-    raw_text = normalize_agent_body(source_file.read_text(encoding="utf-8"))
+    raw_text = apply_citation_policy(
+        source_file.stem,
+        normalize_agent_body(source_file.read_text(encoding="utf-8")),
+    )
     if source_file.name.endswith(".agent.md"):
         return raw_text, False
 
@@ -272,6 +289,63 @@ def normalize_agent_markdown(source_file: Path) -> tuple[str, bool]:
 def write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
+
+
+def package_mcp_configuration(
+    repo_root: Path,
+    output_root: Path,
+    report: list[CopiedItem],
+    warnings: list[str],
+) -> list[str]:
+    source_root = repo_root / "self" / "mcp"
+    if not source_root.is_dir():
+        return []
+
+    vscode_target = output_root / ".vscode"
+    vscode_target.mkdir(parents=True, exist_ok=True)
+    server_names: list[str] = []
+
+    mcp_config_source = source_root / "mcp.json"
+    if mcp_config_source.is_file():
+        mcp_text = mcp_config_source.read_text(encoding="utf-8")
+        try:
+            server_names = sorted(json.loads(mcp_text).get("servers", {}).keys())
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"Invalid MCP config JSON at {mcp_config_source}: {exc}") from exc
+        destination = vscode_target / "mcp.json"
+        write_text(destination, mcp_text)
+        report.append(
+            CopiedItem(
+                kind="mcp-config",
+                name="mcp.json",
+                source=str(mcp_config_source),
+                target=str(destination),
+                operation="add",
+            )
+        )
+    else:
+        warnings.append(f"Missing self/mcp/mcp.json; MCP servers will not be configured automatically.")
+
+    servers_source = source_root / "servers"
+    if servers_source.is_dir():
+        servers_target = vscode_target / "mcp-servers"
+        copy_tree(servers_source, servers_target)
+        for child in sorted(servers_source.iterdir()):
+            if child.name in SKIP_NAMES or child.name.startswith("."):
+                continue
+            report.append(
+                CopiedItem(
+                    kind="mcp-server",
+                    name=child.name,
+                    source=str(child),
+                    target=str(servers_target / child.name),
+                    operation="add",
+                )
+            )
+    elif server_names:
+        warnings.append("MCP config exists but self/mcp/servers is missing.")
+
+    return server_names
 
 
 def add_skill_source(source: Path, target_base: Path, report: list[CopiedItem], warnings: list[str]) -> None:
@@ -397,6 +471,7 @@ def write_summary(
     output_root: Path,
     skills_target: Path,
     agents_target: Path,
+    mcp_servers: list[str],
     report: list[CopiedItem],
     warnings: list[str],
 ) -> None:
@@ -431,7 +506,7 @@ def write_summary(
         "",
         f"Generated at: {timestamp}",
         "",
-        "Extract this artifact into a workspace root. The resulting customizations live under `.github/skills/` and `.github/agents/`.",
+        "Extract this artifact into a workspace root. The resulting customizations live under `.github/skills/`, `.github/agents/`, and `.vscode/` for MCP configuration.",
         "",
         f"Skills: {len(skill_names)}",
     ]
@@ -441,6 +516,9 @@ def write_summary(
         lines.extend(f"- {name}" for name in support_names)
     lines.extend(["", f"Agents: {len(agent_names)}"])
     lines.extend(f"- {name}" for name in agent_names)
+    if mcp_servers:
+        lines.extend(["", f"MCP servers: {len(mcp_servers)}"])
+        lines.extend(f"- {name}" for name in mcp_servers)
     if warnings:
         lines.extend(["", "Warnings:"])
         lines.extend(f"- {warning}" for warning in warnings)
@@ -475,7 +553,8 @@ def main() -> int:
 
     apply_manifest(repo_root, skills_manifest, "skill", skills_target, report, warnings)
     apply_manifest(repo_root, agents_manifest, "agent", agents_target, report, warnings)
-    write_summary(output_root, skills_target, agents_target, report, warnings)
+    mcp_servers = package_mcp_configuration(repo_root, output_root, report, warnings)
+    write_summary(output_root, skills_target, agents_target, mcp_servers, report, warnings)
     zip_path = create_zip(output_root)
 
     print(f"Workspace bundle written to {output_root}")

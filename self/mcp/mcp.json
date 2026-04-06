@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "dblp-bib": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "${workspaceFolder}/.vscode/mcp-servers/dblp-bib/server.py"
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1"
+      }
+    }
+  }
+}
