@@ -120,32 +120,26 @@ argument-hint: "论文所在目录路径（如 paper/）"
 
 ```powershell
 $path = Join-Path $PWD "tmp_improve.md"
-$watcher = [System.IO.FileSystemWatcher]::new($PWD, "tmp_improve.md")
-$watcher.EnableRaisingEvents = $false
 while ($true) {
-    $result = $watcher.WaitForChanged([System.IO.WatcherChangeTypes]::All, 30000)
-    if (-not $result.TimedOut -and (Test-Path $path)) {
+    if (Test-Path $path) {
         $c = Get-Content $path -Raw -ErrorAction SilentlyContinue
         if ($c -and $c -match '本轮修改完成') {
             Write-Output "SIGNAL_DETECTED"
             break
         }
     }
-    if ((Test-Path $path)) {
-        $c = Get-Content $path -Raw -ErrorAction SilentlyContinue
-        if ($c -and $c -match '本轮修改完成') {
-            Write-Output "SIGNAL_DETECTED"
-            break
-        }
-    }
+
+    Write-Output "WAITING_FOR_IMPROVEMENT"
+    Start-Sleep -Seconds 30
 }
-$watcher.Dispose()
 ```
 
-2. 通过 `get_terminal_output` 定期检查后台终端输出，等待 `SIGNAL_DETECTED`。
+> 关键要求：这里是**每 30 秒轮询一次并持续等待**，不是“30 秒没信号就结束”。没有检测到 `SIGNAL_DETECTED` 时必须继续下一轮轮询。
+
+2. 通过 `get_terminal_output` 定期检查后台终端输出，等待 `SIGNAL_DETECTED`；若看到 `WAITING_FOR_IMPROVEMENT`，表示本轮未收到信号，应继续等待下一次轮询。
 3. 检测到信号后，**清空 `tmp_improve.md`**（覆盖写入空内容）。
 
-> 如果后台终端方式不可用，可以改为每隔一段时间手动读取 `tmp_improve.md` 检查内容。
+> 如果后台终端方式不可用，可以改为手动每 30 秒读取一次 `tmp_improve.md` 轮询检查，但同样**不要设置总超时**。
 
 ### Step 3: 判断是否继续
 

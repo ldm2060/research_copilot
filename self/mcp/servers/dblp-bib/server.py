@@ -2,12 +2,20 @@ from __future__ import annotations
 
 import html
 import json
+import os
 import re
 import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 from typing import Any
+
+# Force binary unbuffered I/O on Windows pipes
+if sys.platform == "win32":
+    import msvcrt
+    msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+    msvcrt.setmode(sys.stderr.fileno(), os.O_BINARY)
 
 
 SERVER_NAME = "dblp-bib"
@@ -69,9 +77,8 @@ TOOLS = [
 
 
 def send_message(payload: dict[str, Any]) -> None:
-    encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    sys.stdout.buffer.write(f"Content-Length: {len(encoded)}\r\n\r\n".encode("ascii"))
-    sys.stdout.buffer.write(encoded)
+    line = json.dumps(payload, ensure_ascii=False) + "\n"
+    sys.stdout.buffer.write(line.encode("utf-8"))
     sys.stdout.buffer.flush()
 
 
@@ -84,26 +91,13 @@ def send_error(request_id: Any, code: int, message: str) -> None:
 
 
 def read_message() -> dict[str, Any] | None:
-    headers: dict[str, str] = {}
-    while True:
-        line = sys.stdin.buffer.readline()
-        if not line:
-            return None
-        if line in {b"\r\n", b"\n"}:
-            break
-        header = line.decode("ascii").strip()
-        if not header:
-            continue
-        name, value = header.split(":", 1)
-        headers[name.lower()] = value.strip()
-
-    content_length = headers.get("content-length")
-    if content_length is None:
+    line = sys.stdin.buffer.readline()
+    if not line:
         return None
-    raw_body = sys.stdin.buffer.read(int(content_length))
-    if not raw_body:
+    line = line.strip()
+    if not line:
         return None
-    return json.loads(raw_body.decode("utf-8"))
+    return json.loads(line.decode("utf-8"))
 
 
 def http_get_json(url: str) -> dict[str, Any]:
@@ -288,13 +282,22 @@ def handle_request(message: dict[str, Any]) -> None:
 
 
 def main() -> int:
+    sys.stderr.write(f"[{SERVER_NAME}] started (pid={os.getpid()})\n")
+    sys.stderr.flush()
     while True:
         message = read_message()
         if message is None:
+            sys.stderr.write(f"[{SERVER_NAME}] stdin closed, exiting\n")
+            sys.stderr.flush()
             return 0
+        method = message.get("method", "?")
+        sys.stderr.write(f"[{SERVER_NAME}] recv: {method}\n")
+        sys.stderr.flush()
         try:
             handle_request(message)
         except Exception as exc:
+            sys.stderr.write(f"[{SERVER_NAME}] error handling {method}: {exc}\n")
+            sys.stderr.flush()
             if "id" in message:
                 send_error(message["id"], -32603, f"Internal error: {exc}")
 

@@ -71,43 +71,36 @@ argument-hint: "论文所在目录路径（如 paper/）"
 
 ```powershell
 $path = Join-Path $PWD "tmp_review.md"
-$watcher = [System.IO.FileSystemWatcher]::new($PWD, "tmp_review.md")
-$watcher.EnableRaisingEvents = $false
 while ($true) {
-    $result = $watcher.WaitForChanged([System.IO.WatcherChangeTypes]::All, 30000)
-    if (-not $result.TimedOut -and (Test-Path $path)) {
+    if (Test-Path $path) {
         $c = Get-Content $path -Raw -ErrorAction SilentlyContinue
-        if ($c -and $c.Trim().EndsWith('意见输出完成')) {
-            Write-Output "REVIEW_READY"
-            break
-        }
-        if ($c -and $c.Trim().EndsWith('审稿循环结束')) {
-            Write-Output "LOOP_ENDED"
-            break
+        if ($c) {
+            $trimmed = $c.Trim()
+            if ($trimmed.EndsWith('意见输出完成')) {
+                Write-Output "REVIEW_READY"
+                break
+            }
+            if ($trimmed.EndsWith('审稿循环结束')) {
+                Write-Output "LOOP_ENDED"
+                break
+            }
         }
     }
-    if ((Test-Path $path)) {
-        $c = Get-Content $path -Raw -ErrorAction SilentlyContinue
-        if ($c -and $c.Trim().EndsWith('意见输出完成')) {
-            Write-Output "REVIEW_READY"
-            break
-        }
-        if ($c -and $c.Trim().EndsWith('审稿循环结束')) {
-            Write-Output "LOOP_ENDED"
-            break
-        }
-    }
+
+    Write-Output "WAITING_FOR_REVIEW"
+    Start-Sleep -Seconds 30
 }
-$watcher.Dispose()
 ```
 
-2. 通过 `get_terminal_output` 定期检查后台终端输出。
+> 关键要求：这里是**每 30 秒轮询一次并持续等待**，不是“30 秒没消息就退出”。只要尚未收到 `REVIEW_READY` 或 `LOOP_ENDED`，就必须继续下一轮轮询。
+
+2. 通过 `get_terminal_output` 定期检查后台终端输出；若看到 `WAITING_FOR_REVIEW`，表示本轮未收到信号，应继续等待下一次轮询。
 3. 如果检测到 `LOOP_ENDED`：→ 进入 Step 5 结束循环。
 4. 如果检测到 `REVIEW_READY`：
    - 读取 `tmp_review.md` 的完整内容，保存为本轮审稿意见。
    - **清空 `tmp_review.md`**（覆盖写入空内容）。
 
-> 如果后台终端方式不可用，可改为每隔一段时间手动读取 `tmp_review.md` 检查内容。
+> 如果后台终端方式不可用，可改为手动每 30 秒读取一次 `tmp_review.md` 轮询检查，但同样**不要设置总超时**。
 
 ### Step 2: 解析审稿意见
 
