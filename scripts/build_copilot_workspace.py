@@ -50,11 +50,12 @@ class CopiedItem:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Build a GitHub Copilot workspace bundle from skill.txt and agent.txt.",
+        description="Build a GitHub Copilot workspace bundle from skill.txt, agent.txt, and hook.txt.",
     )
     parser.add_argument("--repo-root", default=".", help="Repository root containing manifests.")
     parser.add_argument("--skills-manifest", default="skill.txt", help="Path to the skill manifest.")
     parser.add_argument("--agents-manifest", default="agent.txt", help="Path to the agent manifest.")
+    parser.add_argument("--hooks-manifest", default="hook.txt", help="Path to the hook manifest.")
     parser.add_argument(
         "--output",
         default="dist/copilot-workspace",
@@ -98,6 +99,12 @@ def copy_tree(src: Path, dest: Path) -> None:
         dest,
         ignore=shutil.ignore_patterns(*SKIP_NAMES),
     )
+
+
+def copy_file(src: Path, dest: Path) -> None:
+    reset_path(dest)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dest)
 
 
 def strip_quotes(value: str) -> str:
@@ -154,7 +161,9 @@ def list_add_sources(repo_root: Path, kind: str, raw_path: str) -> list[Path]:
         )
         if kind == "skill":
             return [child for child in children if child.is_dir()]
-        return [child for child in children if child.is_dir() or is_agent_file(child)]
+        if kind == "agent":
+            return [child for child in children if child.is_dir() or is_agent_file(child)]
+        return [child for child in children if child.is_dir() or child.is_file() or child.is_symlink()]
     return [repo_path(repo_root, raw_path)]
 
 
@@ -434,6 +443,48 @@ def add_agent_source(source: Path, target_base: Path, report: list[CopiedItem], 
     warnings.append(f"Skipped non-agent entry: {source}")
 
 
+def add_hook_source(source: Path, target_base: Path, report: list[CopiedItem], warnings: list[str]) -> None:
+    if not source.exists() and not source.is_symlink():
+        raise FileNotFoundError(f"Hook source not found: {source}")
+
+    if source.is_dir() and source.name == "hooks":
+        for child in sorted(source.iterdir()):
+            if child.name in SKIP_NAMES or child.name.startswith("."):
+                continue
+            add_hook_source(child, target_base, report, warnings)
+        return
+
+    destination = target_base / source.name
+    if source.is_dir():
+        copy_tree(source, destination)
+        report.append(
+            CopiedItem(
+                kind="hook-directory",
+                name=source.name,
+                source=str(source),
+                target=str(destination),
+                operation="add",
+                note="directory-copied-verbatim",
+            )
+        )
+        return
+
+    if source.is_file() or source.is_symlink():
+        copy_file(source, destination)
+        report.append(
+            CopiedItem(
+                kind="hook",
+                name=source.name,
+                source=str(source),
+                target=str(destination),
+                operation="add",
+            )
+        )
+        return
+
+    warnings.append(f"Skipped non-hook entry: {source}")
+
+
 def apply_manifest(
     repo_root: Path,
     manifest_path: Path,
@@ -442,6 +493,11 @@ def apply_manifest(
     report: list[CopiedItem],
     warnings: list[str],
 ) -> None:
+    if not manifest_path.is_file():
+        if kind == "hook":
+            return
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+
     for line_no, action, raw_path in parse_manifest(manifest_path):
         if action == "del":
             destination = target_base / raw_path.replace("\\", "/").strip("/")
@@ -464,14 +520,17 @@ def apply_manifest(
         for source in sources:
             if kind == "skill":
                 add_skill_source(source, target_base, report, warnings)
-            else:
+            elif kind == "agent":
                 add_agent_source(source, target_base, report, warnings)
+            else:
+                add_hook_source(source, target_base, report, warnings)
 
 
 def write_summary(
     output_root: Path,
     skills_target: Path,
     agents_target: Path,
+    hooks_target: Path,
     mcp_servers: list[str],
     report: list[CopiedItem],
     warnings: list[str],
@@ -502,12 +561,13 @@ def write_summary(
         if child.is_dir() and not (child / "SKILL.md").is_file()
     )
     agent_names = sorted(child.name for child in agents_target.iterdir() if child.is_file())
+    hook_names = sorted(child.name for child in hooks_target.iterdir())
     lines = [
         "# Copilot Workspace Bundle",
         "",
         f"Generated at: {timestamp}",
         "",
-        "Extract this artifact into a workspace root. The resulting customizations live under `.github/skills/`, `.github/agents/`, and `.vscode/` for MCP configuration.",
+        "Extract this artifact into a workspace root. The resulting customizations live under `.github/skills/`, `.github/agents/`, `.github/hooks/`, and `.vscode/` for MCP configuration.",
         "",
         f"Skills: {len(skill_names)}",
     ]
@@ -517,6 +577,8 @@ def write_summary(
         lines.extend(f"- {name}" for name in support_names)
     lines.extend(["", f"Agents: {len(agent_names)}"])
     lines.extend(f"- {name}" for name in agent_names)
+    lines.extend(["", f"Hooks: {len(hook_names)}"])
+    lines.extend(f"- {name}" for name in hook_names)
     if mcp_servers:
         lines.extend(["", f"MCP servers: {len(mcp_servers)}"])
         lines.extend(f"- {name}" for name in mcp_servers)
@@ -542,20 +604,24 @@ def main() -> int:
     output_root = (repo_root / args.output).resolve() if not Path(args.output).is_absolute() else Path(args.output)
     skills_manifest = (repo_root / args.skills_manifest).resolve()
     agents_manifest = (repo_root / args.agents_manifest).resolve()
+    hooks_manifest = (repo_root / args.hooks_manifest).resolve()
 
     reset_path(output_root)
     skills_target = output_root / ".github" / "skills"
     agents_target = output_root / ".github" / "agents"
+    hooks_target = output_root / ".github" / "hooks"
     skills_target.mkdir(parents=True, exist_ok=True)
     agents_target.mkdir(parents=True, exist_ok=True)
+    hooks_target.mkdir(parents=True, exist_ok=True)
 
     report: list[CopiedItem] = []
     warnings: list[str] = []
 
     apply_manifest(repo_root, skills_manifest, "skill", skills_target, report, warnings)
     apply_manifest(repo_root, agents_manifest, "agent", agents_target, report, warnings)
+    apply_manifest(repo_root, hooks_manifest, "hook", hooks_target, report, warnings)
     mcp_servers = package_mcp_configuration(repo_root, output_root, report, warnings)
-    write_summary(output_root, skills_target, agents_target, mcp_servers, report, warnings)
+    write_summary(output_root, skills_target, agents_target, hooks_target, mcp_servers, report, warnings)
     zip_path = create_zip(output_root)
 
     print(f"Workspace bundle written to {output_root}")

@@ -19,3 +19,18 @@
 [submodule "third_party/imbad0202-research"]
 	path = third_party/imbad0202-research
 	url = https://github.com/Imbad0202/academic-research-skills
+[submodule "third_party/llm-wiki"]
+	path = third_party/llm-wiki
+	url = https://github.com/sdyckjq-lab/llm-wiki-skill
+[submodule "third_party/mean-reviewer"]
+	path = third_party/mean-reviewer
+	url = https://github.com/xz-liu/mean-reviewer-skill
+[submodule "third_party/lylll9436"]
+	path = third_party/lylll9436
+	url = https://github.com/Lylll9436/Paper-Polish-Workflow-skill
+[submodule "third_party/master-cai"]
+	path = third_party/master-cai
+	url = https://github.com/Master-cai/Research-Paper-Writing-Skills
+[submodule "third_party/superpowers"]
+	path = third_party/superpowers
+	url = https://github.com/obra/superpowers

@@ -14,3 +14,10 @@ add third_party\imbad0202-research\academic-paper
 add third_party\imbad0202-research\academic-paper-reviewer
 add third_party\imbad0202-research\academic-pipeline
 add third_party\imbad0202-research\deep-research
+add third_party\superpowers\skills\*
+add third_party\llm-wiki
+add third_party\lylll9436\skills\*
+add third_party\lylll9436\references
+add third_party\mean-reviewer
+add third_party\master-cai\research-paper-writing
+add third_party\k-dense-ai\scientific-skills\*

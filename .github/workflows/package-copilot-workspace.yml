@@ -22,6 +22,7 @@ on:
       - .github/workflows/package-copilot-workspace.yml
       - .gitmodules
       - agent.txt
+      - hook.txt
       - skill.txt
       - scripts/build_copilot_workspace.py
       - self/**
