@@ -21,3 +21,6 @@ add third_party\lylll9436\references
 add third_party\mean-reviewer
 add third_party\master-cai\research-paper-writing
 add third_party\k-dense-ai\scientific-skills\*
+add third_party\luwill\*
+add third_party\lishix520\composer
+add third_party\lishix520\strategist
