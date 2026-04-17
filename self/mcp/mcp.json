@@ -27,6 +27,20 @@
         "PYTHONUTF8": "1",
         "PYTHONUNBUFFERED": "1"
       }
+    },
+    "pdf-text": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "-u",
+        "${workspaceFolder}/.vscode/mcp-servers/pdf-text/server.py"
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1"
+      }
     }
   }
 }

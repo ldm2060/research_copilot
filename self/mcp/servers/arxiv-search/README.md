@@ -30,4 +30,11 @@ Get the direct PDF download URL and abstract page URL for a given arXiv ID.
 
 ## Usage
 
-This server uses the public arXiv API — no API key required. Rate limit: ~1 request per 3 seconds.
+This server uses the public arXiv API — no API key required.
+
+## Rate Limiting & Retry
+
+- **Minimum interval**: 3 seconds between consecutive requests (arXiv guideline)
+- **Max retries**: 3 attempts on HTTP 429 (Too Many Requests) or 5xx errors
+- **Backoff**: exponential, starting at 5s (5s → 10s → 20s)
+- **Network errors**: also retried with the same backoff strategy

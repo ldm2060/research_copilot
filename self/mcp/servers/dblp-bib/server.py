@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -23,6 +24,12 @@ SERVER_VERSION = "0.1.0"
 PROTOCOL_VERSION = "2025-06-18"
 USER_AGENT = "research-copilot-dblp-bib/0.1"
 MAX_LIMIT = 10
+
+# Rate limiting & retry
+MIN_REQUEST_INTERVAL = 1.5  # DBLP asks clients to be polite
+MAX_RETRIES = 3
+RETRY_BACKOFF_BASE = 5  # seconds, doubles each retry
+_last_request_time = 0.0
 DBLP_SEARCH_URL = "https://dblp.org/search/publ/api"
 DBLP_BIB_URL = "https://dblp.org/rec/{key}.bib"
 DBLP_REC_URL_RE = re.compile(r"https?://dblp\.org/rec/(?P<key>[^?#]+)")
@@ -100,16 +107,85 @@ def read_message() -> dict[str, Any] | None:
     return json.loads(line.decode("utf-8"))
 
 
+def _wait_rate_limit() -> None:
+    """Enforce minimum interval between consecutive HTTP requests."""
+    global _last_request_time
+    elapsed = time.monotonic() - _last_request_time
+    if elapsed < MIN_REQUEST_INTERVAL:
+        time.sleep(MIN_REQUEST_INTERVAL - elapsed)
+    _last_request_time = time.monotonic()
+
+
 def http_get_json(url: str) -> dict[str, Any]:
+    """HTTP GET JSON with rate limiting and retry on 429 / 5xx."""
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(request, timeout=20) as response:
-        return json.loads(response.read().decode("utf-8"))
+    last_exc: Exception | None = None
+    for attempt in range(MAX_RETRIES + 1):
+        _wait_rate_limit()
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            last_exc = exc
+            if exc.code == 429 or exc.code >= 500:
+                wait = RETRY_BACKOFF_BASE * (2 ** attempt)
+                sys.stderr.write(
+                    f"[{SERVER_NAME}] HTTP {exc.code} on attempt {attempt+1}/{MAX_RETRIES+1}, "
+                    f"retrying in {wait}s…\n"
+                )
+                sys.stderr.flush()
+                time.sleep(wait)
+                continue
+            raise
+        except (urllib.error.URLError, TimeoutError) as exc:
+            last_exc = exc
+            if attempt < MAX_RETRIES:
+                wait = RETRY_BACKOFF_BASE * (2 ** attempt)
+                sys.stderr.write(
+                    f"[{SERVER_NAME}] network error on attempt {attempt+1}/{MAX_RETRIES+1}: {exc}, "
+                    f"retrying in {wait}s…\n"
+                )
+                sys.stderr.flush()
+                time.sleep(wait)
+                continue
+            raise
+    raise last_exc  # type: ignore[misc]
 
 
 def http_get_text(url: str) -> str:
+    """HTTP GET text with rate limiting and retry on 429 / 5xx."""
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(request, timeout=20) as response:
-        return response.read().decode("utf-8")
+    last_exc: Exception | None = None
+    for attempt in range(MAX_RETRIES + 1):
+        _wait_rate_limit()
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                return response.read().decode("utf-8")
+        except urllib.error.HTTPError as exc:
+            last_exc = exc
+            if exc.code == 429 or exc.code >= 500:
+                wait = RETRY_BACKOFF_BASE * (2 ** attempt)
+                sys.stderr.write(
+                    f"[{SERVER_NAME}] HTTP {exc.code} on attempt {attempt+1}/{MAX_RETRIES+1}, "
+                    f"retrying in {wait}s…\n"
+                )
+                sys.stderr.flush()
+                time.sleep(wait)
+                continue
+            raise
+        except (urllib.error.URLError, TimeoutError) as exc:
+            last_exc = exc
+            if attempt < MAX_RETRIES:
+                wait = RETRY_BACKOFF_BASE * (2 ** attempt)
+                sys.stderr.write(
+                    f"[{SERVER_NAME}] network error on attempt {attempt+1}/{MAX_RETRIES+1}: {exc}, "
+                    f"retrying in {wait}s…\n"
+                )
+                sys.stderr.flush()
+                time.sleep(wait)
+                continue
+            raise
+    raise last_exc  # type: ignore[misc]
 
 
 def as_list(value: Any) -> list[Any]:
