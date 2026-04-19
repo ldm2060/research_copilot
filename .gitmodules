@@ -40,3 +40,6 @@
 [submodule "third_party/lishix520"]
 	path = third_party/lishix520
 	url = https://github.com/lishix520/academic-paper-skills
+[submodule "third_party/andrej-karpathy-skills"]
+	path = third_party/andrej-karpathy-skills
+	url = https://github.com/multica-ai/andrej-karpathy-skills

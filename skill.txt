@@ -24,3 +24,4 @@ add third_party\k-dense-ai\scientific-skills\*
 add third_party\luwill\*
 add third_party\lishix520\composer
 add third_party\lishix520\strategist
+add third_party\andrej-karpathy-skills\skills\karpathy-guidelines

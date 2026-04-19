@@ -13,11 +13,11 @@ FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*(?:\n|$)", re.DOTALL)
 SKIP_NAMES = {".git", "__pycache__", ".DS_Store"}
 VALID_SKILL_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 AGENT_TOOL_MAP = {
-    "conductor": ["read", "search", "edit", "execute", "agent", "todo", "arxiv-search/*", "dblp-bib/*"],
-    "experiment-driver": ["read", "search", "edit", "execute", "todo"],
-    "literature-scout": ["read", "search", "web", "todo", "arxiv-search/*", "dblp-bib/*"],
-    "paper-writer": ["read", "search", "edit", "todo", "arxiv-search/*", "dblp-bib/*"],
-    "reviewer": ["read", "search", "todo", "arxiv-search/*", "dblp-bib/*"],
+    "conductor": ["read", "search", "edit", "execute", "agent", "todo", "arxiv-search/*", "dblp-bib/*", "google-scholar/*"],
+    "experiment-driver": ["read", "search", "edit", "execute", "todo", "google-scholar/*"],
+    "literature-scout": ["read", "search", "web", "todo", "arxiv-search/*", "dblp-bib/*", "google-scholar/*"],
+    "paper-writer": ["read", "search", "edit", "todo", "arxiv-search/*", "dblp-bib/*", "google-scholar/*"],
+    "reviewer": ["read", "search", "todo", "arxiv-search/*", "dblp-bib/*", "google-scholar/*"],
 }
 AGENT_DESCRIPTION_MAP = {
     "conductor": "研究与论文流程总控 agent。Use when: coordinating multi-step research or paper workflows, choosing the next step, or routing work to specialist agents.",
