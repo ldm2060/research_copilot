@@ -43,3 +43,6 @@
 [submodule "third_party/andrej-karpathy-skills"]
 	path = third_party/andrej-karpathy-skills
 	url = https://github.com/multica-ai/andrej-karpathy-skills
+[submodule "third_party/hkust-supervisor"]
+	path = third_party/hkust-supervisor
+	url = https://github.com/HKUSTDial/Supervisor-Skills
