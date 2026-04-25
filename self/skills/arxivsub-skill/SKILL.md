@@ -1,8 +1,8 @@
 ---
 name: arxivsub-skill
 description: >
-  Academic paper search assistant that queries the arXivSub API to find the latest research papers
-  from arXiv and major AI/CV conferences (CVPR, ICCV, ICLR, ICML, NeurIPS, AAAI, MICCAI).
+  Academic paper search assistant that routes through the arxivsub-search MCP server to find the latest
+  research papers from arXiv and major AI/CV conferences (CVPR, ICCV, ICLR, ICML, NeurIPS, AAAI, MICCAI).
   Use this skill whenever the user wants to search for academic papers, find recent research,
   look up conference publications, discover what's new in a research area, or explore literature
   on any AI/ML/CV topic. Trigger even for casual phrasing like "find papers on X", "what are
@@ -11,9 +11,7 @@ description: >
 
 # arxivsub-skill
 
-Search academic papers via the arXivSub API.
-
-Two bundled scripts handle all processing: `scripts/search.py` (API fetch + parse) and `scripts/fetch.py` (index/detail retrieval).
+Search academic papers via the arXIVSub API through MCP.
 
 ---
 
@@ -25,9 +23,9 @@ Two bundled scripts handle all processing: `scripts/search.py` (API fetch + pars
 
 ## Step 0: Authentication
 
-The API key is read automatically by `search.py` from the environment — never ask the user for it and never pass it as a CLI argument.
+The `arxivsub-search` MCP server reads the API key automatically from the environment or a `.env` file in the workspace root. Never ask the user for it unless the MCP call fails with a missing-key or auth error, and never pass it as a chat parameter.
 
-If `search.py` exits with a non-zero code mentioning `ARXIVSUB_SKILL_KEY`, tell the user (in their language) to set it up via **one** of these methods:
+If the MCP tool reports `missing_api_key` or authentication failure involving `ARXIVSUB_SKILL_KEY`, tell the user (in their language) to set it up via **one** of these methods:
 
 1. Export as a shell environment variable (add to `~/.zshrc` or `~/.bashrc` for persistence):
    ```
@@ -52,46 +50,36 @@ Only pause to ask for confirmation if the search intent is genuinely ambiguous (
 
 ---
 
-## Step 2: Fetch and Parse with search.py
+## Step 2: Call MCP Search
 
-Run `scripts/search.py` via bash (omit `--arxiv-days` / `--conf-years` if not applicable):
+Call `arxivsub-search.search_papers` with the interpreted search parameters. Omit `arxiv_days` / `conference_years` if not applicable.
 
-```bash
-python3 <SKILL_DIR>/scripts/search.py \
-  --query "<search terms>" \
-  --locations arxiv CVPR NeurIPS \
-  --limit 10 \
-  --arxiv-days 7 \
-  --conf-years 2024 2025
+Expected MCP arguments:
+
+```json
+{
+  "query": "<search terms>",
+  "locations": ["arxiv", "CVPR", "NeurIPS"],
+  "limit": 10,
+  "arxiv_days": 7,
+  "conference_years": [2024, 2025],
+  "language": "en"
+}
 ```
 
-The script fetches the API, parses the response, and writes full paper details to `./tmp/arxivsub_papers.json`. It prints `quota_remaining`, `total_papers`, and the output path to stdout.
+The MCP tool returns full paper details and `quota_remaining` in structured content. Do not create temp JSON files.
 
 ---
 
 ## Step 3: Filter and Rank
 
-Get the concise index (id, title, what_about) to identify the most relevant papers:
-
-```bash
-python3 <SKILL_DIR>/scripts/fetch.py ./tmp/arxivsub_papers.json --for-ranking
-```
-
-Read the returned index and select the **top 5–10** paper IDs using this priority:
+Use the returned paper list and select the **top 5–10** papers using this priority:
 1. **Relevance first** — how directly the paper addresses the user's query
 2. **Recency as tiebreaker** — among equally relevant papers, prefer the most recent
 
----
-
 ## Step 4: Fetch Full Details and Respond
 
-Fetch full details for the selected papers:
-
-```bash
-python3 <SKILL_DIR>/scripts/fetch.py ./tmp/arxivsub_papers.json <id1> <id2> ...
-```
-
-Use the returned full paper details to compose the response. **Never mention files, scripts, or internal mechanics.**
+Use the returned full paper details to compose the response. **Never mention files, scripts, temp files, or internal mechanics.**
 
 ### Output structure (translate headers to user's language):
 
@@ -115,12 +103,13 @@ English: `Daily quota remaining: N searches` / Chinese: `当日剩余搜索额�
 ## Key Rules
 
 - `locations` is **case-sensitive**: `arxiv`, `CVPR`, `ICCV`, `ICLR`, `ICML`, `NeurIPS`, `AAAI`, `MICCAI`
-- Show parameters as a one-liner before calling the API; only ask for confirmation if the intent is ambiguous
-- If `search.py` exits with a non-zero code or stderr contains an error, classify and handle it:
+- Show parameters as a one-liner before calling MCP; only ask for confirmation if the intent is ambiguous
+- If the MCP tool returns an error, classify and handle it:
   - **Retryable** (network timeout, temporary server error): inform the user and offer to retry automatically
   - **Needs user intervention**:
     - Quota exhausted → tell user their daily quota is used up, no retry
     - Auth failure / missing key → direct to Step 0 setup instructions
     - Empty results → suggest broadening the query (fewer locations, wider date range, looser terms)
-    - JSON parse failure → report it as an unexpected error and ask user to try again later
+    - JSON parse failure / malformed response → report it as an unexpected error and ask user to try again later
 - Never output raw JSON or expose internal mechanics
+- Do not call local skill scripts; all network access must go through MCP

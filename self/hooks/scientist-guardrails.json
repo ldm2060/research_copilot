@@ -1,0 +1,16 @@
+{
+  "description": "AI Scientist workflow guardrails: inject runtime and sandbox warnings at session start.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .github/hooks/scripts/scientist_guardrails.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

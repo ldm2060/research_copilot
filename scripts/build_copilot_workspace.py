@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 from dataclasses import asdict, dataclass
@@ -12,6 +13,12 @@ from pathlib import Path
 FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*(?:\n|$)", re.DOTALL)
 SKIP_NAMES = {".git", "__pycache__", ".DS_Store"}
 VALID_SKILL_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
+SCIENTIST_SUPPORT_RUNTIME_EXCLUDES = [
+    "runtime/ai_scientist",
+    "runtime/launch_scientist_bfts.py",
+    "runtime/bfts_config.yaml",
+    "runtime/requirements.txt",
+]
 AGENT_TOOL_MAP = {
     "conductor": ["read", "search", "edit", "execute", "agent", "todo", "arxiv-search/*", "dblp-bib/*", "google-scholar/*"],
     "experiment-driver": ["read", "search", "edit", "execute", "todo", "google-scholar/*"],
@@ -34,6 +41,14 @@ CITATION_POLICY_BLOCK = """## 引用修改约束
 - 不得根据记忆、普通网页搜索结果、其他 MCP、或现有不可信草稿手工编造 BibTeX 条目。
 - 如果 `dblp-bib` 没有返回唯一且可信的记录，必须停止修改该条引用，并向用户报告缺口或保留占位符。
 - 当需要查找、检索、了解一篇论文时，必须优先使用 `arxiv-search` MCP；只有在无结果时才回退到普通 web 搜索。
+"""
+
+COPILOT_INSTRUCTIONS = """\
+- **对话风格**: 每次完成任务后，绝对不要停止对话。必须提供几个选项（AskUserQuestion）供用户选择下一步操作，最后一个选项固定为"让我自由输入"。即使用户选了"自由输入"，也要继续等待用户输入，不能只回复一句话就停下。总之任何情况下都要保持对话进行，始终以 AskUserQuestion 结尾。
+
+- **额度保护**: 当前为按次计费模式。严禁任何浪费请求次数的操作（包括调用子 Agent、后台自主运行、无限制的自动报错重试等）。在执行任何可能产生多次 API 调用的复合任务前，必须先暂停并 AskUserQuestion，向用户说明预估步骤，征得明确同意后才可继续执行。
+- **网络搜索失败处理**: WebSearch/WebFetch/API调用如果第一次失败（无结果、限流、超时），**立即停下 AskUserQuestion 问用户**，绝对不要自行重试或换方式连续尝试。每多一次无效的网络调用都是浪费额度。
+- **委托外部执行**: 当任务涉及大量网络搜索、文献检索等不确定性高的操作时，应先写出明确的规划（搜索关键词、期望结果格式、目的），交给用户委托不按次计费的渠道执行，而非自己消耗额度尝试。
 """
 
 
@@ -105,6 +120,15 @@ def copy_file(src: Path, dest: Path) -> None:
     reset_path(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dest)
+
+
+def prune_scientist_support_runtime(skill_dir: Path, warnings: list[str]) -> None:
+    if skill_dir.name != "scientist-support":
+        return
+    for relative_path in SCIENTIST_SUPPORT_RUNTIME_EXCLUDES:
+        target = skill_dir / relative_path.replace("/", os.sep)
+        if target.exists() or target.is_symlink():
+            reset_path(target)
 
 
 def strip_quotes(value: str) -> str:
@@ -393,6 +417,7 @@ def add_skill_source(source: Path, target_base: Path, report: list[CopiedItem], 
     if source.is_dir():
         destination = target_base / source.name
         copy_tree(source, destination)
+        prune_scientist_support_runtime(destination, warnings)
         report.append(
             CopiedItem(
                 kind="skill-directory",
@@ -400,7 +425,7 @@ def add_skill_source(source: Path, target_base: Path, report: list[CopiedItem], 
                 source=str(source),
                 target=str(destination),
                 operation="add",
-                note="directory-copied-verbatim",
+                note="directory-copied-with-runtime-prune" if source.name == "scientist-support" else "directory-copied-verbatim",
             )
         )
         return
@@ -526,6 +551,25 @@ def apply_manifest(
                 add_hook_source(source, target_base, report, warnings)
 
 
+def write_copilot_instructions(
+    output_root: Path,
+    report: list[CopiedItem],
+) -> None:
+    github_dir = output_root / ".github"
+    github_dir.mkdir(parents=True, exist_ok=True)
+    destination = github_dir / "copilot-instructions.md"
+    write_text(destination, COPILOT_INSTRUCTIONS)
+    report.append(
+        CopiedItem(
+            kind="instruction",
+            name="copilot-instructions.md",
+            source="(generated)",
+            target=str(destination),
+            operation="add",
+        )
+    )
+
+
 def write_summary(
     output_root: Path,
     skills_target: Path,
@@ -621,6 +665,7 @@ def main() -> int:
     apply_manifest(repo_root, agents_manifest, "agent", agents_target, report, warnings)
     apply_manifest(repo_root, hooks_manifest, "hook", hooks_target, report, warnings)
     mcp_servers = package_mcp_configuration(repo_root, output_root, report, warnings)
+    write_copilot_instructions(output_root, report)
     write_summary(output_root, skills_target, agents_target, hooks_target, mcp_servers, report, warnings)
     zip_path = create_zip(output_root)
 

@@ -1,1 +1,2 @@
 add third_party\superpowers\hooks\*
+add self\hooks\*
