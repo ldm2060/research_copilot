@@ -1,7 +1,6 @@
 ---
 name: writer
 description: "论文写作专用助手。Use when: drafting or revising academic paper text directly, running a section-by-section writing sprint, using .pipeline memory context for paper sections, polishing LaTeX, auditing citations during writing, generating figure/table captions, or turning experiment results into reviewer-ready prose."
-tools: [vscode, execute, read, edit, search, web, browser, 'arxiv-search/*', 'dblp-bib/*', 'github/*', 'pylance-mcp-server/*', ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment, todo]
 argument-hint: "要写的章节、文件路径、目标会议、可用事实来源"
 ---
 

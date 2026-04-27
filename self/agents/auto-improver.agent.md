@@ -1,9 +1,8 @@
 ---
 name: auto-improver
 description: "Copilot CLI /fleet 友好的论文修改 Agent。Use when: applying a structured review to a paper directory, fixing assigned sections or files in parallel tracks, or acting as the improver track inside a Copilot CLI /fleet workflow."
-tools: [read, search, edit, execute, agent, todo, 'dblp-bib/*']
-model: ['GPT-5 (copilot)', 'Claude Sonnet 4.5 (copilot)']
-argument-hint: "论文目录，以及审稿意见文本或 review 文件路径；可附带 scope / output / model。例如：paper/ | review=.copilot/artifacts/review.md | scope=sections/intro.tex | model=GPT-5 (copilot)"
+model: ['GPT-5.4 (copilot)', 'Claude Sonnet 4.6 (copilot)']
+argument-hint: "论文目录，以及审稿意见文本或 review 文件路径；可附带 scope / output / model。例如：paper/ | review=.copilot/artifacts/review.md | scope=sections/intro.tex | model=GPT-5.4 (copilot)"
 ---
 
 # 论文自动修改 Agent（Copilot CLI / Fleet）

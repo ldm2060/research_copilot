@@ -1,10 +1,9 @@
 ---
 name: auto-orchestrator
 description: "论文自动审改编排 Agent。Use when: chaining auto-reviewer and auto-improver, running a review-improve loop without hand-writing a /fleet prompt, orchestrating reviewer and improver phases for a paper directory, or when user says '自动审改', '串起 reviewer 和 improver', 'review improve loop', 'orchestrate the paper review flow'."
-tools: [read, search, agent, todo]
 agents: [auto-reviewer, auto-improver]
-model: ['GPT-5 (copilot)', 'Claude Sonnet 4.5 (copilot)']
-argument-hint: "论文目录，以及可选的 max_rounds / scope / reviewer_model / improver_model / artifact_dir / compile。例如：paper/ | max_rounds=2 | reviewer_model=Claude Sonnet 4.5 (copilot) | improver_model=GPT-5 (copilot) | artifact_dir=.copilot/artifacts/auto-cycle"
+model: ['GPT-5.4 (copilot)', 'Claude Sonnet 4.6 (copilot)']
+argument-hint: "论文目录，以及可选的 max_rounds / scope / reviewer_model / improver_model / artifact_dir / compile。例如：paper/ | max_rounds=2 | reviewer_model=Claude Sonnet 4.6 (copilot) | improver_model=GPT-5.4 (copilot) | artifact_dir=.copilot/artifacts/auto-cycle"
 ---
 
 # 论文自动审改编排 Agent（Copilot CLI / Fleet）

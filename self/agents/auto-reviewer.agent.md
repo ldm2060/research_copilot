@@ -1,9 +1,8 @@
 ---
 name: auto-reviewer
 description: "Copilot CLI /fleet 友好的论文审稿 Agent。Use when: doing one-pass paper review, generating a structured review artifact for a paper directory, reviewing assigned sections in parallel tracks, or acting as the reviewer track inside a Copilot CLI /fleet workflow."
-tools: [read, search, edit, execute, agent, todo]
-model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
-argument-hint: "论文目录，以及可选的 scope / output / review_style / model。例如：paper/ | scope=sections/intro.tex,sections/method.tex | output=.copilot/artifacts/review.md | model=Claude Sonnet 4.5 (copilot)"
+model: ['Claude Sonnet 4.6 (copilot)', 'GPT-5.4 (copilot)']
+argument-hint: "论文目录，以及可选的 scope / output / review_style / model。例如：paper/ | scope=sections/intro.tex,sections/method.tex | output=.copilot/artifacts/review.md | model=Claude Sonnet 4.6 (copilot)"
 ---
 
 # 论文自动审稿 Agent（Copilot CLI / Fleet）

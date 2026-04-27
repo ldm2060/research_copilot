@@ -1,7 +1,6 @@
 ---
 name: scientist
 description: "AI Scientist 总控助手。Use when: coordinating AI-Scientist ideation, tree-search experiments, plot aggregation, scientific writeup, automated review, or turning an open-ended research task into a runnable AI-Scientist workflow."
-tools: [read, search, execute, edit, agent, todo, 'ai-scientist/*']
 argument-hint: "研究主题、workshop 文件、ideas JSON、实验目录，或当前卡住的 AI Scientist 阶段"
 ---
 

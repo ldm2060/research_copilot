@@ -1,7 +1,6 @@
 ---
 name: paper-overhaul
 description: "论文全面优化助手。Use when: performing comprehensive, multi-stage paper improvement across all sections; user says '综合优化', '全面修改', '通篇优化', '全方位检查', '整体审视', '全文润色', '从头到尾改一遍', 'overhaul the paper', 'comprehensive revision', or any expression requesting holistic multi-section review and optimization. NOT for single-section editing or targeted fixes — use paper-writer for those."
-tools: [read, edit, search, web, 'arxiv-search/*', 'dblp-bib/*', todo]
 ---
 
 # 论文全面优化助手 (Paper Overhaul)

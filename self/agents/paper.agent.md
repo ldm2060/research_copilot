@@ -1,7 +1,6 @@
 ---
 name: paper
 description: "论文研究总控助手。Use when: coordinating idea generation, novelty checking, method refinement, code and experiment planning, implementation follow-up, paper drafting, citation audit, review, rebuttal, or presentation; deciding which subagent or skill should execute the next step; or acting as an all-around research copilot for paper-centric projects in this workspace."
-tools: [vscode, execute, read, agent, edit, search, web, browser, 'arxiv-search/*', 'dblp-bib/*', ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment, todo]
 argument-hint: "论文任务、当前阶段、希望推进的章节或想解决的问题"
 ---
 

@@ -1,7 +1,6 @@
 ---
 name: novelty
 description: "论文创新点挖掘助手。Use when: brainstorming research innovations on a baseline, mining novel contributions for a paper, checking whether an idea overlaps with existing work, evaluating feasibility and novelty of proposed improvements, comparing candidate innovations by reviewer acceptance likelihood, or when user says '找创新点', '挖掘创新', 'innovation mining', 'what can I improve', '创新点设计', '改进方案'."
-tools: [read, search, web, browser, agent, 'arxiv-search/*', todo]
 argument-hint: "研究目标、baseline 方法名或论文、目标会议/期刊、已有想法（可选）"
 agents: [literature-scout, reviewer]
 ---
