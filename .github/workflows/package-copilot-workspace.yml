@@ -46,17 +46,29 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Build Copilot workspace bundle
+      - name: Build workspace bundles
         run: python scripts/build_copilot_workspace.py --repo-root . --output dist/copilot-workspace
 
-      - name: Upload bundle artifact
+      - name: Upload Copilot-only artifact
         uses: actions/upload-artifact@v4
         with:
-          name: copilot-workspace-config
+          name: copilot-workspace-copilot
           if-no-files-found: error
-          path: |
-            dist/copilot-workspace
-            dist/copilot-workspace.zip
+          path: dist/copilot-workspace-copilot.zip
+
+      - name: Upload Claude-only artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: copilot-workspace-claude
+          if-no-files-found: error
+          path: dist/copilot-workspace-claude.zip
+
+      - name: Upload Both artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: copilot-workspace-both
+          if-no-files-found: error
+          path: dist/copilot-workspace-both.zip
 
       - name: Prepare release metadata
         id: release_meta
@@ -85,9 +97,9 @@ jobs:
           echo "name=$name" >> "$GITHUB_OUTPUT"
           {
             echo "body<<EOF"
-            echo "Packaged GitHub Copilot workspace bundle."
+            echo "Packaged workspace bundles: Copilot-only, Claude-only, and Both."
             echo
-            cat dist/copilot-workspace/README.md
+            cat dist/copilot-workspace-both/README.md
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -100,6 +112,8 @@ jobs:
           body: ${{ steps.release_meta.outputs.body }}
           target_commitish: ${{ github.sha }}
           files: |
-            dist/copilot-workspace.zip
-            dist/copilot-workspace/BUILD_MANIFEST.json
-            dist/copilot-workspace/README.md
+            dist/copilot-workspace-copilot.zip
+            dist/copilot-workspace-claude.zip
+            dist/copilot-workspace-both.zip
+            dist/copilot-workspace-both/BUILD_MANIFEST.json
+            dist/copilot-workspace-both/README.md
