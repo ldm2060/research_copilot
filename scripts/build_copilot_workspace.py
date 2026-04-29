@@ -5,6 +5,7 @@ import json
 import os
 import re
 import shutil
+import zipfile
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -667,18 +668,30 @@ def create_zip(output_root: Path) -> Path:
     zip_path = archive_base.with_suffix(".zip")
     if zip_path.exists():
         zip_path.unlink()
-    shutil.make_archive(str(archive_base), "zip", root_dir=output_root.parent, base_dir=output_root.name)
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for dirpath, dirnames, filenames in os.walk(
+            output_root, followlinks=True
+        ):
+            rel_dir = os.path.relpath(dirpath, output_root.parent)
+            zf.write(dirpath, rel_dir)
+            for fn in filenames:
+                fp = os.path.join(dirpath, fn)
+                zf.write(fp, os.path.join(rel_dir, fn))
     return zip_path
 
 
 # --- Claude Code compatibility helpers ---
 
 def symlink_or_copy(src: Path, dest: Path) -> None:
-    """Create a symlink from dest to src, falling back to copy."""
+    """Create a relative symlink from dest to src, falling back to copy.
+
+    Uses os.path.relpath so the symlink survives relocation of the bundle.
+    """
     reset_path(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
     try:
-        os.symlink(str(src.resolve()), str(dest), target_is_directory=src.is_dir())
+        rel_src = os.path.relpath(str(src.resolve()), str(dest.parent.resolve()))
+        os.symlink(rel_src, str(dest), target_is_directory=src.is_dir())
     except OSError:
         if src.is_dir():
             copy_tree(src, dest)
@@ -808,7 +821,7 @@ def package_claude_code_workspace(
     claude_dir = output_root / ".claude"
     claude_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Skills: symlink from .claude/skills/ to .github/skills/
+    # 1. Skills: relative symlink from .claude/skills/ to .github/skills/
     claude_skills = claude_dir / "skills"
     if copilot_skills_dir.is_dir():
         for skill_dir in sorted(copilot_skills_dir.iterdir()):
