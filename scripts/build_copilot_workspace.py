@@ -591,28 +591,25 @@ def write_copilot_instructions(
     )
 
 
-def write_summary(
+def write_bundle_readme(
     output_root: Path,
+    bundle_type: str,
     skills_target: Path,
     agents_target: Path,
-    hooks_target: Path,
+    hooks_target: Path | None,
     mcp_servers: list[str],
     report: list[CopiedItem],
     warnings: list[str],
 ) -> None:
     timestamp = datetime.now(timezone.utc).isoformat()
-    manifest_path = output_root / "BUILD_MANIFEST.json"
-    manifest_path.write_text(
-        json.dumps(
-            {
-                "generated_at": timestamp,
-                "items": [asdict(item) for item in report],
-                "warnings": warnings,
-            },
-            indent=2,
-            ensure_ascii=False,
-        ),
-        encoding="utf-8",
+    manifest_data: dict = {
+        "generated_at": timestamp,
+        "bundle_type": bundle_type,
+        "items": [asdict(item) for item in report],
+        "warnings": warnings,
+    }
+    (output_root / "BUILD_MANIFEST.json").write_text(
+        json.dumps(manifest_data, indent=2, ensure_ascii=False), encoding="utf-8",
     )
 
     skill_names = sorted(
@@ -626,39 +623,52 @@ def write_summary(
         if child.is_dir() and not (child / "SKILL.md").is_file()
     )
     agent_names = sorted(child.name for child in agents_target.iterdir() if child.is_file())
-    hook_names = sorted(child.name for child in hooks_target.iterdir())
-    lines = [
-        "# Copilot Workspace Bundle",
-        "",
-        f"Generated at: {timestamp}",
-        "",
-        "Extract this artifact into a workspace root. The resulting customizations live under `.github/skills/`, `.github/agents/`, `.github/hooks/`, and `.vscode/` for MCP configuration.",
-        "",
-        "## Claude Code Compatibility",
-        "",
-        "This bundle also includes Claude Code compatible configuration:",
-        "- `.claude/skills/` — skills (symlinked to `.github/skills/`)",
-        "- `.claude/agents/` — agents (transformed for Claude Code tool names)",
-        "- `.claude/settings.json` — hooks and permissions",
-        "- `.mcp.json` — MCP server configuration (Claude Code format)",
-        "- `CLAUDE.md` — behavioral instructions",
-        "",
-        f"Skills: {len(skill_names)}",
-    ]
+
+    lines: list[str] = []
+    if bundle_type == "copilot":
+        lines += [
+            "# Copilot Workspace Bundle",
+            "", f"Generated at: {timestamp}", "",
+            "Extract this artifact into a workspace root. The resulting customizations live under `.github/skills/`, `.github/agents/`, `.github/hooks/`, and `.vscode/` for MCP configuration.",
+        ]
+    elif bundle_type == "claude":
+        lines += [
+            "# Claude Code Workspace Bundle",
+            "", f"Generated at: {timestamp}", "",
+            "Extract this artifact into a workspace root. The resulting customizations live under `.claude/skills/`, `.claude/agents/`, `.claude/settings.json`, `.mcp.json`, and `CLAUDE.md`.",
+        ]
+    else:
+        lines += [
+            "# Copilot + Claude Code Workspace Bundle",
+            "", f"Generated at: {timestamp}", "",
+            "Extract this artifact into a workspace root. The resulting customizations live under `.github/skills/`, `.github/agents/`, `.github/hooks/`, and `.vscode/` for MCP configuration.",
+            "",
+            "## Claude Code Compatibility", "",
+            "This bundle also includes Claude Code compatible configuration:",
+            "- `.claude/skills/` — skills (copied from `.github/skills/`)",
+            "- `.claude/agents/` — agents (transformed for Claude Code tool names)",
+            "- `.claude/settings.json` — hooks and permissions",
+            "- `.mcp.json` — MCP server configuration (Claude Code format)",
+            "- `CLAUDE.md` — behavioral instructions",
+        ]
+
+    lines += ["", f"Skills: {len(skill_names)}"]
     lines.extend(f"- {name}" for name in skill_names)
     if support_names:
-        lines.extend(["", f"Support directories: {len(support_names)}"])
+        lines += ["", f"Support directories: {len(support_names)}"]
         lines.extend(f"- {name}" for name in support_names)
-    lines.extend(["", f"Agents: {len(agent_names)}"])
+    lines += ["", f"Agents: {len(agent_names)}"]
     lines.extend(f"- {name}" for name in agent_names)
-    lines.extend(["", f"Hooks: {len(hook_names)}"])
-    lines.extend(f"- {name}" for name in hook_names)
+    if hooks_target and hooks_target.is_dir():
+        hook_names = sorted(child.name for child in hooks_target.iterdir())
+        lines += ["", f"Hooks: {len(hook_names)}"]
+        lines.extend(f"- {name}" for name in hook_names)
     if mcp_servers:
-        lines.extend(["", f"MCP servers: {len(mcp_servers)}"])
+        lines += ["", f"MCP servers: {len(mcp_servers)}"]
         lines.extend(f"- {name}" for name in mcp_servers)
     if warnings:
-        lines.extend(["", "Warnings:"])
-        lines.extend(f"- {warning}" for warning in warnings)
+        lines += ["", "Warnings:"]
+        lines.extend(f"- {w}" for w in warnings)
     lines.append("")
     (output_root / "README.md").write_text("\n".join(lines), encoding="utf-8")
 
@@ -903,15 +913,14 @@ def package_claude_code_workspace(
     ))
 
 
-def main() -> int:
-    args = parse_args()
-    repo_root = Path(args.repo_root).resolve()
-    output_root = (repo_root / args.output).resolve() if not Path(args.output).is_absolute() else Path(args.output)
-    skills_manifest = (repo_root / args.skills_manifest).resolve()
-    agents_manifest = (repo_root / args.agents_manifest).resolve()
-    hooks_manifest = (repo_root / args.hooks_manifest).resolve()
-
-    reset_path(output_root)
+def build_copilot_parts(
+    repo_root: Path,
+    output_root: Path,
+    skills_manifest: Path,
+    agents_manifest: Path,
+    hooks_manifest: Path,
+) -> tuple[list[CopiedItem], list[str], list[str]]:
+    """Build Copilot-only parts into output_root. Returns (report, warnings, mcp_servers)."""
     skills_target = output_root / ".github" / "skills"
     agents_target = output_root / ".github" / "agents"
     hooks_target = output_root / ".github" / "hooks"
@@ -927,22 +936,92 @@ def main() -> int:
     apply_manifest(repo_root, hooks_manifest, "hook", hooks_target, report, warnings)
     mcp_servers = package_mcp_configuration(repo_root, output_root, report, warnings)
     write_copilot_instructions(output_root, report)
-    package_claude_code_workspace(
-        output_root,
-        skills_target,
-        agents_target,
-        hooks_target,
-        output_root / ".vscode" / "mcp.json",
-        report,
-        warnings,
-    )
-    write_summary(output_root, skills_target, agents_target, hooks_target, mcp_servers, report, warnings)
-    zip_path = create_zip(output_root)
+    return report, warnings, mcp_servers
 
-    print(f"Workspace bundle written to {output_root}")
-    print(f"Zip archive written to {zip_path}")
+
+def main() -> int:
+    args = parse_args()
+    repo_root = Path(args.repo_root).resolve()
+    output_root = (repo_root / args.output).resolve() if not Path(args.output).is_absolute() else Path(args.output)
+    dist_dir = output_root.parent
+    skills_manifest = (repo_root / args.skills_manifest).resolve()
+    agents_manifest = (repo_root / args.agents_manifest).resolve()
+    hooks_manifest = (repo_root / args.hooks_manifest).resolve()
+
+    # Clean up old single-bundle output if it exists
+    if output_root.exists():
+        reset_path(output_root)
+    old_zip = output_root.with_suffix(".zip")
+    if old_zip.exists():
+        old_zip.unlink()
+
+    # --- 1. Build copilot-only bundle ---
+    copilot_dir = dist_dir / "copilot-workspace-copilot"
+    reset_path(copilot_dir)
+    copilot_report, warnings, mcp_servers = build_copilot_parts(
+        repo_root, copilot_dir, skills_manifest, agents_manifest, hooks_manifest,
+    )
+    write_bundle_readme(
+        copilot_dir, "copilot",
+        copilot_dir / ".github" / "skills",
+        copilot_dir / ".github" / "agents",
+        copilot_dir / ".github" / "hooks",
+        mcp_servers, copilot_report, warnings,
+    )
+    copilot_zip = create_zip(copilot_dir)
+
+    # --- 2. Build both (copilot + claude) bundle ---
+    both_dir = dist_dir / "copilot-workspace-both"
+    reset_path(both_dir)
+    copy_tree(copilot_dir, both_dir)
+    both_report = list(copilot_report)
+    both_warnings = list(warnings)
+    package_claude_code_workspace(
+        both_dir,
+        both_dir / ".github" / "skills",
+        both_dir / ".github" / "agents",
+        both_dir / ".github" / "hooks",
+        both_dir / ".vscode" / "mcp.json",
+        both_report, both_warnings,
+    )
+    write_bundle_readme(
+        both_dir, "both",
+        both_dir / ".github" / "skills",
+        both_dir / ".github" / "agents",
+        both_dir / ".github" / "hooks",
+        mcp_servers, both_report, both_warnings,
+    )
+    both_zip = create_zip(both_dir)
+
+    # --- 3. Build claude-only bundle ---
+    claude_dir = dist_dir / "copilot-workspace-claude"
+    reset_path(claude_dir)
+    claude_report: list[CopiedItem] = []
+    claude_warnings: list[str] = []
+    package_claude_code_workspace(
+        claude_dir,
+        copilot_dir / ".github" / "skills",
+        copilot_dir / ".github" / "agents",
+        copilot_dir / ".github" / "hooks",
+        copilot_dir / ".vscode" / "mcp.json",
+        claude_report, claude_warnings,
+    )
+    claude_skills = claude_dir / ".claude" / "skills"
+    claude_agents = claude_dir / ".claude" / "agents"
+    write_bundle_readme(
+        claude_dir, "claude",
+        claude_skills if claude_skills.is_dir() else copilot_dir / ".github" / "skills",
+        claude_agents if claude_agents.is_dir() else copilot_dir / ".github" / "agents",
+        None,
+        mcp_servers, claude_report, claude_warnings,
+    )
+    claude_zip = create_zip(claude_dir)
+
+    print(f"Copilot-only: {copilot_zip}")
+    print(f"Claude-only:  {claude_zip}")
+    print(f"Both:         {both_zip}")
     if warnings:
-        print(f"Completed with {len(warnings)} warning(s). See {output_root / 'BUILD_MANIFEST.json'}")
+        print(f"Completed with {len(warnings)} warning(s). See BUILD_MANIFEST.json files.")
     return 0
 
 
