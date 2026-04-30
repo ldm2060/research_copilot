@@ -47,6 +47,7 @@
 | **arxivsub-skill** | `arxivsub-skill/` | 🔍 arXIVSub 论文搜索。通过 `arxivsub-search` MCP 检索 arXiv 和主流 AI/CV 会议（CVPR, ICCV, ICLR, ICML, NeurIPS 等）的最新论文。 |
 | **talk-normal** | `talk-normal/` | 💬 回复风格控制。确保输出直接简洁，禁止否定句式，按内容复杂度选择结构化输出格式。 |
 | **init-mcp** | `init-mcp/` | 🚀 MCP 环境初始化。自动检测并配置 `self/mcp/mcp.json` 中声明的全部 MCP 服务器环境、路径与依赖。 |
+| **model-escalation** | `model-escalation/` | 🧯 疑难问题升级。当问题经过多轮迭代仍无法解决，或当前模型/环境不足以继续高质量推进时，输出清晰的现状、目标、已尝试方案和可直接转发给更强模型的求助摘要。 |
 
 ## 🔌 MCP 服务器
 
