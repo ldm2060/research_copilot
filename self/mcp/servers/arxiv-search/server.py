@@ -32,7 +32,7 @@ if sys.platform == "win32":
 
 SERVER_NAME = "arxiv-search"
 SERVER_VERSION = "0.1.0"
-PROTOCOL_VERSION = "2025-06-18"
+PROTOCOL_VERSION = "2025-03-26"
 USER_AGENT = "research-copilot-arxiv-search/0.1"
 MAX_RESULTS = 20
 

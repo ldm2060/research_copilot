@@ -28,7 +28,7 @@ if sys.platform == "win32":
 
 SERVER_NAME = "ai-scientist"
 SERVER_VERSION = "0.1.0"
-PROTOCOL_VERSION = "2025-06-18"
+PROTOCOL_VERSION = "2025-03-26"
 
 TOOLS = [
     {

@@ -1,0 +1,17 @@
+{
+  "name": "research-copilot",
+  "owner": {
+    "name": "ldm2060"
+  },
+  "plugins": [
+    {
+      "name": "research-copilot",
+      "source": {
+        "source": "github",
+        "repo": "ldm2060/research_copilot",
+        "ref": "deploy"
+      },
+      "description": "Academic research workspace: paper writing, review, literature search, and AI Scientist workflow"
+    }
+  ]
+}

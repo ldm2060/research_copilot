@@ -44,14 +44,6 @@ CITATION_POLICY_BLOCK = """## 引用修改约束
 - 当需要查找、检索、了解一篇论文时，必须优先使用 `arxiv-search` MCP；只有在无结果时才回退到普通 web 搜索。
 """
 
-COPILOT_INSTRUCTIONS = """\
-- **对话风格**: 每次完成任务后，绝对不要停止对话。必须调用vscode ask user question工具提供几个选项供用户选择下一步操作，最后一个选项固定为"让我自由输入"。即使用户选了"自由输入"，也要继续等待用户输入，不能只回复一句话就停下。总之任何情况下都要保持对话进行，始终以调用vscode ask user question工具结尾。
-
-- **额度保护**: 当前为按次计费模式。严禁任何浪费请求次数的操作（包括调用子 Agent、后台自主运行、无限制的自动报错重试等）。在执行任何可能产生多次 API 调用的复合任务前，必须先暂停并调用vscode ask user question工具，向用户说明预估步骤，征得明确同意后才可继续执行。
-- **网络搜索失败处理**: WebSearch/WebFetch/API调用如果第一次失败（无结果、限流、超时），**立即停下调用vscode ask user question工具问用户**，绝对不要自行重试或换方式连续尝试。每多一次无效的网络调用都是浪费额度。
-- **委托外部执行**: 当任务涉及大量网络搜索、文献检索等不确定性高的操作时，应先写出明确的规划（搜索关键词、期望结果格式、目的），交给用户委托不按次计费的渠道执行，而非自己消耗额度尝试。
-"""
-
 COPILOT_TO_CLAUDE_TOOLS: dict[str, list[str]] = {
     "read": ["Read"],
     "search": ["Glob", "Grep"],
@@ -572,25 +564,6 @@ def apply_manifest(
                 add_hook_source(source, target_base, report, warnings)
 
 
-def write_copilot_instructions(
-    output_root: Path,
-    report: list[CopiedItem],
-) -> None:
-    github_dir = output_root / ".github"
-    github_dir.mkdir(parents=True, exist_ok=True)
-    destination = github_dir / "copilot-instructions.md"
-    write_text(destination, COPILOT_INSTRUCTIONS)
-    report.append(
-        CopiedItem(
-            kind="instruction",
-            name="copilot-instructions.md",
-            source="(generated)",
-            target=str(destination),
-            operation="add",
-        )
-    )
-
-
 def write_bundle_readme(
     output_root: Path,
     bundle_type: str,
@@ -624,33 +597,21 @@ def write_bundle_readme(
     )
     agent_names = sorted(child.name for child in agents_target.iterdir() if child.is_file())
 
-    lines: list[str] = []
-    if bundle_type == "copilot":
-        lines += [
-            "# Copilot Workspace Bundle",
-            "", f"Generated at: {timestamp}", "",
-            "Extract this artifact into a workspace root. The resulting customizations live under `.github/skills/`, `.github/agents/`, `.github/hooks/`, and `.vscode/` for MCP configuration.",
-        ]
-    elif bundle_type == "claude":
-        lines += [
-            "# Claude Code Workspace Bundle",
-            "", f"Generated at: {timestamp}", "",
-            "Extract this artifact into a workspace root. The resulting customizations live under `.claude/skills/`, `.claude/agents/`, `.claude/settings.json`, `.mcp.json`, and `CLAUDE.md`.",
-        ]
-    else:
-        lines += [
-            "# Copilot + Claude Code Workspace Bundle",
-            "", f"Generated at: {timestamp}", "",
-            "Extract this artifact into a workspace root. The resulting customizations live under `.github/skills/`, `.github/agents/`, `.github/hooks/`, and `.vscode/` for MCP configuration.",
-            "",
-            "## Claude Code Compatibility", "",
-            "This bundle also includes Claude Code compatible configuration:",
-            "- `.claude/skills/` — skills (copied from `.github/skills/`)",
-            "- `.claude/agents/` — agents (transformed for Claude Code tool names)",
-            "- `.claude/settings.json` — hooks and permissions",
-            "- `.mcp.json` — MCP server configuration (Claude Code format)",
-            "- `CLAUDE.md` — behavioral instructions",
-        ]
+    lines: list[str] = [
+        "# Research Copilot — Claude Code Plugin",
+        "", f"Generated at: {timestamp}", "",
+        "Claude Code plugin with skills, agents, hooks, and MCP servers for academic research.",
+        "Structure:",
+        "- `.claude-plugin/plugin.json` — plugin manifest",
+        "- `skills/` — skills",
+        "- `agents/` — agents (transformed for Claude Code tool names)",
+        "- `hooks/hooks.json` — event handlers",
+        "- `mcp-servers/` — MCP server implementations",
+        "- `.mcp.json` — MCP server configuration",
+        "- `CLAUDE.md` — behavioral instructions",
+        "- `requirements.txt` — Python dependencies for MCP servers",
+        "- `settings.json` — default plugin settings",
+    ]
 
     lines += ["", f"Skills: {len(skill_names)}"]
     lines.extend(f"- {name}" for name in skill_names)
@@ -775,6 +736,7 @@ def generate_claude_mcp_config(copilot_mcp_path: Path) -> dict:
             if "args" in server_config:
                 claude_server["args"] = [
                     arg.replace("${workspaceFolder}", ".")
+                    .replace(".vscode/mcp-servers/", "mcp-servers/")
                     for arg in server_config["args"]
                 ]
         if "env" in server_config:
@@ -818,7 +780,99 @@ def merge_hooks_to_claude_settings(hooks_dir: Path) -> dict:
     return {"hooks": merged_hooks}
 
 
+def _copy_hook_scripts(
+    repo_root: Path,
+    copilot_hooks_dir: Path,
+    output_root: Path,
+    settings: dict,
+    report: list[CopiedItem],
+) -> bool:
+    """Copy referenced hook scripts into the bundle and rewrite settings paths."""
+    # Collect all referenced command paths from settings hooks
+    scripts_to_copy: dict[str, str] = {}  # original_rel_path -> bundle_rel_path
+    for event in settings.get("hooks", {}):
+        for group in settings["hooks"][event]:
+            for hook in group.get("hooks", []):
+                cmd = hook.get("command", "")
+                # Extract script path from command, handling quoted paths
+                cmd_stripped = cmd.strip()
+                parts = cmd_stripped.split()
+                script_path = None
+                for part in parts:
+                    # Strip surrounding quotes from each part
+                    clean = part.strip('"').strip("'")
+                    if clean.startswith(".github/hooks/"):
+                        script_path = clean
+                        break
+                    if clean.startswith("${CLAUDE_PLUGIN_ROOT}"):
+                        script_path = clean.replace("${CLAUDE_PLUGIN_ROOT}", ".github")
+                        break
+                if script_path:
+                    scripts_to_copy[script_path] = script_path.replace(".github/hooks/", "hooks/")
+
+    if not scripts_to_copy:
+        return False
+
+    # Copy scripts from copilot intermediate hooks dir
+    for orig_rel, bundle_rel in scripts_to_copy.items():
+        src = copilot_hooks_dir / orig_rel.replace(".github/hooks/", "")
+        dst = output_root / bundle_rel
+        if src.exists():
+            if src.is_dir():
+                copy_tree(src, dst)
+            else:
+                copy_file(src, dst)
+            report.append(CopiedItem(
+                kind="claude-hook-script",
+                name=src.name,
+                source=str(src),
+                target=str(dst),
+                operation="copy",
+            ))
+
+    # Also copy any other files in the hooks dir that might be referenced indirectly
+    # (e.g. session-start script called by run-hook.cmd)
+    hooks_dest = output_root / "hooks"
+    for child in sorted(copilot_hooks_dir.iterdir()):
+        if child.name in SKIP_NAMES or child.name.startswith("."):
+            continue
+        if child.is_file() and not child.name.endswith(".json"):
+            dest = hooks_dest / child.name
+            if not dest.exists():
+                copy_file(child, dest)
+                report.append(CopiedItem(
+                    kind="claude-hook-script",
+                    name=child.name,
+                    source=str(child),
+                    target=str(dest),
+                    operation="copy",
+                ))
+        elif child.is_dir():
+            dest = hooks_dest / child.name
+            if not dest.exists():
+                copy_tree(child, dest)
+                report.append(CopiedItem(
+                    kind="claude-hook-script",
+                    name=child.name,
+                    source=str(child),
+                    target=str(dest),
+                    operation="copy",
+                ))
+
+    # Rewrite hook command paths in settings
+    for event in settings.get("hooks", {}):
+        for group in settings["hooks"][event]:
+            for hook in group.get("hooks", []):
+                cmd = hook.get("command", "")
+                cmd = cmd.replace(".github/hooks/", "hooks/")
+                cmd = cmd.replace("${CLAUDE_PLUGIN_ROOT}/hooks/", "hooks/")
+                hook["command"] = cmd
+
+    return bool(scripts_to_copy)
+
+
 def package_claude_code_workspace(
+    repo_root: Path,
     output_root: Path,
     copilot_skills_dir: Path,
     copilot_agents_dir: Path,
@@ -827,30 +881,59 @@ def package_claude_code_workspace(
     report: list[CopiedItem],
     warnings: list[str],
 ) -> None:
-    """Generate Claude Code compatible configuration alongside the Copilot bundle."""
-    claude_dir = output_root / ".claude"
-    claude_dir.mkdir(parents=True, exist_ok=True)
+    """Generate Claude Code plugin bundle.
 
-    # 1. Skills: relative symlink from .claude/skills/ to .github/skills/
-    claude_skills = claude_dir / "skills"
+    Produces a directory structure matching the Claude Code plugin spec:
+      .claude-plugin/plugin.json  — plugin manifest
+      skills/                     — skill directories
+      agents/                     — agent definitions
+      hooks/hooks.json            — event handlers
+      .mcp.json                   — MCP server config
+      CLAUDE.md                   — behavioral instructions
+      mcp-servers/                — MCP server implementations
+      settings.json               — default plugin settings (permissions)
+      requirements.txt            — Python dependencies
+    """
+    # 0. Plugin manifest: .claude-plugin/plugin.json
+    plugin_dir = output_root / ".claude-plugin"
+    plugin_dir.mkdir(parents=True, exist_ok=True)
+    plugin_manifest = {
+        "name": "research-copilot",
+        "description": "Academic research workspace: paper writing, review, literature search, and AI Scientist workflow",
+        "version": "1.0.0",
+        "author": {"name": "ldm2060"},
+        "repository": "https://github.com/ldm2060/research_copilot",
+    }
+    plugin_manifest_path = plugin_dir / "plugin.json"
+    write_text(plugin_manifest_path, json.dumps(plugin_manifest, indent=2, ensure_ascii=False))
+    report.append(CopiedItem(
+        kind="claude-plugin-manifest",
+        name="plugin.json",
+        source="(generated)",
+        target=str(plugin_manifest_path),
+        operation="add",
+    ))
+
+    # 1. Skills: copy to skills/ (plugin root level)
+    skills_dir = output_root / "skills"
     if copilot_skills_dir.is_dir():
         for skill_dir in sorted(copilot_skills_dir.iterdir()):
             if skill_dir.name in SKIP_NAMES or skill_dir.name.startswith("."):
                 continue
-            dest = claude_skills / skill_dir.name
-            symlink_or_copy(skill_dir, dest)
+            dest = skills_dir / skill_dir.name
+            copy_tree(skill_dir, dest)
             report.append(CopiedItem(
                 kind="claude-skill",
                 name=skill_dir.name,
                 source=str(skill_dir),
                 target=str(dest),
-                operation="symlink",
+                operation="copy",
             ))
 
-    # 2. Agents: transform and write to .claude/agents/
-    claude_agents = claude_dir / "agents"
+    # 2. Agents: transform and write to agents/ (plugin root level)
+    agents_dir = output_root / "agents"
     if copilot_agents_dir.is_dir():
-        claude_agents.mkdir(parents=True, exist_ok=True)
+        agents_dir.mkdir(parents=True, exist_ok=True)
         for agent_file in sorted(copilot_agents_dir.iterdir()):
             if agent_file.name in SKIP_NAMES or agent_file.name.startswith("."):
                 continue
@@ -860,7 +943,7 @@ def package_claude_code_workspace(
             output_name = agent_file.name
             if output_name.endswith(".agent.md"):
                 output_name = output_name[: -len(".agent.md")] + ".md"
-            dest = claude_agents / output_name
+            dest = agents_dir / output_name
             write_text(dest, transformed_text)
             report.append(CopiedItem(
                 kind="claude-agent",
@@ -871,20 +954,18 @@ def package_claude_code_workspace(
                 transformed=transformed or output_name != agent_file.name,
             ))
 
-    # 3. Hooks: merge into .claude/settings.json
+    # 3. Hooks: merge into hooks/hooks.json (plugin spec format)
     settings = merge_hooks_to_claude_settings(copilot_hooks_dir)
-    if copilot_mcp_config.is_file():
-        copilot_mcp = json.loads(copilot_mcp_config.read_text(encoding="utf-8"))
-        mcp_permissions = [f"mcp__{name}" for name in copilot_mcp.get("servers", {}).keys()]
-        if mcp_permissions:
-            settings["permissions"] = {"allow": mcp_permissions}
-    settings_path = claude_dir / "settings.json"
-    write_text(settings_path, json.dumps(settings, indent=2, ensure_ascii=False))
+    hooks_scripts_copied = _copy_hook_scripts(repo_root, copilot_hooks_dir, output_root, settings, report)
+    # Write hooks.json in plugin format (just the hooks object, no permissions)
+    hooks_json_path = output_root / "hooks" / "hooks.json"
+    hooks_json_path.parent.mkdir(parents=True, exist_ok=True)
+    write_text(hooks_json_path, json.dumps({"hooks": settings.get("hooks", {})}, indent=2, ensure_ascii=False))
     report.append(CopiedItem(
-        kind="claude-settings",
-        name="settings.json",
+        kind="claude-hooks",
+        name="hooks.json",
         source=str(copilot_hooks_dir),
-        target=str(settings_path),
+        target=str(hooks_json_path),
         operation="merge",
     ))
 
@@ -912,6 +993,53 @@ def package_claude_code_workspace(
         operation="add",
     ))
 
+    # 6. MCP server files: copy from self/mcp/servers/ to mcp-servers/
+    mcp_source = repo_root / "self" / "mcp" / "servers"
+    if mcp_source.is_dir():
+        mcp_target = output_root / "mcp-servers"
+        copy_tree(mcp_source, mcp_target)
+        for child in sorted(mcp_source.iterdir()):
+            if child.name in SKIP_NAMES or child.name.startswith("."):
+                continue
+            report.append(CopiedItem(
+                kind="claude-mcp-server",
+                name=child.name,
+                source=str(child),
+                target=str(mcp_target / child.name),
+                operation="copy",
+            ))
+
+    # 7. requirements.txt: copy from self/mcp/ if present
+    req_source = repo_root / "self" / "mcp" / "requirements.txt"
+    if req_source.is_file():
+        req_dest = output_root / "requirements.txt"
+        copy_file(req_source, req_dest)
+        report.append(CopiedItem(
+            kind="claude-requirements",
+            name="requirements.txt",
+            source=str(req_source),
+            target=str(req_dest),
+            operation="copy",
+        ))
+
+    # 8. Plugin settings.json: permissions for MCP tools
+    plugin_settings: dict = {}
+    if copilot_mcp_config.is_file():
+        copilot_mcp = json.loads(copilot_mcp_config.read_text(encoding="utf-8"))
+        mcp_permissions = [f"mcp__{name}" for name in copilot_mcp.get("servers", {}).keys()]
+        if mcp_permissions:
+            plugin_settings["permissions"] = {"allow": mcp_permissions}
+    if plugin_settings:
+        settings_path = output_root / "settings.json"
+        write_text(settings_path, json.dumps(plugin_settings, indent=2, ensure_ascii=False))
+        report.append(CopiedItem(
+            kind="claude-settings",
+            name="settings.json",
+            source="(generated)",
+            target=str(settings_path),
+            operation="add",
+        ))
+
 
 def build_copilot_parts(
     repo_root: Path,
@@ -935,7 +1063,6 @@ def build_copilot_parts(
     apply_manifest(repo_root, agents_manifest, "agent", agents_target, report, warnings)
     apply_manifest(repo_root, hooks_manifest, "hook", hooks_target, report, warnings)
     mcp_servers = package_mcp_configuration(repo_root, output_root, report, warnings)
-    write_copilot_instructions(output_root, report)
     return report, warnings, mcp_servers
 
 
@@ -948,80 +1075,49 @@ def main() -> int:
     agents_manifest = (repo_root / args.agents_manifest).resolve()
     hooks_manifest = (repo_root / args.hooks_manifest).resolve()
 
-    # Clean up old single-bundle output if it exists
+    # Clean up old output if it exists
     if output_root.exists():
         reset_path(output_root)
     old_zip = output_root.with_suffix(".zip")
     if old_zip.exists():
         old_zip.unlink()
 
-    # --- 1. Build copilot-only bundle ---
-    copilot_dir = dist_dir / "copilot-workspace-copilot"
-    reset_path(copilot_dir)
-    copilot_report, warnings, mcp_servers = build_copilot_parts(
-        repo_root, copilot_dir, skills_manifest, agents_manifest, hooks_manifest,
+    # --- 1. Build intermediate copilot parts ---
+    staging_dir = dist_dir / "copilot-workspace-staging"
+    reset_path(staging_dir)
+    _, warnings, mcp_servers = build_copilot_parts(
+        repo_root, staging_dir, skills_manifest, agents_manifest, hooks_manifest,
     )
-    write_bundle_readme(
-        copilot_dir, "copilot",
-        copilot_dir / ".github" / "skills",
-        copilot_dir / ".github" / "agents",
-        copilot_dir / ".github" / "hooks",
-        mcp_servers, copilot_report, warnings,
-    )
-    copilot_zip = create_zip(copilot_dir)
 
-    # --- 2. Build both (copilot + claude) bundle ---
-    both_dir = dist_dir / "copilot-workspace-both"
-    reset_path(both_dir)
-    copy_tree(copilot_dir, both_dir)
-    both_report = list(copilot_report)
-    both_warnings = list(warnings)
-    package_claude_code_workspace(
-        both_dir,
-        both_dir / ".github" / "skills",
-        both_dir / ".github" / "agents",
-        both_dir / ".github" / "hooks",
-        both_dir / ".vscode" / "mcp.json",
-        both_report, both_warnings,
-    )
-    write_bundle_readme(
-        both_dir, "both",
-        both_dir / ".github" / "skills",
-        both_dir / ".github" / "agents",
-        both_dir / ".github" / "hooks",
-        mcp_servers, both_report, both_warnings,
-    )
-    both_zip = create_zip(both_dir)
-
-    # --- 3. Build claude-only bundle ---
-    claude_dir = dist_dir / "copilot-workspace-claude"
-    reset_path(claude_dir)
+    # --- 2. Build claude-only bundle from staging ---
+    claude_dir = output_root
     claude_report: list[CopiedItem] = []
     claude_warnings: list[str] = []
     package_claude_code_workspace(
+        repo_root,
         claude_dir,
-        copilot_dir / ".github" / "skills",
-        copilot_dir / ".github" / "agents",
-        copilot_dir / ".github" / "hooks",
-        copilot_dir / ".vscode" / "mcp.json",
+        staging_dir / ".github" / "skills",
+        staging_dir / ".github" / "agents",
+        staging_dir / ".github" / "hooks",
+        staging_dir / ".vscode" / "mcp.json",
         claude_report, claude_warnings,
     )
-    claude_skills = claude_dir / ".claude" / "skills"
-    claude_agents = claude_dir / ".claude" / "agents"
+    claude_skills = claude_dir / "skills"
+    claude_agents = claude_dir / "agents"
     write_bundle_readme(
         claude_dir, "claude",
-        claude_skills if claude_skills.is_dir() else copilot_dir / ".github" / "skills",
-        claude_agents if claude_agents.is_dir() else copilot_dir / ".github" / "agents",
-        None,
+        claude_skills if claude_skills.is_dir() else staging_dir / ".github" / "skills",
+        claude_agents if claude_agents.is_dir() else staging_dir / ".github" / "agents",
+        claude_dir / "hooks",
         mcp_servers, claude_report, claude_warnings,
     )
-    claude_zip = create_zip(claude_dir)
 
-    print(f"Copilot-only: {copilot_zip}")
-    print(f"Claude-only:  {claude_zip}")
-    print(f"Both:         {both_zip}")
+    # Clean up staging
+    reset_path(staging_dir)
+
+    print(f"Claude bundle: {claude_dir}")
     if warnings:
-        print(f"Completed with {len(warnings)} warning(s). See BUILD_MANIFEST.json files.")
+        print(f"Completed with {len(warnings)} warning(s). See BUILD_MANIFEST.json.")
     return 0
 
 

@@ -21,7 +21,7 @@ if sys.platform == "win32":
 
 SERVER_NAME = "dblp-bib"
 SERVER_VERSION = "0.1.0"
-PROTOCOL_VERSION = "2025-06-18"
+PROTOCOL_VERSION = "2025-03-26"
 USER_AGENT = "research-copilot-dblp-bib/0.1"
 MAX_LIMIT = 10
 

@@ -25,7 +25,7 @@ if sys.platform == "win32":
 
 SERVER_NAME = "arxivsub-search"
 SERVER_VERSION = "0.1.0"
-PROTOCOL_VERSION = "2025-06-18"
+PROTOCOL_VERSION = "2025-03-26"
 API_URL = "https://qtevnmgyobilaanrzidq.supabase.co/functions/v1/agent-skills-gateway"
 VALID_LOCATIONS = ["arxiv", "CVPR", "ICCV", "ICLR", "ICML", "NeurIPS", "AAAI", "MICCAI"]
 DEFAULT_LIMIT = 10

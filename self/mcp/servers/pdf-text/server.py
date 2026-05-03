@@ -24,7 +24,7 @@ if sys.platform == "win32":
 
 SERVER_NAME = "pdf-text"
 SERVER_VERSION = "0.1.0"
-PROTOCOL_VERSION = "2025-06-18"
+PROTOCOL_VERSION = "2025-03-26"
 MAX_PAGES_LIMIT = 200
 
 TOOLS = [

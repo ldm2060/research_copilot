@@ -1,20 +1,7 @@
-name: Package Copilot Workspace
+name: Deploy Claude Workspace
 
 on:
   workflow_dispatch:
-    inputs:
-      publish_release:
-        description: Publish the generated bundle as a GitHub release
-        type: boolean
-        default: false
-      release_tag:
-        description: Release tag to create when publish_release is true
-        type: string
-        required: false
-      release_name:
-        description: Optional release name override
-        type: string
-        required: false
   push:
     branches:
       - main
@@ -32,7 +19,7 @@ permissions:
   contents: write
 
 jobs:
-  package:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -40,80 +27,40 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Build workspace bundles
-        run: python scripts/build_copilot_workspace.py --repo-root . --output dist/copilot-workspace
+      - name: Build claude workspace bundle
+        run: python scripts/build_copilot_workspace.py --repo-root . --output dist/claude-workspace
 
-      - name: Upload Copilot-only artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: copilot-workspace-copilot
-          if-no-files-found: error
-          path: dist/copilot-workspace-copilot.zip
-
-      - name: Upload Claude-only artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: copilot-workspace-claude
-          if-no-files-found: error
-          path: dist/copilot-workspace-claude.zip
-
-      - name: Upload Both artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: copilot-workspace-both
-          if-no-files-found: error
-          path: dist/copilot-workspace-both.zip
-
-      - name: Prepare release metadata
-        id: release_meta
-        if: github.event_name == 'push' || github.event.inputs.publish_release == 'true'
+      - name: Deploy to deploy branch
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            tag="${{ github.event.inputs.release_tag }}"
-            name="${{ github.event.inputs.release_name }}"
-          else
-            short_sha="${GITHUB_SHA::12}"
-            tag="copilot-workspace-${short_sha}"
-            name="Copilot Workspace ${short_sha}"
-          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if [[ -z "$tag" ]]; then
-            short_sha="${GITHUB_SHA::12}"
-            tag="copilot-workspace-${short_sha}"
-          fi
+          # Save the bundle content
+          BUNDLE_DIR="dist/claude-workspace"
 
-          if [[ -z "$name" ]]; then
-            name="$tag"
-          fi
+          # Create or reset the deploy orphan branch
+          git checkout --orphan deploy
+          git rm -rf . 2>/dev/null || true
 
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "name=$name" >> "$GITHUB_OUTPUT"
-          {
-            echo "body<<EOF"
-            echo "Packaged workspace bundles: Copilot-only, Claude-only, and Both."
-            echo
-            cat dist/copilot-workspace-both/README.md
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          # Copy bundle content to root
+          cp -r "$BUNDLE_DIR"/. .
+          rm -rf dist
 
-      - name: Publish bundle release
-        if: github.event_name == 'push' || github.event.inputs.publish_release == 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.release_meta.outputs.tag }}
-          name: ${{ steps.release_meta.outputs.name }}
-          body: ${{ steps.release_meta.outputs.body }}
-          target_commitish: ${{ github.sha }}
-          files: |
-            dist/copilot-workspace-copilot.zip
-            dist/copilot-workspace-claude.zip
-            dist/copilot-workspace-both.zip
-            dist/copilot-workspace-both/BUILD_MANIFEST.json
-            dist/copilot-workspace-both/README.md
+          # Commit and force push
+          git add -A
+          git commit -m "deploy: claude workspace bundle $(date -u +%Y-%m-%dT%H:%M:%SZ)" --allow-empty
+          git push origin deploy --force
+
+      - name: Sync deploy branch to Gitee
+        shell: bash
+        run: |
+          git remote add gitee https://ldm2060:${{ secrets.GITEE_TOKEN }}@gitee.com/ldm2060/research_copilot.git
+          git push gitee deploy --force
