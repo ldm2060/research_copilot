@@ -120,6 +120,22 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Override the version string written into plugin.json. Bypasses --version-bump and self/VERSION write-back.",
     )
+    parser.add_argument(
+        "--release",
+        action="store_true",
+        help="After building, commit the bundle to the deploy branch, tag it, and push.",
+    )
+    parser.add_argument(
+        "--release-no-push",
+        action="store_true",
+        help="Like --release but only commit + tag locally, don't push to remote.",
+    )
+    parser.add_argument(
+        "--keep-tags",
+        type=int,
+        default=KEEP_TAGS,
+        help=f"Number of recent version tags to keep when pruning (default: {KEEP_TAGS}). Only used with --release.",
+    )
     return parser.parse_args()
 
 
@@ -966,19 +982,21 @@ def package_claude_code_workspace(
     warnings: list[str],
     plugin_version: str = "1.0.0",
     plugin_repository: str = DEFAULT_PLUGIN_REPOSITORY,
+    plugin_target: str = "github",
 ) -> None:
     """Generate Claude Code plugin bundle.
 
     Produces a directory structure matching the Claude Code plugin spec:
-      .claude-plugin/plugin.json  — plugin manifest
-      skills/                     — skill directories
-      agents/                     — agent definitions
-      hooks/hooks.json            — event handlers
-      .mcp.json                   — MCP server config
-      CLAUDE.md                   — behavioral instructions
-      mcp-servers/                — MCP server implementations
-      settings.json               — default plugin settings (permissions)
-      requirements.txt            — Python dependencies
+      .claude-plugin/plugin.json      — plugin manifest
+      .claude-plugin/marketplace.json — marketplace discovery manifest
+      skills/                         — skill directories
+      agents/                         — agent definitions
+      hooks/hooks.json                — event handlers
+      .mcp.json                       — MCP server config
+      CLAUDE.md                       — behavioral instructions
+      mcp-servers/                    — MCP server implementations
+      settings.json                   — default plugin settings (permissions)
+      requirements.txt                — Python dependencies
     """
     # 0. Plugin manifest: .claude-plugin/plugin.json
     plugin_dir = output_root / ".claude-plugin"
@@ -997,6 +1015,40 @@ def package_claude_code_workspace(
         name="plugin.json",
         source="(generated)",
         target=str(plugin_manifest_path),
+        operation="add",
+    ))
+
+    # 0b. Marketplace manifest: .claude-plugin/marketplace.json
+    if plugin_target == "gitee":
+        plugin_source = {
+            "source": "git",
+            "url": "https://gitee.com/ldm2060/research_copilot",
+            "ref": "deploy",
+        }
+    else:
+        plugin_source = {
+            "source": "github",
+            "repo": "ldm2060/research_copilot",
+            "ref": "deploy",
+        }
+    marketplace_manifest = {
+        "name": "research-copilot",
+        "owner": {"name": "ldm2060"},
+        "plugins": [
+            {
+                "name": "research-copilot",
+                "source": plugin_source,
+                "description": "Academic research workspace: paper writing, review, literature search, and AI Scientist workflow",
+            }
+        ],
+    }
+    marketplace_path = plugin_dir / "marketplace.json"
+    write_text(marketplace_path, json.dumps(marketplace_manifest, indent=2, ensure_ascii=False))
+    report.append(CopiedItem(
+        kind="claude-marketplace-manifest",
+        name="marketplace.json",
+        source="(generated)",
+        target=str(marketplace_path),
         operation="add",
     ))
 
@@ -1194,6 +1246,7 @@ def main() -> int:
         claude_report, claude_warnings,
         plugin_version=plugin_version,
         plugin_repository=plugin_repository,
+        plugin_target=args.target,
     )
     claude_skills = claude_dir / "skills"
     claude_agents = claude_dir / "agents"
@@ -1211,6 +1264,138 @@ def main() -> int:
     print(f"Claude bundle: {claude_dir}")
     if warnings:
         print(f"Completed with {len(warnings)} warning(s). See BUILD_MANIFEST.json.")
+
+    # Release to deploy branch if requested
+    if getattr(args, "release", False) or getattr(args, "release_no_push", False):
+        rc = release(
+            repo_root,
+            bundle_dir=claude_dir,
+            version=plugin_version,
+            target=args.target,
+            keep_tags=args.keep_tags,
+            push=not getattr(args, "release_no_push", False),
+        )
+        if rc != 0:
+            return rc
+
+    return 0
+
+
+# -------- Release: commit, tag, push --------
+
+DEPLOY_BRANCH = "deploy"
+KEEP_TAGS = 3
+TARGET_REMOTE_MAP = {
+    "github": "origin",
+    "gitee": "gitee",
+}
+
+
+def _git(*args: str, cwd: Path | None = None, check: bool = True) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(["git", *args], capture_output=True, text=True, cwd=cwd, check=check)
+
+
+def release(
+    repo_root: Path,
+    bundle_dir: Path,
+    version: str,
+    target: str,
+    keep_tags: int = KEEP_TAGS,
+    push: bool = True,
+) -> int:
+    """Commit the bundle to the deploy branch, tag it, and optionally push.
+
+    The --target flag selects both the marketplace URL and the git remote:
+      github → remote "origin" (https://github.com/ldm2060/research_copilot)
+      gitee  → remote "gitee"  (https://gitee.com/ldm2060/research_copilot)
+
+    Steps:
+      1. git fetch {remote} deploy
+      2. git checkout deploy (or create orphan)
+      3. Remove all tracked files in deploy branch
+      4. Copy bundle contents into repo root on deploy branch
+      5. git add + commit
+      6. git tag v{version}
+      7. Prune old tags (keep latest N)
+      8. git push {remote} deploy --tags  (if push=True)
+      9. git checkout {original_branch}  (always, even on error)
+    """
+    remote = TARGET_REMOTE_MAP.get(target, "origin")
+    tag = f"v{version}"
+    original_branch = _git("branch", "--show-current", cwd=repo_root).stdout.strip() or "main"
+    print(f"Release: version={version}, tag={tag}, target={target}, remote={remote}, push={push}")
+
+    # 0. Check tag doesn't already exist
+    tag_check = _git("tag", "-l", tag, cwd=repo_root, check=False)
+    if tag in tag_check.stdout.split():
+        print(f"Tag {tag} already exists. Aborting release.")
+        return 1
+
+    # 1. Fetch deploy branch from the correct remote
+    _git("fetch", remote, DEPLOY_BRANCH, cwd=repo_root, check=False)
+
+    # 2. Checkout deploy (create if needed)
+    branch_check = _git("branch", "--list", DEPLOY_BRANCH, cwd=repo_root)
+    if DEPLOY_BRANCH in branch_check.stdout.split():
+        _git("checkout", DEPLOY_BRANCH, cwd=repo_root)
+    else:
+        _git("checkout", "--orphan", DEPLOY_BRANCH, cwd=repo_root)
+        _git("rm", "-rf", ".", cwd=repo_root, check=False)
+
+    try:
+        # 3. Remove all tracked files
+        _git("rm", "-rf", ".", cwd=repo_root, check=False)
+
+        # 4. Copy bundle contents
+        for item in bundle_dir.iterdir():
+            dest = repo_root / item.name
+            if item.is_dir():
+                if dest.exists():
+                    shutil.rmtree(dest)
+                shutil.copytree(item, dest)
+            else:
+                shutil.copy2(item, dest)
+
+        # 5. Add + commit
+        _git("add", "-A", cwd=repo_root)
+        _git("commit", "-m", f"release {tag} ({target})", cwd=repo_root)
+
+        # 6. Tag
+        _git("tag", tag, cwd=repo_root)
+
+        # 7. Prune old tags
+        all_tags = sorted(
+            line.strip() for line in _git("tag", "-l", "v*", cwd=repo_root).stdout.splitlines()
+            if line.strip().startswith("v")
+        )
+        if len(all_tags) > keep_tags:
+            for old_tag in all_tags[:-keep_tags]:
+                print(f"  Pruning old tag: {old_tag}")
+                _git("tag", "-d", old_tag, cwd=repo_root, check=False)
+                if push:
+                    _git("push", remote, f":refs/tags/{old_tag}", cwd=repo_root, check=False)
+
+        # 8. Push
+        if push:
+            push_result = _git("push", remote, DEPLOY_BRANCH, "--tags", cwd=repo_root, check=False)
+            if push_result.returncode != 0:
+                print(f"Push failed (exit {push_result.returncode}):")
+                print(push_result.stderr.strip())
+                print(f"Tag {tag} and commit are still local. Push manually with:")
+                print(f"  git push {remote} {DEPLOY_BRANCH} --tags")
+                return 1
+            print(f"Pushed {DEPLOY_BRANCH} with tag {tag} to {remote}")
+        else:
+            print(f"Committed and tagged {tag} locally (not pushed).")
+            print(f"To push later: git push {remote} {DEPLOY_BRANCH} --tags")
+
+    except Exception as exc:
+        print(f"Release error: {exc}")
+        return 1
+    finally:
+        # 9. Always return to original branch
+        _git("checkout", original_branch, cwd=repo_root, check=False)
+
     return 0
 
 
