@@ -176,8 +176,8 @@ jobs:
           m = json.loads(open('$MARKETPLACE').read())
           for pl in m.get('plugins', []):
               pl['source'] = {
-                  'source': 'git',
-                  'url': 'https://gitee.com/ldm2060/research_copilot',
+                  'source': 'url',
+                  'url': 'https://gitee.com/ldm2060/research_copilot.git',
                   'ref': pl['source']['ref'],
               }
           open('$MARKETPLACE', 'w').write(json.dumps(m, indent=2, ensure_ascii=False) + '\n')

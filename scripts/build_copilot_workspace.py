@@ -1017,17 +1017,18 @@ def package_claude_code_workspace(
     ))
 
     # 0b. Marketplace manifest: .claude-plugin/marketplace.json
+    plugin_ref = f"v{plugin_version}"
     if plugin_target == "gitee":
         plugin_source = {
-            "source": "git",
-            "url": "https://gitee.com/ldm2060/research_copilot",
-            "ref": "deploy",
+            "source": "url",
+            "url": "https://gitee.com/ldm2060/research_copilot.git",
+            "ref": plugin_ref,
         }
     else:
         plugin_source = {
             "source": "github",
             "repo": "ldm2060/research_copilot",
-            "ref": "deploy",
+            "ref": plugin_ref,
         }
     marketplace_manifest = {
         "name": "research-copilot",
