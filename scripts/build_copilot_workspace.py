@@ -76,6 +76,15 @@ class CopiedItem:
     note: str | None = None
 
 
+DEFAULT_PLUGIN_REPOSITORY = "https://github.com/ldm2060/research_copilot"
+TARGET_REPOSITORY_MAP = {
+    "github": "https://github.com/ldm2060/research_copilot",
+    "gitee": "https://gitee.com/ldm2060/research_copilot",
+}
+VERSION_FILE_RELATIVE = Path("self") / "VERSION"
+VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Build a GitHub Copilot workspace bundle from skill.txt, agent.txt, and hook.txt.",
@@ -89,7 +98,82 @@ def parse_args() -> argparse.Namespace:
         default="dist/copilot-workspace",
         help="Output directory for the generated workspace bundle.",
     )
+    parser.add_argument(
+        "--target",
+        choices=["github", "gitee"],
+        default="github",
+        help="Which mirror this build is for. Selects the default repository URL written into plugin.json (default: github).",
+    )
+    parser.add_argument(
+        "--repository",
+        default=None,
+        help=f"Explicit plugin repository URL. Overrides --target. Defaults to the URL chosen by --target ({DEFAULT_PLUGIN_REPOSITORY}).",
+    )
+    parser.add_argument(
+        "--version-bump",
+        choices=["patch", "minor", "major", "none"],
+        default="patch",
+        help="How to bump self/VERSION before writing plugin.json (default: patch).",
+    )
+    parser.add_argument(
+        "--version",
+        default=None,
+        help="Override the version string written into plugin.json. Bypasses --version-bump and self/VERSION write-back.",
+    )
     return parser.parse_args()
+
+
+def resolve_repository_url(args: argparse.Namespace) -> str:
+    """Resolve which repository URL to embed in plugin.json.
+
+    Priority:
+      1. --repository URL (explicit, wins everything)
+      2. --target {github|gitee} → mapped URL
+    """
+    if args.repository:
+        return args.repository
+    return TARGET_REPOSITORY_MAP[args.target]
+
+
+def read_version_file(repo_root: Path) -> tuple[int, int, int]:
+    """Read self/VERSION and return (major, minor, patch). Default to (1, 0, 0) if missing or invalid."""
+    version_path = repo_root / VERSION_FILE_RELATIVE
+    if not version_path.is_file():
+        return (1, 0, 0)
+    raw = version_path.read_text(encoding="utf-8").strip()
+    match = VERSION_RE.match(raw)
+    if not match:
+        return (1, 0, 0)
+    return (int(match.group(1)), int(match.group(2)), int(match.group(3)))
+
+
+def write_version_file(repo_root: Path, version: tuple[int, int, int]) -> None:
+    version_path = repo_root / VERSION_FILE_RELATIVE
+    version_path.parent.mkdir(parents=True, exist_ok=True)
+    version_path.write_text(f"{version[0]}.{version[1]}.{version[2]}\n", encoding="utf-8")
+
+
+def bump_version(current: tuple[int, int, int], kind: str) -> tuple[int, int, int]:
+    major, minor, patch = current
+    if kind == "patch":
+        return (major, minor, patch + 1)
+    if kind == "minor":
+        return (major, minor + 1, 0)
+    if kind == "major":
+        return (major + 1, 0, 0)
+    return current  # "none"
+
+
+def resolve_plugin_version(repo_root: Path, args: argparse.Namespace) -> str:
+    """Decide the version string for plugin.json and persist it back to self/VERSION when bumping."""
+    if args.version:
+        # Explicit override: don't touch self/VERSION
+        return args.version
+    current = read_version_file(repo_root)
+    new_version = bump_version(current, args.version_bump)
+    if new_version != current:
+        write_version_file(repo_root, new_version)
+    return f"{new_version[0]}.{new_version[1]}.{new_version[2]}"
 
 
 def parse_manifest(manifest_path: Path) -> list[tuple[int, str, str]]:
@@ -880,6 +964,8 @@ def package_claude_code_workspace(
     copilot_mcp_config: Path,
     report: list[CopiedItem],
     warnings: list[str],
+    plugin_version: str = "1.0.0",
+    plugin_repository: str = DEFAULT_PLUGIN_REPOSITORY,
 ) -> None:
     """Generate Claude Code plugin bundle.
 
@@ -900,9 +986,9 @@ def package_claude_code_workspace(
     plugin_manifest = {
         "name": "research-copilot",
         "description": "Academic research workspace: paper writing, review, literature search, and AI Scientist workflow",
-        "version": "1.0.0",
+        "version": plugin_version,
         "author": {"name": "ldm2060"},
-        "repository": "https://github.com/ldm2060/research_copilot",
+        "repository": plugin_repository,
     }
     plugin_manifest_path = plugin_dir / "plugin.json"
     write_text(plugin_manifest_path, json.dumps(plugin_manifest, indent=2, ensure_ascii=False))
@@ -1075,6 +1161,11 @@ def main() -> int:
     agents_manifest = (repo_root / args.agents_manifest).resolve()
     hooks_manifest = (repo_root / args.hooks_manifest).resolve()
 
+    # Resolve plugin version (and persist back to self/VERSION when bumping).
+    plugin_version = resolve_plugin_version(repo_root, args)
+    plugin_repository = resolve_repository_url(args)
+    print(f"Plugin manifest: version={plugin_version}, target={args.target}, repository={plugin_repository}")
+
     # Clean up old output if it exists
     if output_root.exists():
         reset_path(output_root)
@@ -1101,6 +1192,8 @@ def main() -> int:
         staging_dir / ".github" / "hooks",
         staging_dir / ".vscode" / "mcp.json",
         claude_report, claude_warnings,
+        plugin_version=plugin_version,
+        plugin_repository=plugin_repository,
     )
     claude_skills = claude_dir / "skills"
     claude_agents = claude_dir / "agents"

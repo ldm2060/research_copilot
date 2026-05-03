@@ -1,1 +1,12 @@
+# Self-bundled MCP server dependencies.
+# Installed automatically by `python self/install.py`.
+#
+# Most MCP servers under self/mcp/servers/ use only the Python stdlib.
+# The list below covers the few that need third-party packages.
+
+# pdf-text MCP — primary text extraction backend.
 pdfplumber>=0.10.0
+
+# pdf-text MCP — fallback when pdfplumber fails (optional, not auto-installed).
+# Uncomment if you want it pre-installed:
+# PyPDF2>=3.0.0
