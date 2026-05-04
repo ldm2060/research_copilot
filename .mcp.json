@@ -1,0 +1,76 @@
+{
+  "mcpServers": {
+    "ai-scientist": {
+      "command": "python",
+      "args": [
+        "-u",
+        "./mcp-servers/ai-scientist/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "arxiv-search": {
+      "command": "python",
+      "args": [
+        "-u",
+        "./mcp-servers/arxiv-search/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "arxivsub-search": {
+      "command": "python",
+      "args": [
+        "-u",
+        "./mcp-servers/arxivsub-search/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "dblp-bib": {
+      "command": "python",
+      "args": [
+        "-u",
+        "./mcp-servers/dblp-bib/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "google-scholar": {
+      "command": "python",
+      "args": [
+        "-u",
+        "./mcp-servers/google-scholar/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "pdf-text": {
+      "command": "python",
+      "args": [
+        "-u",
+        "./mcp-servers/pdf-text/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

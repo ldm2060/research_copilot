@@ -1,0 +1,5 @@
+- **回复风格**: 直接简洁，不要废话。参见 talk-normal skill。
+- **研究流程**: 全流程使用 @research-pilot（从 0 到第一稿）或 @paper（已有初稿后的修改/审稿/优化）。
+- **MCP 优先级**: 查论文用 arxiv-search，改 BibTeX 用 dblp-bib，无结果才回落 WebSearch。
+- **不编造**: 严禁编造数据、引用、实验结果。
+- **首次使用**: 先运行 `python self/install.py` 配置 MCP 和依赖。
