@@ -201,7 +201,7 @@ jobs:
         shell: bash
         run: |
           VERSION="${{ needs.build.outputs.version }}"
-          TAG="gitee/v${VERSION}"
+          TAG="v${VERSION}"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -219,16 +219,15 @@ jobs:
           git commit -m "release ${TAG} (gitee)"
           git tag -f "${TAG}"
 
-          # Prune old gitee releases and tags (keep latest 3)
-          ALL_TAGS=$(git tag -l "gitee/v*" | sort -V)
+          # Prune old releases and tags (keep latest 3)
+          ALL_TAGS=$(git tag -l "v*" | sort -V)
           TAG_COUNT=$(echo "$ALL_TAGS" | wc -l)
           if [ "$TAG_COUNT" -gt 3 ]; then
             echo "$ALL_TAGS" | head -n -3 | while read old_tag; do
               echo "  Pruning old tag: ${old_tag}"
               # Delete Gitee Release via API
-              TAG_NAME="${old_tag#gitee/}"
               curl -s -X DELETE \
-                "https://gitee.com/api/v5/repos/ldm2060/research_copilot/releases/tags/${TAG_NAME}" \
+                "https://gitee.com/api/v5/repos/ldm2060/research_copilot/releases/tags/${old_tag}" \
                 -H "Content-Type: application/json" \
                 -d "{\"access_token\":\"${{ secrets.GITEE_TOKEN }}\"}" \
                 2>/dev/null || true
