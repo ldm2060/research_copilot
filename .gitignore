@@ -1,3 +1,8 @@
 dist
 *.pyc
 AI-Scientist-v2-main
+
+# Research Copilot persistent workspace memory.
+# 默认不进 git（实验数据/log 可能体量大；多机器同步状态请手动同步）。
+# 如果你需要跨机器同步研究状态，把下一行注释掉即可。
+.copilot/

@@ -1,0 +1,94 @@
+{
+  "mcpServers": {
+    "ai-scientist": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "-u",
+        "D:/article/self/mcp/servers/ai-scientist/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONFAULTHANDLER": "1",
+        "OMP_NUM_THREADS": "1"
+      }
+    },
+    "arxiv-search": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "-u",
+        "D:/article/self/mcp/servers/arxiv-search/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONFAULTHANDLER": "1",
+        "OMP_NUM_THREADS": "1"
+      }
+    },
+    "arxivsub-search": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "-u",
+        "D:/article/self/mcp/servers/arxivsub-search/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONFAULTHANDLER": "1",
+        "OMP_NUM_THREADS": "1"
+      }
+    },
+    "dblp-bib": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "-u",
+        "D:/article/self/mcp/servers/dblp-bib/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONFAULTHANDLER": "1",
+        "OMP_NUM_THREADS": "1"
+      }
+    },
+    "google-scholar": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "-u",
+        "D:/article/self/mcp/servers/google-scholar/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONFAULTHANDLER": "1",
+        "OMP_NUM_THREADS": "1"
+      }
+    },
+    "pdf-text": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "-u",
+        "D:/article/self/mcp/servers/pdf-text/server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONFAULTHANDLER": "1",
+        "OMP_NUM_THREADS": "1"
+      }
+    }
+  }
+}

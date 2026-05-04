@@ -131,6 +131,12 @@ def build_mcp_config(target: Path) -> dict[str, Any]:
                 "PYTHONIOENCODING": "utf-8",
                 "PYTHONUTF8": "1",
                 "PYTHONUNBUFFERED": "1",
+                # Print Python traceback to stderr if a server hangs
+                # (helps diagnose "socket 超时" symptoms).
+                "PYTHONFAULTHANDLER": "1",
+                # Avoid numpy/openblas multi-threading deadlocks on Windows
+                # when MCP servers are spawned as children of Claude Code.
+                "OMP_NUM_THREADS": "1",
             },
         }
     return {"mcpServers": servers}
@@ -305,8 +311,9 @@ def main() -> int:
     info("Install complete.")
     info("Next steps:")
     print("  1. Restart Claude Code (or run /clear) to pick up new MCP servers")
-    print("  2. Try: @paper '看看这篇论文当前状态'")
-    print("  3. Try: @scientist 'check runtime'")
+    print("  2. Try: @research-copilot '看看这个研究当前在哪一步'")
+    print("  3. 直调子 agent: @copilot-literature / @copilot-ideation / @copilot-experiment / @copilot-writer / @copilot-polisher / @copilot-reviewer / @copilot-rebuttal")
+    print("  4. MCP 卡顿排查: python self/scripts/diagnose-mcp.py")
     return 0
 
 
