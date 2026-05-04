@@ -681,6 +681,7 @@ def write_bundle_readme(
     mcp_servers: list[str],
     report: list[CopiedItem],
     warnings: list[str],
+    repo_readme: Path | None = None,
 ) -> None:
     timestamp = datetime.now(timezone.utc).isoformat()
     manifest_data: dict = {
@@ -739,7 +740,10 @@ def write_bundle_readme(
         lines += ["", "Warnings:"]
         lines.extend(f"- {w}" for w in warnings)
     lines.append("")
-    (output_root / "README.md").write_text("\n".join(lines), encoding="utf-8")
+    if repo_readme and repo_readme.is_file():
+        copy_file(repo_readme, output_root / "README.md")
+    else:
+        (output_root / "README.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def create_zip(output_root: Path) -> Path:
@@ -1266,6 +1270,7 @@ def main() -> int:
         claude_agents if claude_agents.is_dir() else staging_dir / ".github" / "agents",
         claude_dir / "hooks",
         mcp_servers, claude_report, claude_warnings,
+        repo_readme=repo_root / "README.md",
     )
 
     # Clean up staging
