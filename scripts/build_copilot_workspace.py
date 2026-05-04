@@ -843,8 +843,8 @@ def generate_claude_mcp_config(copilot_mcp_path: Path) -> dict:
                 claude_server["command"] = server_config["command"]
             if "args" in server_config:
                 claude_server["args"] = [
-                    arg.replace("${workspaceFolder}", ".")
-                    .replace(".vscode/mcp-servers/", "mcp-servers/")
+                    arg.replace("${workspaceFolder}/.vscode/mcp-servers/", "${CLAUDE_PLUGIN_ROOT}/mcp-servers/")
+                    .replace("${workspaceFolder}", "${CLAUDE_PLUGIN_ROOT}")
                     for arg in server_config["args"]
                 ]
         if "env" in server_config:
