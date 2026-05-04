@@ -225,12 +225,15 @@ jobs:
           if [ "$TAG_COUNT" -gt 3 ]; then
             echo "$ALL_TAGS" | head -n -3 | while read old_tag; do
               echo "  Pruning old tag: ${old_tag}"
-              # Delete Gitee Release via API
-              curl -s -X DELETE \
-                "https://gitee.com/api/v5/repos/ldm2060/research_copilot/releases/tags/${old_tag}" \
-                -H "Content-Type: application/json" \
-                -d "{\"access_token\":\"${{ secrets.GITEE_TOKEN }}\"}" \
-                2>/dev/null || true
+              # Delete Gitee Release: get release ID first, then delete by ID
+              RELEASE_ID=$(curl -s \
+                "https://gitee.com/api/v5/repos/ldm2060/research_copilot/releases/tags/${old_tag}?access_token=${{ secrets.GITEE_TOKEN }}" \
+                | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('id',''))" 2>/dev/null || true)
+              if [ -n "$RELEASE_ID" ]; then
+                curl -s -X DELETE \
+                  "https://gitee.com/api/v5/repos/ldm2060/research_copilot/releases/${RELEASE_ID}?access_token=${{ secrets.GITEE_TOKEN }}" \
+                  2>/dev/null || true
+              fi
               # Delete remote tag
               git push gitee ":refs/tags/${old_tag}" 2>/dev/null || true
               # Delete local tag

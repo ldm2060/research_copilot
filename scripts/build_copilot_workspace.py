@@ -227,6 +227,16 @@ def copy_tree(src: Path, dest: Path) -> None:
     )
 
 
+def fix_line_endings(directory: Path, extensions: tuple[str, ...] = (".md", ".txt", ".json", ".yaml", ".yml")) -> None:
+    for root, _, files in os.walk(directory):
+        for fname in files:
+            if any(fname.endswith(ext) for ext in extensions):
+                fpath = Path(root) / fname
+                raw = fpath.read_bytes()
+                if b"\r\n" in raw:
+                    fpath.write_bytes(raw.replace(b"\r\n", b"\n"))
+
+
 def copy_file(src: Path, dest: Path) -> None:
     reset_path(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -1249,6 +1259,7 @@ def main() -> int:
     )
     claude_skills = claude_dir / "skills"
     claude_agents = claude_dir / "agents"
+    fix_line_endings(claude_dir)
     write_bundle_readme(
         claude_dir, "claude",
         claude_skills if claude_skills.is_dir() else staging_dir / ".github" / "skills",
