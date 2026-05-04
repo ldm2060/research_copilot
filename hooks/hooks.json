@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"hooks/run-hook.cmd\" session-start",
+            "async": false
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python hooks/scripts/scientist_guardrails.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "research-copilot",
+  "description": "Academic research workspace: paper writing, review, literature search, and AI Scientist workflow",
+  "version": "1.0.34",
+  "author": {
+    "name": "ldm2060"
+  },
+  "repository": "https://github.com/ldm2060/research_copilot"
+}

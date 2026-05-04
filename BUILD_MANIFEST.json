@@ -1,0 +1,3148 @@
+{
+  "generated_at": "2026-05-04T12:28:27.229984+00:00",
+  "bundle_type": "claude",
+  "items": [
+    {
+      "kind": "claude-plugin-manifest",
+      "name": "plugin.json",
+      "source": "(generated)",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/.claude-plugin/plugin.json",
+      "operation": "add",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-marketplace-manifest",
+      "name": "marketplace.json",
+      "source": "(generated)",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/.claude-plugin/marketplace.json",
+      "operation": "add",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ablation-planner",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ablation-planner",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ablation-planner",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "academic-paper",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/academic-paper",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/academic-paper",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "academic-paper-composer",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/academic-paper-composer",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/academic-paper-composer",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "academic-paper-reviewer",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/academic-paper-reviewer",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/academic-paper-reviewer",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "academic-paper-strategist",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/academic-paper-strategist",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/academic-paper-strategist",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "academic-pipeline",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/academic-pipeline",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/academic-pipeline",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "academic-plotting",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/academic-plotting",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/academic-plotting",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "academic-researcher",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/academic-researcher",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/academic-researcher",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "adaptyv",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/adaptyv",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/adaptyv",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "aeon",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/aeon",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/aeon",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "alphaxiv",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/alphaxiv",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/alphaxiv",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "analyze-results",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/analyze-results",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/analyze-results",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "anndata",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/anndata",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/anndata",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "arboreto",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/arboreto",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/arboreto",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "arxiv",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/arxiv",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/arxiv",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "arxivsub-skill",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/arxivsub-skill",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/arxivsub-skill",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "astropy",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/astropy",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/astropy",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "auto-paper-improvement-loop",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/auto-paper-improvement-loop",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/auto-paper-improvement-loop",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "auto-review-loop",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/auto-review-loop",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/auto-review-loop",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "auto-review-loop-llm",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/auto-review-loop-llm",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/auto-review-loop-llm",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "auto-review-loop-minimax",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/auto-review-loop-minimax",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/auto-review-loop-minimax",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "autoresearch",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/autoresearch",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/autoresearch",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "autoskill",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/autoskill",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/autoskill",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "benchling-integration",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/benchling-integration",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/benchling-integration",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "benchmark-paper-template",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/benchmark-paper-template",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/benchmark-paper-template",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "bgpt-paper-search",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/bgpt-paper-search",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/bgpt-paper-search",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "bioinformatics-init-analysis",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/bioinformatics-init-analysis",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/bioinformatics-init-analysis",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "biopython",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/biopython",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/biopython",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "biorxiv-database",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/biorxiv-database",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/biorxiv-database",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "bioservices",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/bioservices",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/bioservices",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "brainstorming",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/brainstorming",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/brainstorming",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "canvas-design",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/canvas-design",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/canvas-design",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "cellxgene-census",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/cellxgene-census",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/cellxgene-census",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "cirq",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/cirq",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/cirq",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "citation-audit",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/citation-audit",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/citation-audit",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "citation-management",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/citation-management",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/citation-management",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "claims-drafting",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/claims-drafting",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/claims-drafting",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "claude-code-dispatch",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/claude-code-dispatch",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/claude-code-dispatch",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "clinical-decision-support",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/clinical-decision-support",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/clinical-decision-support",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "clinical-reports",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/clinical-reports",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/clinical-reports",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "cobrapy",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/cobrapy",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/cobrapy",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "codex-dispatch",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/codex-dispatch",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/codex-dispatch",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "comm-lit-review",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/comm-lit-review",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/comm-lit-review",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "comm-lit-review-claude-single",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/comm-lit-review-claude-single",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/comm-lit-review-claude-single",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "consciousness-council",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/consciousness-council",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/consciousness-council",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "dask",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/dask",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/dask",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "database-lookup",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/database-lookup",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/database-lookup",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "datamol",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/datamol",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/datamol",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "dataset-discovery",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/dataset-discovery",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/dataset-discovery",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "deep-research",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/deep-research",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/deep-research",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "deepchem",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/deepchem",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/deepchem",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "deeptools",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/deeptools",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/deeptools",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "deepxiv",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/deepxiv",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/deepxiv",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "depmap",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/depmap",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/depmap",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "dhdna-profiler",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/dhdna-profiler",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/dhdna-profiler",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "diffdock",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/diffdock",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/diffdock",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "dispatching-parallel-agents",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/dispatching-parallel-agents",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/dispatching-parallel-agents",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "dnanexus-integration",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/dnanexus-integration",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/dnanexus-integration",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "doc-coauthoring",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/doc-coauthoring",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/doc-coauthoring",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "docx",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/docx",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/docx",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "dse-loop",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/dse-loop",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/dse-loop",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "embodiment-description",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/embodiment-description",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/embodiment-description",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "esm",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/esm",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/esm",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "etetoolkit",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/etetoolkit",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/etetoolkit",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "exa-search",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/exa-search",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/exa-search",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "executing-plans",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/executing-plans",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/executing-plans",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "experiment-audit",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/experiment-audit",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/experiment-audit",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "experiment-bridge",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/experiment-bridge",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/experiment-bridge",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "experiment-plan",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/experiment-plan",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/experiment-plan",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "experiment-queue",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/experiment-queue",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/experiment-queue",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "exploratory-data-analysis",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/exploratory-data-analysis",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/exploratory-data-analysis",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "feishu-notify",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/feishu-notify",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/feishu-notify",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "figure-description",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/figure-description",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/figure-description",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "figure-designer",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/figure-designer",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/figure-designer",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "figure-spec",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/figure-spec",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/figure-spec",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "finishing-a-development-branch",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/finishing-a-development-branch",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/finishing-a-development-branch",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "flowio",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/flowio",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/flowio",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "fluidsim",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/fluidsim",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/fluidsim",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "formula-derivation",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/formula-derivation",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/formula-derivation",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "gemini-deep-research",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/gemini-deep-research",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/gemini-deep-research",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "gemini-search",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/gemini-search",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/gemini-search",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "generate-image",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/generate-image",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/generate-image",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "geniml",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/geniml",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/geniml",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "geomaster",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/geomaster",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/geomaster",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "geopandas",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/geopandas",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/geopandas",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "get-available-resources",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/get-available-resources",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/get-available-resources",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "get-paper",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/get-paper",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/get-paper",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "gget",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/gget",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/gget",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ginkgo-cloud-lab",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ginkgo-cloud-lab",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ginkgo-cloud-lab",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "glycoengineering",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/glycoengineering",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/glycoengineering",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "grant-proposal",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/grant-proposal",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/grant-proposal",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "gtars",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/gtars",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/gtars",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "histolab",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/histolab",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/histolab",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "hugging-science",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/hugging-science",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/hugging-science",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "humanizer",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/humanizer",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/humanizer",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "hypogenic",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/hypogenic",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/hypogenic",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "hypothesis-generation",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/hypothesis-generation",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/hypothesis-generation",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "idea-creator",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/idea-creator",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/idea-creator",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "idea-discovery",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/idea-discovery",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/idea-discovery",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "idea-discovery-robot",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/idea-discovery-robot",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/idea-discovery-robot",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "idea-evaluator",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/idea-evaluator",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/idea-evaluator",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "imaging-data-commons",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/imaging-data-commons",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/imaging-data-commons",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "infographics",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/infographics",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/infographics",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "init-mcp",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/init-mcp",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/init-mcp",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-code-survey",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-code-survey",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-code-survey",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-deep-research",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-deep-research",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-deep-research",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-experiment-analysis",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-experiment-analysis",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-experiment-analysis",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-experiment-dev",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-experiment-dev",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-experiment-dev",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-figure-gen",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-figure-gen",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-figure-gen",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-grant-proposal",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-grant-proposal",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-grant-proposal",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-idea-eval",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-idea-eval",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-idea-eval",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-idea-generation",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-idea-generation",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-idea-generation",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-paper-reviewer",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-paper-reviewer",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-paper-reviewer",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-paper-writing",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-paper-writing",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-paper-writing",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-pipeline-planner",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-pipeline-planner",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-pipeline-planner",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-prepare-resources",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-prepare-resources",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-prepare-resources",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-rclone-to-overleaf",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-rclone-to-overleaf",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-rclone-to-overleaf",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "inno-reference-audit",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/inno-reference-audit",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/inno-reference-audit",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "intro-drafter",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/intro-drafter",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/intro-drafter",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "invention-structuring",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/invention-structuring",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/invention-structuring",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "iso-13485-certification",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/iso-13485-certification",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/iso-13485-certification",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "jurisdiction-format",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/jurisdiction-format",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/jurisdiction-format",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "karpathy-guidelines",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/karpathy-guidelines",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/karpathy-guidelines",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "labarchive-integration",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/labarchive-integration",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/labarchive-integration",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "lamindb",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/lamindb",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/lamindb",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "latchbio-integration",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/latchbio-integration",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/latchbio-integration",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "latex-posters",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/latex-posters",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/latex-posters",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "literature-pdf-ocr-library",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/literature-pdf-ocr-library",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/literature-pdf-ocr-library",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "literature-review",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/literature-review",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/literature-review",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "llm-wiki",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/llm-wiki",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/llm-wiki",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "making-academic-presentations",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/making-academic-presentations",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/making-academic-presentations",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "markdown-mermaid-writing",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/markdown-mermaid-writing",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/markdown-mermaid-writing",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "market-research-reports",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/market-research-reports",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/market-research-reports",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "markitdown",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/markitdown",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/markitdown",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "matchms",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/matchms",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/matchms",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "matlab",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/matlab",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/matlab",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "matplotlib",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/matplotlib",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/matplotlib",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "mean-reviewer",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/mean-reviewer",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/mean-reviewer",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "medchem",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/medchem",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/medchem",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "medical-imaging-review",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/medical-imaging-review",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/medical-imaging-review",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "mermaid-diagram",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/mermaid-diagram",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/mermaid-diagram",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "meta-optimize",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/meta-optimize",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/meta-optimize",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ml-paper-writing",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ml-paper-writing",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ml-paper-writing",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "modal",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/modal",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/modal",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "model-escalation",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/model-escalation",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/model-escalation",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "molecular-dynamics",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/molecular-dynamics",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/molecular-dynamics",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "molfeat",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/molfeat",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/molfeat",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "monitor-experiment",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/monitor-experiment",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/monitor-experiment",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "networkx",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/networkx",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/networkx",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "neurokit2",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/neurokit2",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/neurokit2",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "neuropixels-analysis",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/neuropixels-analysis",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/neuropixels-analysis",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "novelty-check",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/novelty-check",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/novelty-check",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "omero-integration",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/omero-integration",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/omero-integration",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "open-notebook",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/open-notebook",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/open-notebook",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "openalex",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/openalex",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/openalex",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "opentrons-integration",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/opentrons-integration",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/opentrons-integration",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "optimize-for-gpu",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/optimize-for-gpu",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/optimize-for-gpu",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "overleaf-sync",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/overleaf-sync",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/overleaf-sync",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-analyzer",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-analyzer",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-analyzer",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-claim-audit",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-claim-audit",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-claim-audit",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-compile",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-compile",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-compile",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-deai",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-deai",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-deai",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-en2zh",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-en2zh",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-en2zh",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-expand",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-expand",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-expand",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-experiment-analysis",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-experiment-analysis",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-experiment-analysis",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-figure",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-figure",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-figure",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-figure-caption",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-figure-caption",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-figure-caption",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-finder",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-finder",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-finder",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-illustration",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-illustration",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-illustration",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-illustration-image2",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-illustration-image2",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-illustration-image2",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-image-extractor",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-image-extractor",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-image-extractor",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-logic-check",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-logic-check",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-logic-check",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-lookup",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-lookup",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-lookup",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-plan",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-plan",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-plan",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-polish",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-polish",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-polish",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-polish-workflow",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-polish-workflow",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-polish-workflow",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-poster",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-poster",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-poster",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-review",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-review",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-review",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-sanity-check",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-sanity-check",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-sanity-check",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-shorten",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-shorten",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-shorten",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-slide-deck",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-slide-deck",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-slide-deck",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-slides",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-slides",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-slides",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-table-caption",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-table-caption",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-table-caption",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-translate",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-translate",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-translate",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-write",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-write",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-write",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paper-writing",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paper-writing",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paper-writing",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "paperzilla",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/paperzilla",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/paperzilla",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "parallel-web",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/parallel-web",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/parallel-web",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "patent-novelty-check",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/patent-novelty-check",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/patent-novelty-check",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "patent-pipeline",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/patent-pipeline",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/patent-pipeline",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "patent-review",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/patent-review",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/patent-review",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pathml",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pathml",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pathml",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pdf",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pdf",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pdf",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "peer-review",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/peer-review",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/peer-review",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pennylane",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pennylane",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pennylane",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "phylogenetics",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/phylogenetics",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/phylogenetics",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pixel-art",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pixel-art",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pixel-art",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "polars",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/polars",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/polars",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "polars-bio",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/polars-bio",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/polars-bio",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pptx",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pptx",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pptx",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pptx-posters",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pptx-posters",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pptx-posters",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-abstract",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-abstract",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-abstract",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-caption",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-caption",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-caption",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-cover-letter",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-cover-letter",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-cover-letter",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-de-ai",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-de-ai",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-de-ai",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-experiment",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-experiment",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-experiment",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-literature",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-literature",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-literature",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-logic",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-logic",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-logic",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-polish",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-polish",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-polish",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-repo-to-paper",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-repo-to-paper",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-repo-to-paper",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-reviewer-simulation",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-reviewer-simulation",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-reviewer-simulation",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-team",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-team",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-team",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-translation",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-translation",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-translation",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-update",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-update",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-update",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "ppw-visualization",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/ppw-visualization",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/ppw-visualization",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pre-submission-reviewer",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pre-submission-reviewer",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pre-submission-reviewer",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "presenting-conference-talks",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/presenting-conference-talks",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/presenting-conference-talks",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "primekg",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/primekg",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/primekg",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "prior-art-search",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/prior-art-search",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/prior-art-search",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "proof-checker",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/proof-checker",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/proof-checker",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "proof-writer",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/proof-writer",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/proof-writer",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "protocolsio-integration",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/protocolsio-integration",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/protocolsio-integration",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pufferlib",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pufferlib",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pufferlib",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pydeseq2",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pydeseq2",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pydeseq2",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pydicom",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pydicom",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pydicom",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pyhealth",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pyhealth",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pyhealth",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pylabrobot",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pylabrobot",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pylabrobot",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pymatgen",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pymatgen",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pymatgen",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pymc",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pymc",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pymc",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pymoo",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pymoo",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pymoo",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pyopenms",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pyopenms",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pyopenms",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pysam",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pysam",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pysam",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pytdc",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pytdc",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pytdc",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pytorch-lightning",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pytorch-lightning",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pytorch-lightning",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "pyzotero",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/pyzotero",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/pyzotero",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "qiskit",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/qiskit",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/qiskit",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "qutip",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/qutip",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/qutip",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "qzcli",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/qzcli",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/qzcli",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "rdkit",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/rdkit",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/rdkit",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "rebuttal",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/rebuttal",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/rebuttal",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "receiving-code-review",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/receiving-code-review",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/receiving-code-review",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "references",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/references",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/references",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "remote-experiment",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/remote-experiment",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/remote-experiment",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "requesting-code-review",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/requesting-code-review",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/requesting-code-review",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-experiment-driver",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-experiment-driver",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-experiment-driver",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-grants",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-grants",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-grants",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-idea-convergence",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-idea-convergence",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-idea-convergence",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-lit",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-lit",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-lit",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-literature-trace",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-literature-trace",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-literature-trace",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-lookup",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-lookup",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-lookup",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-news",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-news",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-news",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-paper-handoff",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-paper-handoff",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-paper-handoff",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-paper-writing",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-paper-writing",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-paper-writing",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-pipeline",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-pipeline",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-pipeline",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-pipeline-planner",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-pipeline-planner",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-pipeline-planner",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-proposal",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-proposal",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-proposal",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-refine",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-refine",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-refine",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-refine-pipeline",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-refine-pipeline",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-refine-pipeline",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-review",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-review",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-review",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "research-wiki",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/research-wiki",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/research-wiki",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "result-to-claim",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/result-to-claim",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/result-to-claim",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "rowan",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/rowan",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/rowan",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "run-experiment",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/run-experiment",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/run-experiment",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scanpy",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scanpy",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scanpy",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scholar-evaluation",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scholar-evaluation",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scholar-evaluation",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientific-brainstorming",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientific-brainstorming",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientific-brainstorming",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientific-critical-thinking",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientific-critical-thinking",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientific-critical-thinking",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientific-schematics",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientific-schematics",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientific-schematics",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientific-slides",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientific-slides",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientific-slides",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientific-visualization",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientific-visualization",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientific-visualization",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientific-writing",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientific-writing",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientific-writing",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientist-experiment-runner",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientist-experiment-runner",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientist-experiment-runner",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientist-ideation",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientist-ideation",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientist-ideation",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientist-plotting",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientist-plotting",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientist-plotting",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientist-review",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientist-review",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientist-review",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientist-runtime-init",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientist-runtime-init",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientist-runtime-init",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientist-support",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientist-support",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientist-support",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scientist-writeup",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scientist-writeup",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scientist-writeup",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scikit-bio",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scikit-bio",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scikit-bio",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scikit-learn",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scikit-learn",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scikit-learn",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scikit-survival",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scikit-survival",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scikit-survival",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scvelo",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scvelo",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scvelo",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "scvi-tools",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/scvi-tools",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/scvi-tools",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "seaborn",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/seaborn",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/seaborn",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "semantic-scholar",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/semantic-scholar",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/semantic-scholar",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "serverless-modal",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/serverless-modal",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/serverless-modal",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "shap",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/shap",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/shap",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "shared-references",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/shared-references",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/shared-references",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "simpy",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/simpy",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/simpy",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "specification-writing",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/specification-writing",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/specification-writing",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "stable-baselines3",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/stable-baselines3",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/stable-baselines3",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "statistical-analysis",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/statistical-analysis",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/statistical-analysis",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "statsmodels",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/statsmodels",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/statsmodels",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "subagent-driven-development",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/subagent-driven-development",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/subagent-driven-development",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "sympy",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/sympy",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/sympy",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "system-profile",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/system-profile",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/system-profile",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "systematic-debugging",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/systematic-debugging",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/systematic-debugging",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "systems-paper-writing",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/systems-paper-writing",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/systems-paper-writing",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "talk-normal",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/talk-normal",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/talk-normal",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "tech-paper-template",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/tech-paper-template",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/tech-paper-template",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "test-driven-development",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/test-driven-development",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/test-driven-development",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "tiledbvcf",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/tiledbvcf",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/tiledbvcf",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "timesfm-forecasting",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/timesfm-forecasting",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/timesfm-forecasting",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "torch-geometric",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/torch-geometric",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/torch-geometric",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "torchdrug",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/torchdrug",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/torchdrug",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "training-check",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/training-check",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/training-check",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "transformers",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/transformers",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/transformers",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "treatment-plans",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/treatment-plans",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/treatment-plans",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "umap-learn",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/umap-learn",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/umap-learn",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "usfiscaldata",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/usfiscaldata",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/usfiscaldata",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "using-git-worktrees",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/using-git-worktrees",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/using-git-worktrees",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "using-superpowers",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/using-superpowers",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/using-superpowers",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "vaex",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/vaex",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/vaex",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "vast-gpu",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/vast-gpu",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/vast-gpu",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "venue-templates",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/venue-templates",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/venue-templates",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "verification-before-completion",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/verification-before-completion",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/verification-before-completion",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "vibe-research-workflow",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/vibe-research-workflow",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/vibe-research-workflow",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "what-if-oracle",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/what-if-oracle",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/what-if-oracle",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "writing-plans",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/writing-plans",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/writing-plans",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "writing-skills",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/writing-skills",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/writing-skills",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "writing-systems-papers",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/writing-systems-papers",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/writing-systems-papers",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "xlsx",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/xlsx",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/xlsx",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-skill",
+      "name": "zarr-python",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/skills/zarr-python",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/skills/zarr-python",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-agent",
+      "name": "code-reviewer.md",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/agents/code-reviewer.agent.md",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/agents/code-reviewer.md",
+      "operation": "transform",
+      "transformed": true,
+      "note": null
+    },
+    {
+      "kind": "claude-agent",
+      "name": "conductor.md",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/agents/conductor.agent.md",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/agents/conductor.md",
+      "operation": "transform",
+      "transformed": true,
+      "note": null
+    },
+    {
+      "kind": "claude-agent",
+      "name": "experiment-driver.md",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/agents/experiment-driver.agent.md",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/agents/experiment-driver.md",
+      "operation": "transform",
+      "transformed": true,
+      "note": null
+    },
+    {
+      "kind": "claude-agent",
+      "name": "literature-scout.md",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/agents/literature-scout.agent.md",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/agents/literature-scout.md",
+      "operation": "transform",
+      "transformed": true,
+      "note": null
+    },
+    {
+      "kind": "claude-agent",
+      "name": "paper-reviewer.md",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/agents/paper-reviewer.agent.md",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/agents/paper-reviewer.md",
+      "operation": "transform",
+      "transformed": true,
+      "note": null
+    },
+    {
+      "kind": "claude-agent",
+      "name": "paper-writer.md",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/agents/paper-writer.agent.md",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/agents/paper-writer.md",
+      "operation": "transform",
+      "transformed": true,
+      "note": null
+    },
+    {
+      "kind": "claude-agent",
+      "name": "paper.md",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/agents/paper.agent.md",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/agents/paper.md",
+      "operation": "transform",
+      "transformed": true,
+      "note": null
+    },
+    {
+      "kind": "claude-agent",
+      "name": "research-pilot.md",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/agents/research-pilot.agent.md",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/agents/research-pilot.md",
+      "operation": "transform",
+      "transformed": true,
+      "note": null
+    },
+    {
+      "kind": "claude-agent",
+      "name": "reviewer.md",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/agents/reviewer.agent.md",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/agents/reviewer.md",
+      "operation": "transform",
+      "transformed": true,
+      "note": null
+    },
+    {
+      "kind": "claude-agent",
+      "name": "scientist.md",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/agents/scientist.agent.md",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/agents/scientist.md",
+      "operation": "transform",
+      "transformed": true,
+      "note": null
+    },
+    {
+      "kind": "claude-hook-script",
+      "name": "run-hook.cmd",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/hooks/run-hook.cmd",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/hooks/run-hook.cmd",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-hook-script",
+      "name": "scientist_guardrails.py",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/hooks/scripts/scientist_guardrails.py",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/hooks/scripts/scientist_guardrails.py",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-hook-script",
+      "name": "session-start",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/hooks/session-start",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/hooks/session-start",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-hooks",
+      "name": "hooks.json",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.github/hooks",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/hooks/hooks.json",
+      "operation": "merge",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-mcp",
+      "name": ".mcp.json",
+      "source": "/home/runner/work/research_copilot/research_copilot/dist/copilot-workspace-staging/.vscode/mcp.json",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/.mcp.json",
+      "operation": "transform",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-instructions",
+      "name": "CLAUDE.md",
+      "source": "(generated)",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/CLAUDE.md",
+      "operation": "add",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-mcp-server",
+      "name": "ai-scientist",
+      "source": "/home/runner/work/research_copilot/research_copilot/self/mcp/servers/ai-scientist",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/mcp-servers/ai-scientist",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-mcp-server",
+      "name": "arxiv-search",
+      "source": "/home/runner/work/research_copilot/research_copilot/self/mcp/servers/arxiv-search",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/mcp-servers/arxiv-search",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-mcp-server",
+      "name": "arxivsub-search",
+      "source": "/home/runner/work/research_copilot/research_copilot/self/mcp/servers/arxivsub-search",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/mcp-servers/arxivsub-search",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-mcp-server",
+      "name": "dblp-bib",
+      "source": "/home/runner/work/research_copilot/research_copilot/self/mcp/servers/dblp-bib",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/mcp-servers/dblp-bib",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-mcp-server",
+      "name": "google-scholar",
+      "source": "/home/runner/work/research_copilot/research_copilot/self/mcp/servers/google-scholar",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/mcp-servers/google-scholar",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-mcp-server",
+      "name": "pdf-text",
+      "source": "/home/runner/work/research_copilot/research_copilot/self/mcp/servers/pdf-text",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/mcp-servers/pdf-text",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-requirements",
+      "name": "requirements.txt",
+      "source": "/home/runner/work/research_copilot/research_copilot/self/mcp/requirements.txt",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/requirements.txt",
+      "operation": "copy",
+      "transformed": false,
+      "note": null
+    },
+    {
+      "kind": "claude-settings",
+      "name": "settings.json",
+      "source": "(generated)",
+      "target": "/home/runner/work/research_copilot/research_copilot/dist/claude-workspace/settings.json",
+      "operation": "add",
+      "transformed": false,
+      "note": null
+    }
+  ],
+  "warnings": []
+}
