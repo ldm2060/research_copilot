@@ -460,6 +460,7 @@ def package_mcp_configuration(
     vscode_target.mkdir(parents=True, exist_ok=True)
     server_names: list[str] = []
 
+    servers_source = source_root / "servers"
     mcp_config_source = source_root / "mcp.json"
     if mcp_config_source.is_file():
         mcp_text = mcp_config_source.read_text(encoding="utf-8")
@@ -479,9 +480,23 @@ def package_mcp_configuration(
             )
         )
     else:
-        warnings.append(f"Missing self/mcp/mcp.json; MCP servers will not be configured automatically.")
+        server_names = _discover_mcp_server_names(servers_source)
+        if server_names:
+            destination = vscode_target / "mcp.json"
+            mcp_config = generate_vscode_mcp_config_from_servers(servers_source)
+            write_text(destination, json.dumps(mcp_config, indent=2, ensure_ascii=False))
+            report.append(
+                CopiedItem(
+                    kind="mcp-config",
+                    name="mcp.json",
+                    source=str(servers_source),
+                    target=str(destination),
+                    operation="generate",
+                )
+            )
+        else:
+            warnings.append("Missing self/mcp/servers; MCP servers will not be configured automatically.")
 
-    servers_source = source_root / "servers"
     if servers_source.is_dir():
         servers_target = vscode_target / "mcp-servers"
         copy_tree(servers_source, servers_target)
@@ -829,6 +844,52 @@ def normalize_agent_for_claude_code(source_file: Path) -> tuple[str, bool]:
     return body, transformed
 
 
+def _default_stdio_mcp_env() -> dict[str, str]:
+    return {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONFAULTHANDLER": "1",
+        "OMP_NUM_THREADS": "1",
+    }
+
+
+def _discover_mcp_server_names(servers_dir: Path) -> list[str]:
+    if not servers_dir.is_dir():
+        return []
+    names: list[str] = []
+    for child in sorted(servers_dir.iterdir()):
+        if child.name in SKIP_NAMES or child.name.startswith("."):
+            continue
+        if child.is_dir() and (child / "server.py").is_file():
+            names.append(child.name)
+    return names
+
+
+def generate_vscode_mcp_config_from_servers(servers_dir: Path) -> dict:
+    servers: dict[str, dict] = {}
+    for name in _discover_mcp_server_names(servers_dir):
+        servers[name] = {
+            "type": "stdio",
+            "command": "python",
+            "args": ["-u", f"${{workspaceFolder}}/.vscode/mcp-servers/{name}/server.py"],
+            "env": _default_stdio_mcp_env(),
+        }
+    return {"servers": servers}
+
+
+def generate_claude_mcp_config_from_servers(servers_dir: Path) -> dict:
+    servers: dict[str, dict] = {}
+    for name in _discover_mcp_server_names(servers_dir):
+        servers[name] = {
+            "type": "stdio",
+            "command": "python",
+            "args": ["-u", f"${{CLAUDE_PLUGIN_ROOT}}/mcp-servers/{name}/server.py"],
+            "env": _default_stdio_mcp_env(),
+        }
+    return {"mcpServers": servers}
+
+
 def generate_claude_mcp_config(copilot_mcp_path: Path) -> dict:
     """Generate Claude Code .mcp.json content from Copilot mcp.json."""
     copilot_config = json.loads(copilot_mcp_path.read_text(encoding="utf-8"))
@@ -1121,16 +1182,24 @@ def package_claude_code_workspace(
     ))
 
     # 4. MCP: generate .mcp.json
+    mcp_source = repo_root / "self" / "mcp" / "servers"
     if copilot_mcp_config.is_file():
         claude_mcp = generate_claude_mcp_config(copilot_mcp_config)
+        mcp_source_label = str(copilot_mcp_config)
+        mcp_operation = "transform"
+    else:
+        claude_mcp = generate_claude_mcp_config_from_servers(mcp_source)
+        mcp_source_label = str(mcp_source)
+        mcp_operation = "generate"
+    if claude_mcp.get("mcpServers"):
         mcp_path = output_root / ".mcp.json"
         write_text(mcp_path, json.dumps(claude_mcp, indent=2, ensure_ascii=False))
         report.append(CopiedItem(
             kind="claude-mcp",
             name=".mcp.json",
-            source=str(copilot_mcp_config),
+            source=mcp_source_label,
             target=str(mcp_path),
-            operation="transform",
+            operation=mcp_operation,
         ))
 
     # 5. Instructions: generate CLAUDE.md
@@ -1145,7 +1214,6 @@ def package_claude_code_workspace(
     ))
 
     # 6. MCP server files: copy from self/mcp/servers/ to mcp-servers/
-    mcp_source = repo_root / "self" / "mcp" / "servers"
     if mcp_source.is_dir():
         mcp_target = output_root / "mcp-servers"
         copy_tree(mcp_source, mcp_target)
@@ -1177,9 +1245,12 @@ def package_claude_code_workspace(
     plugin_settings: dict = {}
     if copilot_mcp_config.is_file():
         copilot_mcp = json.loads(copilot_mcp_config.read_text(encoding="utf-8"))
-        mcp_permissions = [f"mcp__{name}" for name in copilot_mcp.get("servers", {}).keys()]
-        if mcp_permissions:
-            plugin_settings["permissions"] = {"allow": mcp_permissions}
+        server_names = list(copilot_mcp.get("servers", {}).keys())
+    else:
+        server_names = _discover_mcp_server_names(mcp_source)
+    mcp_permissions = [f"mcp__{name}" for name in server_names]
+    if mcp_permissions:
+        plugin_settings["permissions"] = {"allow": mcp_permissions}
     if plugin_settings:
         settings_path = output_root / "settings.json"
         write_text(settings_path, json.dumps(plugin_settings, indent=2, ensure_ascii=False))

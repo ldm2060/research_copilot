@@ -3,6 +3,7 @@ name: copilot-literature
 description: "文献调研子 agent。Use when 检索论文、构建结构化文献库、锁定 baseline、补 related work、核验某个引用是否真实存在。被 research-copilot 委派调用，也可被用户直接 @copilot-literature 触发。产物落 `.copilot/literature.md`。"
 argument-hint: "研究主题 / 关键词 / 目标会议 / 已知 baseline 候选（可选）"
 model: haiku
+color: cyan
 ---
 
 # Copilot Literature — 文献调研专员

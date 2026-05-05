@@ -21,7 +21,7 @@
 ## 设计原则
 
 1. **MCP 只做轻量本地能力**：状态检查、路径发现、实验目录浏览。
-2. **skill 只保留静态 runtime 资产**：源码树在 `self/skills/scientist-support/runtime/`，bundle 产物里对应 `.github/skills/scientist-support/runtime/`。
+2. **runtime 只保留静态资产**：源码树在 `self/runtimes/scientist-support/runtime/`，bundle 产物里对应 `.github/runtimes/scientist-support/runtime/`。
 3. **模型驱动任务交给 agent**：需要明确模型、长时间运行或多阶段推理的任务不经由 MCP。
 4. **路径可显式指定**：如果用户故意把 runtime 挪到别处，仍可通过 `project_root` 覆盖默认路径。
 

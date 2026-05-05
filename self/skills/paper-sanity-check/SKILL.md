@@ -1,6 +1,7 @@
 ---
 name: paper-sanity-check
-description: "Paper sanity check before submission. Use when: verifying paper basic quality, checking figure/table references, cross-validating experimental data, ensuring claim-evidence alignment, detecting data conflicts across tables. Triggers on keywords: sanity check, 查错, 基础检查, check paper, verify paper, 论文检查, pre-submission check, data consistency."
+description: "This skill should be used when the user asks to \"sanity check\", \"查错\", \"基础检查\", \"check paper\", \"verify paper\", \"论文检查\", \"pre-submission check\", or wants claim-evidence, figure/table reference, and data consistency checks before submission. Paper sanity check before submission."
+version: 0.1.0
 ---
 
 # Paper Sanity Check

@@ -1,6 +1,7 @@
 ---
 name: paper-en2zh
-description: "论文英文转中文技能。Use when: translating English LaTeX text to Chinese. Triggers on keywords: 翻译, translate."
+description: "This skill should be used when the user asks to \"翻译成中文\", \"English to Chinese\", \"英译中\", \"translate to Chinese\", or wants English LaTeX paper text translated to Chinese for comprehension. 论文英文转中文技能。"
+version: 0.1.0
 ---
 
 # 论文英文转中文 (Paper English to Chinese Translation)

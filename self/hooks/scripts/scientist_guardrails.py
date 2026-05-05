@@ -6,8 +6,8 @@ import sys
 
 def main() -> int:
     workspace = Path.cwd()
-    packaged_runtime = workspace / ".github" / "skills" / "scientist-support" / "runtime"
-    source_runtime = workspace / "self" / "skills" / "scientist-support" / "runtime"
+    packaged_runtime = workspace / ".github" / "runtimes" / "scientist-support" / "runtime"
+    source_runtime = workspace / "self" / "runtimes" / "scientist-support" / "runtime"
     lines = [
         "[scientist-guardrails] AI Scientist workflow loaded.",
         "[scientist-guardrails] Upstream defaults assume Linux + CUDA and may not fully run on Windows hosts.",

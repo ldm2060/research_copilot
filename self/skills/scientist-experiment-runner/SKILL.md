@@ -1,6 +1,7 @@
 ---
 name: scientist-experiment-runner
-description: "AI Scientist 实验推进技能。Use when: turning an idea JSON into concrete code edits and experiment runs directly in Copilot, iterating on research experiments, or when user says '开始实验', '推进实验', '从 idea 落地实验'."
+description: "This skill should be used when the user asks to \"开始实验\", \"推进实验\", \"从 idea 落地实验\", or wants an idea JSON turned into concrete code edits and experiment runs directly in Copilot. AI Scientist 实验推进技能。"
+version: 0.1.0
 ---
 
 # scientist-experiment-runner

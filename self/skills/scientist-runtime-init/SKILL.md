@@ -1,6 +1,7 @@
 ---
 name: scientist-runtime-init
-description: "AI Scientist 运行环境检查技能。Use when: checking through the ai-scientist MCP whether the scientist-support bundle can run local non-model commands, validating Python or CUDA or LaTeX prerequisites, or when user says '检查环境', '能不能跑 AI Scientist', 'runtime check', '初始化 AI Scientist 环境'."
+description: "This skill should be used when the user asks to \"检查环境\", \"能不能跑 AI Scientist\", \"runtime check\", \"初始化 AI Scientist 环境\", or wants the ai-scientist MCP to validate Python, CUDA, LaTeX, poppler, and runtime prerequisites. AI Scientist 运行环境检查技能。"
+version: 0.1.0
 ---
 
 # scientist-runtime-init
@@ -11,7 +12,7 @@ description: "AI Scientist 运行环境检查技能。Use when: checking through
 
 优先确认以下条件，而不是直接启动长时间实验：
 
-- skill runtime 根目录是否存在
+- runtime 根目录是否存在
 - Python 是否可用
 - `pdflatex`、`bibtex`、`pdftotext`、`chktex` 是否可用
 - `torch.cuda.is_available()` 是否为真

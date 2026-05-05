@@ -23,16 +23,16 @@
 
 ## 8 个 agent 一览
 
-| Agent | 文件 | 角色 | Model | 何时用 |
-|---|---|---|---|---|
-| **research-copilot** | `research-copilot.agent.md` | 🧭 全流程总控 | sonnet | 不知道下一步做什么 / 走全流程 / 通篇优化 / 投稿冲刺 / rebuttal 准备 / 创新点重校 |
-| **copilot-literature** | `copilot-literature.agent.md` | 📚 文献调研 | haiku | 检索论文 / 锁定 baseline / 补 related work / 核验引用 |
-| **copilot-ideation** | `copilot-ideation.agent.md` | 💡 创新点交互构思 | **opus** | 找创新方向 / 跨领域头脑风暴 / novelty 重校 |
-| **copilot-experiment** | `copilot-experiment.agent.md` | 🧪 实验运行与验证 | sonnet | 跑训练 / 复现 baseline / 消融 / 读 metric / 画图 |
-| **copilot-writer** | `copilot-writer.agent.md` | ✍️ 论文写作 | sonnet | 起草章节 / 把实验结果转成正文 / 扩写 / 缩写 / 翻译 / caption |
-| **copilot-polisher** | `copilot-polisher.agent.md` | ✨ 论文润色 | sonnet | 学术化 / 去 AI 味 / 句式 / 术语统一（不改技术内容） |
-| **copilot-reviewer** | `copilot-reviewer.agent.md` | 🔍 论文审阅 | **opus** | 投稿前质量门 / claim-evidence 对齐 / 模拟顶会审稿 / rebuttal 自洽性 |
-| **copilot-rebuttal** | `copilot-rebuttal.agent.md` | 💬 rebuttal 回复 | sonnet | reviewer 评论起草回复 / 答辩文稿 / 联动需求清单 |
+| Agent | 文件 | 角色 | Model | Color | 何时用 |
+|---|---|---|---|---|---|
+| **research-copilot** | `research-copilot.agent.md` | 🧭 全流程总控 | sonnet | magenta | 不知道下一步做什么 / 走全流程 / 通篇优化 / 投稿冲刺 / rebuttal 准备 / 创新点重校 |
+| **copilot-literature** | `copilot-literature.agent.md` | 📚 文献调研 | haiku | cyan | 检索论文 / 锁定 baseline / 补 related work / 核验引用 |
+| **copilot-ideation** | `copilot-ideation.agent.md` | 💡 创新点交互构思 | **opus** | magenta | 找创新方向 / 跨领域头脑风暴 / novelty 重校 |
+| **copilot-experiment** | `copilot-experiment.agent.md` | 🧪 实验运行与验证 | sonnet | green | 跑训练 / 复现 baseline / 消融 / 读 metric / 画图 |
+| **copilot-writer** | `copilot-writer.agent.md` | ✍️ 论文写作 | sonnet | blue | 起草章节 / 把实验结果转成正文 / 扩写 / 缩写 / 翻译 / caption |
+| **copilot-polisher** | `copilot-polisher.agent.md` | ✨ 论文润色 | sonnet | blue | 学术化 / 去 AI 味 / 句式 / 术语统一（不改技术内容） |
+| **copilot-reviewer** | `copilot-reviewer.agent.md` | 🔍 论文审阅 | **opus** | yellow | 投稿前质量门 / claim-evidence 对齐 / 模拟顶会审稿 / rebuttal 自洽性 |
+| **copilot-rebuttal** | `copilot-rebuttal.agent.md` | 💬 rebuttal 回复 | sonnet | yellow | reviewer 评论起草回复 / 答辩文稿 / 联动需求清单 |
 
 **模型分配理由**:
 - `opus`：高强度推理、跨领域类比、独立审稿——`copilot-ideation` 与 `copilot-reviewer` 需要把"思路新颖性"和"严格审稿"这两类深度判断做扎实

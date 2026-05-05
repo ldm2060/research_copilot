@@ -1,6 +1,7 @@
 ---
 name: paper-deai
-description: "论文去AI味技能。Use when: removing AI-generated writing patterns from English LaTeX text, making text sound more natural and human-written, de-AI rewriting. Triggers on keywords: 去AI味, de-AI, 去机械化, remove AI patterns, humanize, 自然化."
+description: "This skill should be used when the user asks to \"去AI味\", \"de-AI\", \"remove AI patterns\", \"humanize\", \"去机械化\", or wants English LaTeX text to sound more natural and human-written. 论文去AI味技能。"
+version: 0.1.0
 ---
 
 # 论文去AI味 (De-AI Rewriting)

@@ -3,6 +3,7 @@ name: copilot-ideation
 description: "创新点交互构思子 agent。Use when 找创新方向、跨领域头脑风暴、novelty 重新校准、给定 baseline 后挖掘改进点。多轮 AskUserQuestion 收敛偏好后输出 6 维度候选 + 跨领域类比 + 5 项审稿筛选 + 推荐指数。被 research-copilot 委派调用，也可被用户直接 @copilot-ideation 触发。产物落 `.copilot/ideas.md`。"
 argument-hint: "已选 baseline / 用户偏好关键词（可选） / 想要保守 vs 激进的风险偏好（可选）"
 model: opus
+color: magenta
 ---
 
 # Copilot Ideation — 创新点交互构思伙伴

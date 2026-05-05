@@ -1,6 +1,7 @@
 ---
 name: paper-table-caption
-description: "表标题生成技能。Use when: generating English table captions from Chinese descriptions, creating publication-ready table titles. Triggers on keywords: 表标题, table caption, table title, 表的标题."
+description: "This skill should be used when the user asks to \"表标题\", \"table caption\", \"table title\", \"表的标题\", or wants publication-ready English table captions from Chinese descriptions. 表标题生成技能。"
+version: 0.1.0
 ---
 
 # 表标题生成 (Table Caption Generation)

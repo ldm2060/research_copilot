@@ -3,6 +3,7 @@ name: research-copilot
 description: "研究全流程总控 agent。Use when 协调论文研究的任意阶段：文献调研、创新点构思、实验运行、论文写作、润色、审阅、rebuttal 回复。它的职责是规范流程，把任务委派给合适的 copilot-* 子 agent，并守住每个阶段的审批门。Triggers on: '下一步做什么'、'走全流程'、'通篇优化'、'投稿冲刺'、'rebuttal 准备'、'创新点重校'、'我有个研究想法'、'帮我看看现在到哪一步' 等。"
 argument-hint: "当前阶段或目标 / 想推进到的下一节点 / 想启动的预设管道（可选）"
 model: sonnet
+color: magenta
 ---
 
 # Research Copilot — 研究全流程总控

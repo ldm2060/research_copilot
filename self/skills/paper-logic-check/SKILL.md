@@ -1,6 +1,7 @@
 ---
 name: paper-logic-check
-description: "论文逻辑检查技能。Use when: checking logic consistency in English LaTeX text, final proofreading, verifying terminology consistency and detecting contradictions. Triggers on keywords: 逻辑检查, logic check, 校对, proofread, consistency check."
+description: "This skill should be used when the user asks to \"逻辑检查\", \"logic check\", \"校对\", \"proofread\", \"consistency check\", or wants English LaTeX text checked for contradictions and terminology consistency. 论文逻辑检查技能。"
+version: 0.1.0
 ---
 
 # 论文逻辑检查 (Logic Check)

@@ -3,10 +3,11 @@
   "hooks": {
     "SessionStart": [
       {
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "python .github/hooks/scripts/scientist_guardrails.py",
+            "command": "python self/hooks/scripts/scientist_guardrails.py",
             "timeout": 10
           }
         ]

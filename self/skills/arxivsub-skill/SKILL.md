@@ -7,6 +7,7 @@ description: >
   look up conference publications, discover what's new in a research area, or explore literature
   on any AI/ML/CV topic. Trigger even for casual phrasing like "find papers on X", "what are
   the latest papers about Y", "search arXiv for Z", or "any recent work on W".
+version: 0.1.0
 ---
 
 # arxivsub-skill

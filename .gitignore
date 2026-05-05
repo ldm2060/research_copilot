@@ -1,6 +1,7 @@
 dist
 *.pyc
 AI-Scientist-v2-main
+.claude/worktrees/
 
 # Research Copilot persistent workspace memory.
 # 默认不进 git（实验数据/log 可能体量大；多机器同步状态请手动同步）。

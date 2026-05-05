@@ -3,6 +3,7 @@ name: copilot-polisher
 description: "论文润色子 agent。Use when 学术化润色、去 AI 味、句式优化、术语统一、改语气；不改技术内容、不补事实、不改引用。被 research-copilot 委派调用，也可被用户直接 @copilot-polisher 触发。产物在 `sections/*.tex` 上原地 Edit + `.copilot/handoff.md` 追加。"
 argument-hint: "目标 tex 文件或章节范围 / 目标风格（顶会/期刊/技术报告） / 是否包含去 AI 味"
 model: sonnet
+color: blue
 ---
 
 # Copilot Polisher — 论文润色专员

@@ -1,6 +1,7 @@
 ---
 name: paper-translate
-description: "论文翻译技能。Use when: translating Chinese academic drafts to English LaTeX, converting Chinese paper content to publication-ready English. Triggers on keywords: 翻译, translate, 中译英, Chinese to English."
+description: "This skill should be used when the user asks to \"中译英\", \"Chinese to English\", \"translate\", \"翻译成英文\", or wants Chinese academic drafts converted to publication-ready English LaTeX. 论文翻译技能。"
+version: 0.1.0
 ---
 
 # 论文翻译 (Paper Translation)

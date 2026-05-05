@@ -1,6 +1,7 @@
 ---
 name: paper-review
-description: "论文审视技能。Use when: reviewing a paper from reviewer perspective, simulating peer review for top conferences, providing critical feedback on paper quality. Triggers on keywords: 审稿, review, reviewer, 审视, peer review, 评审."
+description: "This skill should be used when the user asks to \"审稿\", \"review\", \"reviewer\", \"peer review\", \"评审\", or wants a top-conference reviewer perspective on paper quality. 论文审视技能。"
+version: 0.1.0
 ---
 
 # 论文审视 (Paper Review)

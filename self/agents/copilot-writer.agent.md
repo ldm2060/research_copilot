@@ -3,6 +3,7 @@ name: copilot-writer
 description: "论文写作子 agent。Use when 起草章节、把实验结果转成正文、扩写、缩写、写 caption / note、中英互译、章节冲刺。被 research-copilot 委派调用，也可被用户直接 @copilot-writer 触发。产物落 `sections/*.tex` + `references.bib` + `.copilot/handoff.md`。"
 argument-hint: "目标章节文件 / 段落范围 / 可用事实来源 / 目标会议"
 model: sonnet
+color: blue
 ---
 
 # Copilot Writer — 论文写作专员

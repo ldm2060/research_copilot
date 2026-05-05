@@ -1,6 +1,7 @@
 ---
 name: paper-polish
-description: "论文与基金润色技能。用于：英文学术论文深度润色、中文国家级/省级科研项目（基金）申请书的行文重构与降AI语感。Use when: polishing English LaTeX text, deep rewriting for publication quality, polishing Chinese fund/grant applications (科研项目/国家自然基金申请书)."
+description: "This skill should be used when the user asks to \"polish\", \"润色\", \"deep rewrite\", \"publication quality\", \"基金润色\", or wants English LaTeX papers or Chinese grant applications rewritten with rigorous academic style and reduced AI feel. 论文与基金润色技能。"
+version: 0.1.0
 ---
 
 # 学术论文与基金润色专家 (Academic & Grant Proposal Polishing Expert)

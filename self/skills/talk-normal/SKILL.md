@@ -2,6 +2,7 @@
 name: talk-normal
 description: "对话风格控制技能。在每次回复前优先加载此 skill，确保 AI 输出风格直接、简洁、无废话。Triggers on: 任何对话场景，应作为默认回复风格。"
 applyTo: "**"
+version: 0.1.0
 ---
 
 # Talk Normal

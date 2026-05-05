@@ -1,6 +1,7 @@
 ---
 name: scientist-plotting
-description: "AI Scientist 作图技能。Use when: reading experiment outputs and building plots directly in Copilot, drafting plotting scripts, or when user says '聚合作图', '补图表', '整理实验图'."
+description: "This skill should be used when the user asks to \"聚合作图\", \"补图表\", \"整理实验图\", or wants experiment outputs converted into plots and plotting scripts directly in Copilot. AI Scientist 作图技能。"
+version: 0.1.0
 ---
 
 # scientist-plotting

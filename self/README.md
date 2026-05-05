@@ -44,13 +44,15 @@ self/
 │   ├── copilot-polisher.agent.md       ✨ 论文润色
 │   ├── copilot-reviewer.agent.md       🔍 论文审阅
 │   └── copilot-rebuttal.agent.md       💬 rebuttal 回复
-├── skills/                         # 23 个 skill（不被 agent 文件硬编码引用）
+├── skills/                         # 22 个 skill（不被 agent 文件硬编码引用）
 │   ├── paper-*/                        # 论文写作/改写/检查
-│   ├── scientist-*/                    # 实验/绘图/runtime/writeup/review 能力
+│   ├── scientist-*/                    # 实验/绘图/writeup/review 能力
 │   ├── arxivsub-skill/                 # arXiv + 顶会检索能力
 │   ├── init-mcp/                       # MCP 安装入口
 │   ├── talk-normal/                    # 回复风格
 │   └── model-escalation/               # 疑难升级
+├── runtimes/                       # 静态运行时资产（非 skill）
+│   └── scientist-support/runtime/       # AI Scientist runtime 资产
 ├── hooks/                          # SessionStart hook
 ├── mcp/                            # 6 个 MCP 服务器
 └── scripts/

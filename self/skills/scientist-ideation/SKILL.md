@@ -1,6 +1,7 @@
 ---
 name: scientist-ideation
-description: "AI Scientist idea 生成技能。Use when: turning a topic/workshop Markdown into AI-Scientist-style ideas JSON directly in Copilot, drafting or revising research ideas, or when user says '生成 ideas', 'topic 变成想法', 'AI Scientist 出点子'."
+description: "This skill should be used when the user asks to \"生成 ideas\", \"topic 变成想法\", \"AI Scientist 出点子\", or wants a topic/workshop Markdown turned into AI-Scientist-style ideas JSON directly in Copilot. AI Scientist idea 生成技能。"
+version: 0.1.0
 ---
 
 # scientist-ideation

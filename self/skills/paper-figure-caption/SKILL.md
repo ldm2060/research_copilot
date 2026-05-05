@@ -1,6 +1,7 @@
 ---
 name: paper-figure-caption
-description: "图标题生成技能。Use when: generating English figure captions from Chinese descriptions, creating publication-ready figure titles. Triggers on keywords: 图标题, figure caption, figure title, 图的标题."
+description: "This skill should be used when the user asks to \"图标题\", \"figure caption\", \"figure title\", \"图的标题\", or wants publication-ready English figure captions from Chinese descriptions. 图标题生成技能。"
+version: 0.1.0
 ---
 
 # 图标题生成 (Figure Caption Generation)

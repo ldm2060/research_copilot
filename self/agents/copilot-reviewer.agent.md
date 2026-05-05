@@ -3,6 +3,7 @@ name: copilot-reviewer
 description: "论文审阅子 agent。Use when 投稿前质量门、claim-evidence 对齐、数字与引用一致性核验、独立审稿视角、rebuttal 前自检、模拟顶会审稿。**默认只读，不修改正文**。被 research-copilot 委派调用，也可被用户直接 @copilot-reviewer 触发。产物落 `.copilot/reviews/round-N.md` + `.copilot/handoff.md`。"
 argument-hint: "论文目录或文件 / 审稿范围 scope / 关注维度（可选） / 是否模拟特定会议风格"
 model: opus
+color: yellow
 ---
 
 # Copilot Reviewer — 资深顶会审稿人

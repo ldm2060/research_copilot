@@ -1,6 +1,7 @@
 ---
 name: paper-expand
-description: "论文扩写技能。Use when: expanding English LaTeX text, increasing word count by adding depth and logical connections, enriching academic paragraphs. Triggers on keywords: 扩写, expand, enrich, elaborate."
+description: "This skill should be used when the user asks to \"扩写\", \"expand\", \"enrich\", \"elaborate\", or wants English LaTeX text expanded with more depth and logical connections. 论文扩写技能。"
+version: 0.1.0
 ---
 
 # 论文扩写 (Paper Expanding)

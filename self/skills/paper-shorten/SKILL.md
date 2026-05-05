@@ -1,6 +1,7 @@
 ---
 name: paper-shorten
-description: "论文缩写技能。Use when: shortening English LaTeX text, reducing word count while preserving all information, compressing academic paragraphs. Triggers on keywords: 缩写, 缩减, shorten, compress, reduce length."
+description: "This skill should be used when the user asks to \"缩写\", \"缩减\", \"shorten\", \"compress\", \"reduce length\", or wants English LaTeX text shortened while preserving all information. 论文缩写技能。"
+version: 0.1.0
 ---
 
 # 论文缩写 (Paper Shortening)

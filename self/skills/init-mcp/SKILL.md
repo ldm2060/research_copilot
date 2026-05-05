@@ -1,6 +1,7 @@
 ---
 name: init-mcp
 description: "MCP 环境初始化技能。Use when 第一次配置 MCP 服务器、安装 MCP 依赖、检查 MCP 状态、或用户说 '初始化 MCP'、'init mcp'、'setup mcp'、'装环境'、'配置 MCP'。直接调用 self/install.py 完成跨平台一键配置。"
+version: 0.1.0
 ---
 
 # Init MCP
@@ -35,7 +36,9 @@ python self/install.py
 - MCP 服务器无响应 → 跑 `python self/install.py --skip-deps` 重新写配置和重新验证
 - 验证某个 server 是否可启动 → 跑 `python self/install.py --skip-deps --dry-run` 查看计划，再 `--skip-deps` 单独跑验证
 
-## 当前 self/mcp/mcp.json 中的服务器
+## 当前 `self/mcp/servers/` 中的服务器
+
+`self/mcp/mcp.json` 已移除；真正生效的仓库根 `.mcp.json` 由 `python self/install.py` 扫描 `self/mcp/servers/` 后生成。
 
 | 服务器 | 依赖 | 说明 |
 |---|---|---|

@@ -1,6 +1,7 @@
 ---
 name: scientist-review
-description: "AI Scientist 自动审稿技能。Use when: reviewing a manuscript or PDF directly in Copilot, producing structured review feedback, or when user says '审一下这篇 PDF', '自动审稿', '给我 review'."
+description: "This skill should be used when the user asks to \"审一下这篇 PDF\", \"自动审稿\", \"给我 review\", or wants a manuscript or PDF reviewed directly in Copilot with structured feedback. AI Scientist 自动审稿技能。"
+version: 0.1.0
 ---
 
 # scientist-review

@@ -1,6 +1,7 @@
 ---
 name: model-escalation
-description: "疑难问题升级技能。Use when: repeated debugging or writing iterations fail, the root cause remains unclear, environment limits block progress, or the user is still dissatisfied after multiple attempts. Triggers on keywords: 疑难杂症, 卡住, 多轮迭代无解, 反复失败, 始终不满意, 更强模型, 升级求助."
+description: "This skill should be used when repeated debugging or writing iterations fail, the root cause remains unclear, environment limits block progress, the user is still dissatisfied after multiple attempts, or the user asks to \"疑难杂症\", \"卡住\", \"多轮迭代无解\", \"反复失败\", \"更强模型\", or \"升级求助\". 疑难问题升级技能。"
+version: 0.1.0
 ---
 
 # 疑难问题升级 (Model Escalation)

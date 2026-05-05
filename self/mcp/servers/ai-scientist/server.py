@@ -1,7 +1,7 @@
 """AI Scientist MCP server.
 
 This server intentionally exposes only non-model operational utilities.
-The scientist-support skill bundle retains only static runtime assets and
+The scientist-support runtime bundle retains only static runtime assets and
 experiment directories rather than executable model scripts. Model-driven stages such as ideation,
 experiment search, plotting, writeup, and review are executed as scientist
 agent tasks rather than via MCP.
@@ -40,7 +40,7 @@ TOOLS = [
             "properties": {
                 "project_root": {
                     "type": "string",
-                    "description": "Optional override for the AI Scientist runtime root. If omitted, the server locates the scientist-support skill runtime.",
+                    "description": "Optional override for the AI Scientist runtime root. If omitted, the server locates the scientist-support runtime.",
                 }
             },
             "additionalProperties": False,
@@ -130,8 +130,8 @@ def discover_ai_scientist_root(project_root: str | None = None) -> Path:
     seen: set[str] = set()
     for base in [Path.cwd(), *Path(__file__).resolve().parents]:
         for candidate in [
-            base / ".github" / "skills" / "scientist-support" / "runtime",
-            base / "self" / "skills" / "scientist-support" / "runtime",
+            base / ".github" / "runtimes" / "scientist-support" / "runtime",
+            base / "self" / "runtimes" / "scientist-support" / "runtime",
         ]:
             key = str(candidate)
             if key in seen:
@@ -142,7 +142,7 @@ def discover_ai_scientist_root(project_root: str | None = None) -> Path:
         if candidate.exists() and candidate.is_dir():
             return candidate.resolve()
 
-    raise FileNotFoundError("Could not discover the scientist-support skill runtime. Pass project_root explicitly if you intentionally moved it.")
+    raise FileNotFoundError("Could not discover the scientist-support runtime. Pass project_root explicitly if you intentionally moved it.")
 
 
 def make_text_result(text: str, structured: dict[str, Any] | None = None, is_error: bool = False) -> dict[str, Any]:

@@ -67,6 +67,14 @@ python self/install.py
 | **talk-normal** | `talk-normal/` | 💬 回复风格控制：直接简洁、禁止否定句式、按复杂度选择结构 |
 | **model-escalation** | `model-escalation/` | 🧯 多轮无解时输出可转交更强模型的求助摘要 |
 
+## 🗂️ Runtime 资源（非 skill）
+
+`self/runtimes/` 存放被 MCP server / hook 引用的静态运行时资产，不会被 Claude Code 当作 skill 加载。
+
+| Runtime | 目录 | 说明 |
+|---------|------|------|
+| **scientist-support** | `self/runtimes/scientist-support/runtime/` | AI Scientist 上游 runtime 静态资产；由 `ai-scientist` MCP 的 `validate_runtime` 和 SessionStart hook 检测 |
+
 ## 🔌 MCP 服务器
 
 通过 `python self/install.py` 自动配置。所有 server 在 `self/mcp/servers/`，配置文件由 install 脚本写入项目级 `.mcp.json`。

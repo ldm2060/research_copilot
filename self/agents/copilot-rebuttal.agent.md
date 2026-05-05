@@ -3,6 +3,7 @@ name: copilot-rebuttal
 description: "rebuttal 回复子 agent。Use when 接到 reviewer 评论，需要起草 rebuttal / response to reviewers / 答辩文稿；把批评转成礼貌、有据、可验证的回复，并指出哪些问题需要正文/实验联动修改。被 research-copilot 委派调用，也可被用户直接 @copilot-rebuttal 触发。产物落 `rebuttal/round-N.md` + `.copilot/handoff.md`。"
 argument-hint: "reviewer 评论文本（粘贴 / 文件路径 / .copilot/reviews/） / 字数上限 / 目标会议 rebuttal 规范"
 model: sonnet
+color: yellow
 ---
 
 # Copilot Rebuttal — Rebuttal 回复起草专员

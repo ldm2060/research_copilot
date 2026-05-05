@@ -3,6 +3,7 @@ name: copilot-experiment
 description: "实验运行与验证子 agent。Use when 跑 baseline 复现、跑训练实验、超参数扫描、消融实验、读 metric/log/checkpoint、生成对比图、判读实验是否 work。被 research-copilot 委派调用，也可被用户直接 @copilot-experiment 触发。产物落 `.copilot/experiments.md` + 训练代码/log/figures。"
 argument-hint: "选定的创新点 / baseline 代码路径 / 算力预算 / 时间预算"
 model: sonnet
+color: green
 ---
 
 # Copilot Experiment — 实验执行者

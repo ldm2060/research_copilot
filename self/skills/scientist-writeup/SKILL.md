@@ -1,6 +1,7 @@
 ---
 name: scientist-writeup
-description: "AI Scientist 论文写作技能。Use when: drafting LaTeX or Markdown directly in Copilot from experiment artifacts, preparing paper sections, or when user says '开始写论文', '生成 PDF', '整理成论文'."
+description: "This skill should be used when the user asks to \"开始写论文\", \"生成 PDF\", \"整理成论文\", or wants LaTeX or Markdown drafted directly in Copilot from experiment artifacts. AI Scientist 论文写作技能。"
+version: 0.1.0
 ---
 
 # scientist-writeup

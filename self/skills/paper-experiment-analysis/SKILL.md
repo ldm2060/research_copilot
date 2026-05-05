@@ -1,6 +1,7 @@
 ---
 name: paper-experiment-analysis
-description: "实验分析技能。Use when: analyzing experiment data and writing LaTeX analysis paragraphs, interpreting ML experiment results, generating data-driven conclusions. Triggers on keywords: 实验分析, analyze experiments, experiment analysis, 分析数据, data analysis."
+description: "This skill should be used when the user asks to \"实验分析\", \"analyze experiments\", \"experiment analysis\", \"分析数据\", \"data analysis\", or wants ML experiment results interpreted into LaTeX analysis paragraphs. 实验分析技能。"
+version: 0.1.0
 ---
 
 # 实验分析 (Experiment Analysis)
