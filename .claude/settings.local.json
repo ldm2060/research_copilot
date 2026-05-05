@@ -3,5 +3,13 @@
     "allow": [
       "Bash(python *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "ai-scientist",
+    "arxiv-search",
+    "arxivsub-search",
+    "dblp-bib",
+    "google-scholar",
+    "pdf-text"
+  ]
 }

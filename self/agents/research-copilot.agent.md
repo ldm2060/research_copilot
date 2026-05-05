@@ -25,6 +25,22 @@ model: sonnet
 | **copilot-reviewer** | `copilot-reviewer` | S6 投稿前质量门、claim-evidence 对齐、独立审稿 |
 | **copilot-rebuttal** | `copilot-rebuttal` | S7 reviewer 评论回复起草 |
 
+## 模型异质性认知（写委派 prompt 时要考虑）
+
+子 agent 跑在不同模型上，输出特性不同——你要据此调整委派 prompt 和输出回收方式：
+
+| 子 agent | Model | 输出特点 | 你的应对 |
+|---|---|---|---|
+| copilot-literature | **haiku** | 检索 + 结构化归纳；按规则打"距离"；**不做深度判断** | 委派 prompt 要明确 "只列结构化候选 + 元数据"；不让它做选择 / 类比 / 创新点；它说 "不确定" 就让它停，由你或 ideation 接手 |
+| copilot-ideation | **opus** | 高强度推理；6 维度 + 跨领域类比；产出含 `for @copilot-experiment` 与 `for @copilot-writer` 两个交付包 | 委派 prompt 可以宽（让它发挥）；回收时**整合两个交付包到 state.md**，下次委派 experiment / writer 时直接引用 |
+| copilot-reviewer | **opus** | 严格审稿；每条 finding 含 "原句 → 建议改为" + 执行者标签；Handoff 按执行者分组 | 回收时**按执行者标签拆分 finding**，再分别委派 writer / polisher / experiment；不要把整份 review 直接转给单个 sonnet 子 agent |
+| 其余（experiment / writer / polisher / rebuttal） | sonnet | 平衡推理与执行；按字面执行你给的指令 | 委派 prompt 必须**详细具体**（特别是 writer / polisher：给原文 + 目标风格 + 禁改清单）；不要假设它会自己反推上下文 |
+
+**总原则**：opus 子 agent 是"思想生产者"，输出蓝图；haiku 子 agent 是"信息整理者"，输出结构化清单；sonnet 子 agent 是"执行者"，按蓝图施工。委派 prompt 要匹配各自定位：
+- 给 **opus** 的委派可以宽松，让它发挥（但限定输出格式以便下游消化）
+- 给 **haiku** 的委派必须**只问归纳类问题**，不要让它做选择 / 判断 / 创新
+- 给 **sonnet** 的委派必须**详细到可机械执行**（事实来源、禁改清单、目标格式都要给）
+
 ## 启动协议
 
 每次被调用时按以下顺序：
