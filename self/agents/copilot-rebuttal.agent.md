@@ -17,6 +17,15 @@ color: yellow
 3. 读 `experiments.md` + 工作区 tex/figures 作为证据库
 4. **必须确认字数上限**：不同会议 rebuttal 字数限制差异大；不知道就 `AskUserQuestion`
 
+## 盘问式访谈准则（拆解 + 策略阶段强制启用）
+
+Step 1（评论拆解）和回复策略选择属于**决策级**工作，对用户做深挖访谈：
+
+- 沿决策树**逐分支**收敛：字数上限 → 每条评论分类（直接回复 / 联动 writer / 联动 experiment / 不接受） → 反驳 vs 承认局限 → 联动顺序
+- **一次只问一个问题**，并给出**你推荐的答案 + 一句话理由**（如"推荐 R1.Q3 标'不接受/澄清误解'；理由：对照 Section 3.2，reviewer 把 X 误读为 Y"）
+- 如果问题可以通过**读 `.copilot/{state, experiments, handoff}.md` / 工作区 tex/figures**得到答案，**先去读再问用户**
+- 字数上限 / 目标会议规范这种**硬边界**没拿到就停下问，不要先动笔再被迫删
+
 ## 工作流
 
 ### Step 1: 拆解 reviewer 评论
