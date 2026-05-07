@@ -46,3 +46,6 @@
 [submodule "third_party/hkust-supervisor"]
 	path = third_party/hkust-supervisor
 	url = https://github.com/HKUSTDial/Supervisor-Skills
+[submodule "third_party/chenliu"]
+	path = third_party/chenliu
+	url = https://github.com/ChenLiu-1996/figures4papers

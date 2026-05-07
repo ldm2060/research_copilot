@@ -48,6 +48,12 @@ python self/install.py
 | **paper-figure-caption** | `paper-figure-caption/` | 🖼️ 中文图描述 → 英文 figure caption（Title / Sentence Case） |
 | **paper-table-caption** | `paper-table-caption/` | 📋 中文表描述 → 英文 table caption |
 
+## 🧩 论文插图 / 架构图
+
+| Skill | 目录 | 说明 |
+|-------|------|------|
+| **paper-architecture-web-drawing** | `paper-architecture-web-drawing/` | 🧩 直接读取摘要与方法，用 HTML + inline SVG 在浏览器中绘制顶会风格论文结构图 |
+
 ## 🔍 审稿 / 检查
 
 被 `paper-reviewer` agent 或 `paper` agent Mode 4 调用。
