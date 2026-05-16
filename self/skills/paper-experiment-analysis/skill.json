@@ -1,0 +1,5 @@
+{
+  "name": "paper-experiment-analysis",
+  "description": "Use when the user has ML experiment results and needs them interpreted into LaTeX analysis paragraphs. Triggers on: \"实验分析\", \"analyze experiments\", \"experiment analysis\", \"分析数据\", \"data analysis\". Comparison & trend-driven; not a numerical recitation. Do NOT use for plotting (separate skill) or pure copy-editing.",
+  "entry": "SKILL.md"
+}

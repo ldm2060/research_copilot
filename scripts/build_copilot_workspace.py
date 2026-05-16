@@ -5,6 +5,8 @@ import json
 import os
 import re
 import shutil
+import subprocess
+import sys
 import zipfile
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -81,6 +83,7 @@ TARGET_REPOSITORY_MAP = {
 }
 VERSION_FILE_RELATIVE = Path("self") / "VERSION"
 VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
+SKILL_JSON_GENERATOR_RELATIVE = Path("self") / "scripts" / "generate-skill-json.py"
 
 
 def parse_args() -> argparse.Namespace:
@@ -1044,6 +1047,51 @@ def _copy_hook_scripts(
     return bool(scripts_to_copy)
 
 
+def generate_missing_skill_json(
+    repo_root: Path,
+    skills_dir: Path,
+    report: list[CopiedItem],
+    warnings: list[str],
+) -> None:
+    """Generate a sibling skill.json for every bundled skill that lacks one.
+
+    Required by Claude Code 2.1.142+ for plugin skill discovery. Existing
+    skill.json files are preserved (the generator runs with ``--missing-only``)
+    so third-party skills that ship their own metadata are not rewritten.
+    """
+    if not skills_dir.is_dir():
+        return
+    generator = repo_root / SKILL_JSON_GENERATOR_RELATIVE
+    if not generator.is_file():
+        warnings.append(f"skill.json generator missing: {generator}; skipped")
+        return
+    cmd = [sys.executable, str(generator), "--root", str(skills_dir), "--missing-only"]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        warnings.append(
+            f"skill.json generator exited {result.returncode}: {result.stderr.strip()}"
+        )
+        return
+    for line in result.stdout.splitlines():
+        line = line.strip()
+        # Lines look like "[ok] skill-name" / "[skipped] skill-name" / "[done] ...".
+        if not line.startswith("[") or "]" not in line:
+            continue
+        status, _, name = line.partition("]")
+        status = status.lstrip("[").strip()
+        name = name.strip()
+        if status not in {"ok", "updated"}:
+            continue
+        target = skills_dir / name / "skill.json"
+        report.append(CopiedItem(
+            kind="claude-skill-json",
+            name=f"{name}/skill.json",
+            source="(generated from SKILL.md frontmatter)",
+            target=str(target),
+            operation="generate",
+        ))
+
+
 def package_claude_code_workspace(
     repo_root: Path,
     output_root: Path,
@@ -1141,6 +1189,11 @@ def package_claude_code_workspace(
                 target=str(dest),
                 operation="copy",
             ))
+
+    # 1b. skill.json metadata: Claude Code 2.1.142+ requires a sibling skill.json
+    # next to every SKILL.md. Generate one for any bundled skill that lacks
+    # one (third-party skills that ship their own metadata are preserved).
+    generate_missing_skill_json(repo_root, skills_dir, report, warnings)
 
     # 2. Agents: transform and write to agents/ (plugin root level)
     agents_dir = output_root / "agents"

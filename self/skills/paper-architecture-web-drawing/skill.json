@@ -1,0 +1,5 @@
+{
+  "name": "paper-architecture-web-drawing",
+  "description": "Use when the user wants a paper's abstract + method turned into a publication-ready architecture diagram, rendered as a single HTML file with inline SVG (and Python-generated SVG sub-figures for heatmaps / distributions / scatter / matrices). Triggers on: \"架构图\", \"结构图\", \"method figure\", \"overview figure\", \"pipeline diagram\", \"draw methodology\", \"网页绘图\". Enforces compactness numerics and a mandatory 10-round self-check loop. Do NOT use for line / bar / scatter data plots, posters, art, pure Mermaid sketches, or before the method is settled.",
+  "entry": "SKILL.md"
+}

@@ -1,25 +1,25 @@
 ---
 name: scientist-ideation
-description: "This skill should be used when the user asks to \"生成 ideas\", \"topic 变成想法\", \"AI Scientist 出点子\", or wants a topic/workshop Markdown turned into AI-Scientist-style ideas JSON directly in Copilot. AI Scientist idea 生成技能。"
-version: 0.1.0
+description: "Use when the user has a workshop / topic Markdown and wants it turned into an AI-Scientist-format ideas JSON, generated directly in Copilot. Triggers on: '生成 ideas', 'topic 变成想法', 'AI Scientist 出点子', 'generate ideas from topic'. Copilot-native — no workspace ideation script call."
+version: 0.2.0
 ---
 
 # scientist-ideation
 
-把 workshop/topic Markdown 转成 AI-Scientist 可用的 ideas JSON，但模型输出必须由 Copilot 在当前会话里直接生成。
+Convert a workshop / topic Markdown into an AI-Scientist-compatible ideas JSON. The model output MUST be produced by Copilot in-session.
 
-## 执行方式
+## Execution model
 
-这是 **Copilot-native 模型任务**。由 Copilot 直接读取 topic、推敲 idea、生成 JSON，并在需要时直接落盘到工作区文件。
+This is a **Copilot-native model task**. Copilot reads the topic, brainstorms ideas, generates the JSON, and writes to a workspace file when the user requests it.
 
-## 工作流
+## Workflow
 
-1. 读取用户提供的 workshop/topic Markdown。
-2. 如有必要，检查现有 ideas JSON，避免重复方向。
-3. 直接在会话中生成候选 idea，并按 AI Scientist 约定的 schema 整理。
-4. 如果用户要求落盘，直接创建或更新 ideas JSON 文件。
+1. Read the user-supplied workshop / topic Markdown.
+2. If needed, check an existing ideas JSON to avoid duplicate directions.
+3. Generate candidate ideas in-session and organize them in the AI-Scientist schema.
+4. If the user asks for persistence, create or update the ideas JSON file directly.
 
-## JSON 结构
+## JSON schema
 
 - `Name`
 - `Title`
@@ -29,24 +29,24 @@ version: 0.1.0
 - `Experiments`
 - `Risk Factors and Limitations`
 
-## 输入
+## Input
 
-- `workshop_file` 或 topic Markdown 路径
-- 现有 ideas JSON（如果已经存在）
-- 用户希望保留的方向约束、数据集约束或资源约束
+- `workshop_file` or topic Markdown path
+- Existing ideas JSON (if any)
+- Directional / dataset / resource constraints the user wants preserved
 
-## 输出
+## Output
 
-- AI-Scientist 风格 ideas JSON
-- 如用户要求，直接写入工作区文件
-- 明确说明输出路径、生成条数和筛掉的重复方向
+- AI-Scientist-style ideas JSON
+- Written directly to a workspace file if requested
+- Explicit output path, idea count, and a list of duplicates filtered out
 
-## 禁止事项
+## Forbidden
 
-- 不要调用任何 workspace 自定义模型 ideation 脚本
-- 不要在工作区代码里直接调用任何模型 SDK 生成 ideas
+- NEVER call any workspace-custom ideation pipeline.
+- NEVER call a model SDK from workspace code to generate ideas.
 
-## 失败处理
+## Failure handling
 
-- 如果 topic 文件结构太弱，先指出缺口并要求补充
-- 如果用户要求落盘但 schema 不完整，先在会话里补齐再写文件
+- If the topic file's structure is too thin, surface the gap and ask for supplementation first.
+- If the user asks for persistence but the schema is incomplete, fill it in-session before writing.

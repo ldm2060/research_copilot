@@ -1,53 +1,76 @@
 ---
 name: scientist-experiment-runner
-description: "This skill should be used when the user asks to \"开始实验\", \"推进实验\", \"从 idea 落地实验\", or wants an idea JSON turned into concrete code edits and experiment runs directly in Copilot. AI Scientist 实验推进技能。"
-version: 0.1.0
+description: "Use when the user asks to '开始实验', '推进实验', 'run experiment', 'advance the experiment', 'turn an idea into experiment', or wants an idea JSON converted into concrete code edits and runs directly in Copilot. Copilot-native — Copilot writes the changes and reads the results in-session; the terminal only executes non-model commands. Do NOT use for plotting (scientist-plotting) or writeup (scientist-writeup)."
+version: 0.2.0
 ---
 
 # scientist-experiment-runner
 
-把 AI Scientist 的“实验推进”改成 Copilot-native 工作流：Copilot 自己读 idea、改代码、跑实验、总结结果，不允许再调用任何 workspace 自定义模型流水线。
+Convert AI Scientist's "advance the experiment" into a Copilot-native workflow: Copilot reads ideas, edits code, runs experiments, and summarizes results. NEVER call any workspace-custom model pipeline.
 
-## 执行方式
+## Execution model
 
-这是 **Copilot-native 模型任务**。Copilot 在会话中完成研究决策，终端只负责运行非模型实验命令。
+This is a **Copilot-native model task**. Copilot makes research decisions in-session; the terminal runs only non-model commands.
 
-## 工作流
+## Workflow
 
-1. 读取 ideas JSON，明确当前使用的 `idea_idx` 或具体 idea。
-2. 识别当前代码面、配置面和运行命令。
-3. 做最小必要的代码或配置改动。
-4. 用终端运行实验、测试或评估命令。
-5. 读取结果文件、日志和指标。
-6. 在会话里由 Copilot 继续做下一轮分析和决策。
+1. Read the ideas JSON; lock the `idea_idx` or specific idea in use.
+2. Identify the code surface, config surface, and run commands.
+3. Make the minimum necessary code or config change.
+4. Run experiments / tests / evaluation via the terminal.
+5. Read result files, logs, and metrics.
+6. Continue analysis and the next-round decision in-session.
 
-## 输入
+## Long-run guidance — when an experiment exceeds the longest Bash timeout (10 min)
 
-- `load_ideas` 或 ideas JSON 路径
-- `idea_idx` 或目标 idea 名称
-- 相关代码目录、训练脚本、配置文件、运行命令
-- 预期输出目录或现有实验目录
+**NEVER** poll with repeated `Bash(timeout=600000)` calls to "just wait." Each call burns 10 minutes of context and forces a fresh decision turn on identical state.
 
-## 输出
+Pick the tool by estimated duration:
 
-- 代码 diff
-- 实际运行过的命令
-- 关键指标、日志摘要和产物路径
-- 下一轮实验建议
+| Estimated time | Tool | Why |
+|---|---|---|
+| < 10 min | `Bash` synchronous | Fits in one call |
+| 10 min – 2 h, command exits when done | `Bash(run_in_background=true)` | Harness auto-notifies on exit; zero polling |
+| Hours, you need progress events | `Monitor` with `tail -f log \| grep -E --line-buffered "elapsed_steps=\|Traceback\|Error\|FAILED\|Killed\|OOM"` | One notification per event; ends when the grep filter exits |
+| Hours, no event stream | `ScheduleWakeup(delaySeconds=N, prompt="continue checking experiment X")` | Re-enter cold after delay; cheap |
+| Recurring polls (e.g. every 30 min) | `CronCreate` | Standard cron, in-memory |
 
-## 使用原则
+## Verification before declaring completion
 
-1. Copilot 负责实验策略和结果解释，终端只负责真正的代码执行。
-2. 每次只推进一个最小实验切片，先跑通再扩。
-3. 如已有实验目录，先用 `inspect_experiment` 或直接读日志，不要盲改。
-4. 如果用户只要 plotting / writeup / review，不要误展开完整实验链。
+**Before claiming the experiment finished successfully, you MUST produce one of:**
+- the exact metric value with the exact log line it came from,
+- the file path of the produced artifact + a confirming `ls` / `Read` output,
+- or an explicit "could not verify — here is what I have so far."
 
-## 禁止事项
+A turn that ends with "the experiment finished successfully" without one of the above is a failure mode. A "background command exited 0" notification alone is not verification — the script could have crashed silently or produced empty logs.
 
-- 不要调用任何 workspace 自定义模型流水线
-- 不要通过工作区代码自行发起模型调用
+## Input
 
-## 风险边界
+- `load_ideas` or ideas-JSON path
+- `idea_idx` or target idea name
+- Relevant code directories, training scripts, configs, run commands
+- Expected output directory or existing experiment directory
 
-- 如果运行条件不足，只做方案和代码准备，不要假装实验已经跑完
-- 如果实验耗时很高，先让用户确认运行预算和预期产物
+## Output
+
+- Code diff
+- Commands actually run
+- Key metrics, log summary, artifact paths
+- Suggested next round
+
+## Operating principles
+
+1. Copilot owns experiment strategy and result interpretation; the terminal owns code execution.
+2. Advance one minimum experimental slice per round; get it running before expanding.
+3. If an experiment directory already exists, use `inspect_experiment` (or read logs directly) before blindly editing.
+4. If the user only wants plotting / writeup / review, do NOT auto-expand into the full experiment chain.
+
+## Forbidden
+
+- NEVER call any workspace-custom model pipeline.
+- NEVER initiate model calls from workspace code on your own.
+
+## Risk boundaries
+
+- If runtime conditions are insufficient, prepare the plan and code only; never pretend the experiment ran.
+- If the experiment is very expensive, confirm the run budget and expected artifacts with the user first.

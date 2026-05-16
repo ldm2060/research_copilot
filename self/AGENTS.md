@@ -1,96 +1,154 @@
-# Agents 总览
+# Agents Overview
 
-`self/agents/` 下的 agent 全部为 Claude Code 原生格式（frontmatter 含 `name` / `description` / `model`，**不限制 `tools`**——拥有全部默认工具）。每个 `.agent.md` 可被用户用 `@agent-name` 直接调用，也可被总控通过 `Task(subagent_type="...")` 委派。
+Every file under `self/agents/` follows Claude Code's native format (frontmatter with `name` / `description` / `model`, **no `tools` restriction** — they have access to every default tool). Each `.agent.md` can be invoked directly by the user with `@agent-name`, or delegated by the conductor via `Task(subagent_type="...")`.
 
-## 体系结构
+## System structure
 
 ```
-              ┌─ 用户 ─┐
+              ┌─ user ─┐
               │         │
               ▼         ▼
-   research-copilot   @copilot-<sub> 直调
-   （流程守卫者，          （知道要做什么时的快捷路径）
-    唯一推荐入口）
+   research-copilot   @copilot-<sub> direct call
+   (pipeline guardian,    (shortcut path when you know what to do)
+    recommended single entry)
               │
-              └─ Task() 委派 ─→ 7 个独立子 agent
+              └─ Task() delegate ─→ 7 independent sub-agents
                                   │
-                                  ├─ Skill 工具 → 调能力匹配的 skill
-                                  ├─ MCP 工具 → 调能力匹配的 MCP
-                                  └─ Bash/Edit/Write/Glob/Grep/Read 等 → 本地操作
+                                  ├─ Skill tool → match a capability skill
+                                  ├─ MCP tool   → match a capability MCP
+                                  └─ Bash / Edit / Write / Glob / Grep / Read → local operations
 
-铁律: 子 agent 之间不互相 Task 调用，互动靠"软建议"+ 用户决策
+Iron rule: sub-agents do NOT call Task on each other; they coordinate via "soft suggestions" + user decisions
 ```
 
-## 8 个 agent 一览
+## The 8 agents
 
-| Agent | 文件 | 角色 | Model | Color | 何时用 |
+| Agent | File | Role | Model | Color | When to use |
 |---|---|---|---|---|---|
-| **research-copilot** | `research-copilot.agent.md` | 🧭 全流程总控 | sonnet | magenta | 不知道下一步做什么 / 走全流程 / 通篇优化 / 投稿冲刺 / rebuttal 准备 / 创新点重校 |
-| **copilot-literature** | `copilot-literature.agent.md` | 📚 文献调研 | haiku | cyan | 检索论文 / 锁定 baseline / 补 related work / 核验引用 |
-| **copilot-ideation** | `copilot-ideation.agent.md` | 💡 创新点交互构思 | **opus** | magenta | 找创新方向 / 跨领域头脑风暴 / novelty 重校 |
-| **copilot-experiment** | `copilot-experiment.agent.md` | 🧪 实验运行与验证 | sonnet | green | 跑训练 / 复现 baseline / 消融 / 读 metric / 画图 |
-| **copilot-writer** | `copilot-writer.agent.md` | ✍️ 论文写作 | sonnet | blue | 起草章节 / 把实验结果转成正文 / 扩写 / 缩写 / 翻译 / caption |
-| **copilot-polisher** | `copilot-polisher.agent.md` | ✨ 论文润色 | sonnet | blue | 学术化 / 去 AI 味 / 句式 / 术语统一（不改技术内容） |
-| **copilot-reviewer** | `copilot-reviewer.agent.md` | 🔍 论文审阅 | **opus** | yellow | 投稿前质量门 / claim-evidence 对齐 / 模拟顶会审稿 / rebuttal 自洽性 |
-| **copilot-rebuttal** | `copilot-rebuttal.agent.md` | 💬 rebuttal 回复 | sonnet | yellow | reviewer 评论起草回复 / 答辩文稿 / 联动需求清单 |
+| **research-copilot** | `research-copilot.agent.md` | 🧭 Full-pipeline conductor | sonnet | magenta | "what's next" / "run the full pipeline" / "submission sprint" / "rebuttal prep" / "ideation re-check" |
+| **copilot-literature** | `copilot-literature.agent.md` | 📚 Literature scan | haiku | cyan | search papers / lock baseline / augment related work / verify citations |
+| **copilot-ideation** | `copilot-ideation.agent.md` | 💡 Interactive ideation | **opus** | magenta | find innovation directions / cross-domain brainstorm / novelty re-check |
+| **copilot-experiment** | `copilot-experiment.agent.md` | 🧪 Experiment & validation | sonnet | green | run training / reproduce baseline / ablation / read metric / plot / judge if it works |
+| **copilot-writer** | `copilot-writer.agent.md` | ✍️  Paper writing | sonnet | blue | draft sections / turn results into prose / expand / shorten / translate / captions |
+| **copilot-polisher** | `copilot-polisher.agent.md` | ✨ Paper polishing | sonnet | blue | academic register / de-AI / syntax / terminology (no technical changes) |
+| **copilot-reviewer** | `copilot-reviewer.agent.md` | 🔍 Paper review | **opus** | yellow | pre-submission quality gate / claim-evidence alignment / simulated top-venue review / rebuttal self-check |
+| **copilot-rebuttal** | `copilot-rebuttal.agent.md` | 💬 Rebuttal drafting | sonnet | yellow | draft responses to reviewer comments / defense scripts / follow-up requirement list |
 
-**模型分配理由**:
-- `opus`：高强度推理、跨领域类比、独立审稿——`copilot-ideation` 与 `copilot-reviewer` 需要把"思路新颖性"和"严格审稿"这两类深度判断做扎实
-- `haiku`：偏检索 + 结构化整理，速度优先——`copilot-literature` 大量调论文检索类 MCP，模型本身只做摘要、归类、距离判断
-- `sonnet`：平衡推理与速度——总控、写作、润色、实验、rebuttal 都属于这一档
+**Model assignments — rationale**:
+- `opus`: heavy reasoning, cross-domain analogy, independent review — `copilot-ideation` and `copilot-reviewer` need to solidify "novelty judgment" and "strict review."
+- `haiku`: retrieval + structured organization, speed first — `copilot-literature` calls paper-retrieval MCPs heavily and only needs summary / categorization / distance scoring.
+- `sonnet`: balance of reasoning and speed — conductor, writer, polisher, experiment, rebuttal all fall in this tier.
 
-## 总控的两种工作模式
+## The conductor's two work modes
 
-### 模式 A: 路由（默认）
+### Mode A: Routing (default)
 
-用户问任意问题时：扫 `.copilot/state.md` → 一句话诊断 → 一句话推荐 → 委派单个子 agent **或** 自己整合。
+When the user asks anything: scan `.copilot/state.md` → one-sentence diagnosis → one-sentence recommendation → delegate to one sub-agent **or** integrate yourself.
 
-### 模式 B: 管道
+### Mode B: Pipeline
 
-用户明说时启动，预设模板：
+Triggered by keywords, with preset templates:
 
-| 模板 | 序列 |
+| Template | Sequence |
 |---|---|
-| 完整研究 | S1 文献 → S2 创新点 → S3 实验 → S4 写作 → S5 润色 → S6 审阅 → S7 rebuttal |
-| 投稿前综合优化 | 通读 → S4 扩缩 → S5 润色 → S5 去 AI 味 → S6 终审 |
-| rebuttal 准备 | S6 自检 → S7 草稿 → S6 复审 → S7 定稿 |
-| 创新点重校 | S2 头脑风暴 → S3 快速验证 → 回 S2 修订 或 进 S4 |
-| 自定义 | 用户指定序列（如 `S5→S6→S5→S6`） |
+| Full research | S1 literature → S2 ideation → S3 experiment → S4 writing → S5 polishing → S6 review → S7 rebuttal |
+| Pre-submission overall optimization | read-through → S4 expand/shorten → S5 polish → S5 de-AI → S6 final review |
+| Rebuttal prep | S6 self-check → S7 draft → S6 re-review → S7 final |
+| Ideation re-check | S2 brainstorm → S3 quick experimental validation → back to S2 revise OR forward to S4 |
+| Custom | user-specified sequence (e.g. `S5→S6→S5→S6`) |
 
-每段间必须 `AskUserQuestion` 审批门，未确认不进下一段。
+Every stage transition MUST use `AskUserQuestion` as an approval gate; no advance without confirmation.
 
-## 子 agent 写权限分区（持久化记忆）
+## Non-linear flow & back-edges
 
-`.copilot/` 是跨会话工作记忆，**写权限严格分区**（避免互相覆盖）：
+The forward path `S1 → S2 → S3 → S4 → S5 → S6 → S7` is the happy path. In practice, every stage can emit a **back-edge** signal that asks the conductor to route to an earlier stage. **All back-edges flow through `research-copilot` and are gated behind `AskUserQuestion`** — sub-agents emit suggestions, never dispatch each other.
 
-| 文件 | 写者 | 内容 |
+```
+S1 literature ────┐
+                  ↓
+S2 ideation ←─────┤  ← from S3 (idea has a fundamental flaw / implementation path off)
+       ↓          │  ← from S4 (writing exposes a conceptual gap or unsupported claim)
+S3 experiment ←───┤  ← from S6 (reviewer flags contribution unsupported)
+       ↓          │  ← from S7 (reviewer undermines novelty, rare)
+S4 writer ←───────┤
+       ↓          │  ← from S6 (reviewer flags missing data / ablation)
+S5 polisher       │  ← from S7 (reviewer requires new experiment)
+       ↓
+S6 reviewer
+       ↓
+S7 rebuttal
+```
+
+The complete signal → back-edge mapping lives in `research-copilot.agent.md` §"Back-edge routing matrix." Per-edge loop counters in `.copilot/state.md` cap iteration at **3 fires of the same back-edge**, after which the conductor hard-stops and asks the user via `AskUserQuestion`:
+- "Keep iterating (reset this counter)"
+- "Switch strategy (pause this back-edge)"
+- "Escalate to `/model-escalation`"
+- "Stop the pipeline (I decide)"
+
+This bounds runaway experiment↔ideation or reviewer↔experiment cycles.
+
+## Sub-agent write-permission partitioning (persistent memory)
+
+`.copilot/` is cross-session working memory; **write permissions are strictly partitioned** to avoid mutual overwrite:
+
+| File | Writer | Content |
 |---|---|---|
-| `state.md` | research-copilot | 当前阶段游标 + 推荐下一步 + 阶段历史 |
-| `literature.md` | copilot-literature | 候选论文 + 选定 baseline |
-| `ideas.md` | copilot-ideation | 6 维度创新点候选 + 选定方向 |
-| `experiments.md` | copilot-experiment | 实验设计 + Run N 流水 |
-| `handoff.md` | writer / polisher / reviewer / rebuttal | 子 agent 间事实交接（追加） |
-| `decisions.md` | research-copilot | 每个审批门的决策记录 |
-| `reviews/round-N.md` | copilot-reviewer | 每轮审稿落盘 |
+| `state.md` | research-copilot | Current stage cursor + next-step recommendation + stage history |
+| `literature.md` | copilot-literature | Candidate papers + selected baseline |
+| `ideas.md` | copilot-ideation | 6-dimension candidates + selected direction |
+| `experiments.md` | copilot-experiment | Experiment design + Run-N log |
+| `handoff.md` | writer / polisher / reviewer / rebuttal | Sub-agent fact handoff (append) |
+| `decisions.md` | research-copilot | Decision record at every approval gate |
+| `reviews/round-N.md` | copilot-reviewer | Each independent review round |
 
-**所有子 agent 都可读全部文件**（事实共享）。`handoff.md` 是唯一允许多 agent 追加的文件，只能 append 不能 overwrite。
+**All sub-agents may read every file** (facts shared). `handoff.md` is the only multi-writer file and is append-only.
 
-## 路由约定
+## Routing rules
 
-所有 agent 共享以下硬约束：
+All agents share these hard constraints:
 
-1. **MCP 优先级（泛指）**：检索论文优先用专门的论文检索类 MCP；BibTeX 修订只用专门的 BibTeX 类 MCP；这些找不到才回落 WebSearch。**agent 文件不写具体 MCP 名字**——让 Claude Code 当下根据可用工具列表自动匹配。
-2. **不编造**：数据、引用、实验结果、reviewer 共识，一律不能凭记忆补全。
-3. **不硬编码 skill / MCP / 其他 agent 名**：用能力短语描述（如"论文检索类"、"BibTeX 元数据类"），未来工具列表变动不需要改 agent 文件。
-4. **子 agent 不互相 Task 调用**：所有跨 agent 调度由 research-copilot 发起；子 agent 只能在响应末尾输出"建议下一步"软建议。
-5. **长任务 background**：训练 / 大量检索 / 长 fetch 必须用 `run_in_background=true`，不阻塞主会话。
-6. **WebFetch 单次超时上限 30s**：超时立即放弃，回退 `WebSearch` 摘要。
+1. **MCP priority (generic)** — for paper retrieval prefer the paper-retrieval MCP class; BibTeX edits only via the BibTeX MCP class; fall back to `WebSearch` only if these miss. **Agent files do NOT hardcode MCP names** — let Claude Code match by description keywords against the current tool list.
+2. **NEVER fabricate** — data, citations, experiment results, reviewer consensus must never be reconstructed from memory.
+3. **NEVER hardcode skill / MCP / other agent names** — describe by capability phrase ("paper-retrieval class," "BibTeX metadata class") so future tool-list changes do not require agent edits.
+4. **Sub-agents do NOT Task each other** — all cross-agent dispatch flows through `research-copilot`; sub-agents emit only soft suggestions at end-of-response.
+5. **Long-task discipline** — training / large-scale retrieval / long fetches MUST use `Bash(run_in_background=true)`, `Monitor`, or `ScheduleWakeup`. **NEVER** poll with repeated `Bash(timeout=600000)` to "just wait." See `copilot-experiment.agent.md` §"Step 3: Execute — long-task time-budget rule" for the full table.
+6. **WebFetch single-call timeout cap 30 s** — drop on timeout, fall back to `WebSearch` summary.
 
-## Socket 超时缓解
+## Skill invocation — two modes
 
-- 嵌套 Task 死锁 → 铁律"子 agent 不互调"消除嵌套
-- 硬编码 MCP 优先级累积超时 → 不写死，按当下匹配
-- 长任务阻塞 → 强制 background 模式
-- MCP server 卡死无日志 → `self/scripts/diagnose-mcp.py` 单独探测每个 server
+Agents request a capability skill in one of two ways. The default is the **capability phrase**, which lets the Claude Code harness auto-match against the current skill list and stays robust when names change.
 
-详细诊断：`python self/scripts/diagnose-mcp.py`
+| Mode | When to use | Phrasing in a sub-agent's prompt |
+|---|---|---|
+| **Capability phrase** (default) | The user has not named a specific skill | "Use the available *paper-polish* capability to ..." |
+| **Explicit `Skill(...)`** | The user typed `/<skill-name>` in their request, or auto-activation has demonstrably missed in this session | "Invoke `Skill(skill='paper-polish', args='...')` for this round." |
+
+`self/` ships 23 skills; `third_party/` adds more if installed (`scripts/build_copilot_workspace.py` merges them into `dist/`). The hard constraint "**NEVER hardcode skill / MCP / other agent names in capability prose**" applies to all agents — explicit `Skill(...)` is allowed only for the two carve-outs above.
+
+## Socket-timeout mitigation
+
+- Nested Task deadlocks → the iron rule "sub-agents do not call each other" eliminates nesting
+- Hardcoded MCP-priority accumulating timeouts → no hardcoding, match capability at runtime
+- Long-task blocking → enforced background mode
+- MCP server hang without logs → `self/scripts/diagnose-mcp.py` probes each server individually
+
+Detailed diagnosis: `python self/scripts/diagnose-mcp.py`.
+
+## `/loop` resilience for flaky third-party models
+
+If your Claude Code session is backed by a third-party model that drops mid-task on network glitches, you can arm a session-level watchdog before kicking off a long pipeline:
+
+```
+/loop 1m If the current session's task is not complete, continue. Otherwise, delete this scheduled task.
+```
+
+This re-triggers the model every minute until the work is done, then self-deletes via `CronDelete`. It is a **user-side** practice — agents do not start their own cron tasks (that would surprise the user and conflict with the conductor's "MUST stop at approval gates" hard constraint).
+
+Alternatives when network stability matters:
+- Use the native Claude Code models (Sonnet / Opus / Haiku) — most stable
+- Run `/model-escalation` to hand off a stuck task to a stronger model with a fresh prompt
+- Run `python self/scripts/diagnose-mcp.py` to rule out an MCP hang (a different failure mode that `/loop` will not fix)
+
+Distinguishing the two failure modes:
+- **Model network drop**: the assistant goes silent mid-response or replies with a transport error → `/loop` reactivates
+- **MCP hang**: tool calls return `socket timeout` or never resolve → run `diagnose-mcp.py`, the loop will not unstick this

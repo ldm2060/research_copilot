@@ -9,15 +9,15 @@ Per-server checks:
   4. tail of stderr if anything went wrong
 
 Why this exists:
-  Symptoms like "socket 超时" / hangs in agent calls are often caused by
+  Symptoms like socket-timeout / hangs in agent calls are often caused by
   one specific MCP server being slow, or its stdio pipe deadlocking on
   Windows. Running this script in isolation tells you which server is
   the culprit, without paying the cost of going through Claude Code.
 
 Usage:
-  python self/scripts/diagnose-mcp.py                  # 测全部
-  python self/scripts/diagnose-mcp.py arxiv-search     # 只测一个
-  python self/scripts/diagnose-mcp.py --watch          # 持续监控（每 60s 一轮）
+  python self/scripts/diagnose-mcp.py                  # test all servers
+  python self/scripts/diagnose-mcp.py arxiv-search     # test one server
+  python self/scripts/diagnose-mcp.py --watch          # continuous (60s cadence)
 """
 from __future__ import annotations
 
@@ -154,8 +154,8 @@ def diagnose_one(name: str, cfg: dict[str, Any]) -> bool:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("server", nargs="?", help="只测一个 server（不传则全部测）")
-    parser.add_argument("--watch", action="store_true", help="持续监控，每 60s 一轮")
+    parser.add_argument("server", nargs="?", help="test only this server (default: test all)")
+    parser.add_argument("--watch", action="store_true", help="continuous monitoring, 60s cadence")
     args = parser.parse_args()
 
     config = load_config()
@@ -185,9 +185,9 @@ def main() -> int:
         else:
             print(color("  Some servers failed — see details above ❌", RED))
             print("  Tips:")
-            print("    - 启动慢: 服务器首次加载重型库（pdfplumber 等）")
-            print("    - 卡死: 检查 Windows 任务管理器是否有僵尸 python.exe")
-            print("    - rc != 0: stderr 末尾几行通常会指出原因")
+            print("    - slow start: server cold-loads heavy libs (e.g. pdfplumber) on first call")
+            print("    - hang: check Task Manager (Windows) for zombie python.exe processes")
+            print("    - rc != 0: the last few stderr lines usually name the cause")
         if not args.watch:
             return 0 if all_ok else 1
         time.sleep(60)

@@ -1,29 +1,29 @@
 ---
 name: paper-table-caption
-description: "This skill should be used when the user asks to \"表标题\", \"table caption\", \"table title\", \"表的标题\", or wants publication-ready English table captions from Chinese descriptions. 表标题生成技能。"
-version: 0.1.0
+description: "Use when the user asks for a publication-ready English table caption from a Chinese description. Triggers on: \"表标题\", \"table caption\", \"table title\", \"表的标题\". Outputs the caption text only — no `Table 1:` prefix. Do NOT use for figure captions (paper-figure-caption)."
+version: 0.2.0
 ---
 
-# 表标题生成 (Table Caption Generation)
+# Table Caption Generation
 
 ## Role
-你是一位经验丰富的学术编辑，擅长撰写精准、规范的论文表格标题。
+You are a seasoned academic editor specializing in precise, standards-compliant table captions.
 
 ## Task
-请将用户提供的中文描述转化为符合顶级会议规范的英文表标题。
+Convert the user's Chinese description into a top-conference-grade English table caption.
 
 ## Constraints
 
-### 格式规范
-- 如果翻译结果是名词性短语：请使用 Title Case 格式，即所有实词的首字母大写，末尾不加句号。
-- 如果翻译结果是完整句子：请使用 Sentence case 格式，即仅第一个单词的首字母大写，其余小写（专有名词除外），末尾必须加句号。
+### Format
+- If the result is a **noun phrase**: Title Case (capitalize all content words), no terminal period.
+- If the result is a **complete sentence**: Sentence case (capitalize only the first word, except proper nouns), terminal period required.
 
-### 写作风格
-- 常用句式：对于表格，推荐使用 Comparison with, Ablation study on, Results on 等标准学术表达。
-- 去 AI 味：尽量避免使用 showcase, depict 等词，直接使用 show, compare, present。
+### Style
+- Common patterns for tables: `Comparison with`, `Ablation study on`, `Results on`.
+- De-AI: avoid words like `showcase`, `depict`; use `show`, `compare`, `present`.
 
-### 输出格式
-- 只输出翻译后的英文标题文本。
-- 不要包含 Table 1: 这样的前缀，只输出内容本身。
-- 必须对特殊字符进行转义（例如：`%`、`_`、`&`）。
-- 保持数学公式原样（保留 `$` 符号）。
+### Output format
+- Output only the English caption text.
+- No `Table 1:` prefix — content only.
+- Special chars MUST be escaped (`%`, `_`, `&`).
+- Math expressions stay as-is (keep `$`).

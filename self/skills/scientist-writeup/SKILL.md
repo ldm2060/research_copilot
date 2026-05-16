@@ -1,50 +1,60 @@
 ---
 name: scientist-writeup
-description: "This skill should be used when the user asks to \"开始写论文\", \"生成 PDF\", \"整理成论文\", or wants LaTeX or Markdown drafted directly in Copilot from experiment artifacts. AI Scientist 论文写作技能。"
-version: 0.1.0
+description: "Use when the user asks to '开始写论文', '生成 PDF', '整理成论文', or wants LaTeX / Markdown drafted directly in Copilot from experiment artifacts. Triggers on: 'write the paper', 'generate PDF', 'compile to paper'. Copilot-native — no workspace writeup script call. Do NOT use for review (scientist-review) or plotting (scientist-plotting)."
+version: 0.2.0
 ---
 
 # scientist-writeup
 
-为已有实验目录直接生成或修改 LaTeX / Markdown 论文内容。模型输出由 Copilot 在会话中直接完成，不允许再通过 workspace 自定义脚本调模型。
+Generate or edit LaTeX / Markdown paper content directly from an existing experiment directory. Model output is produced by Copilot in-session; NEVER call workspace-custom model scripts.
 
-## 执行方式
+## Execution model
 
-这是 **Copilot-native 模型任务**。Copilot 直接读取实验结果、写作内容和 LaTeX 文件；终端只负责 LaTeX 编译等非模型命令。
+This is a **Copilot-native model task**. Copilot reads results, writes content, and edits LaTeX files; the terminal handles non-model commands like `pdflatex`.
 
-## 工作流
+## Workflow
 
-1. 读取实验目录、summary 文件、图表和日志。
-2. 识别用户提供的 `latex/template.tex` 或现有论文草稿。
-3. 直接在编辑器中撰写或修改论文内容。
-4. 如用户要求，运行 `pdflatex` / `bibtex` 做编译检查。
-5. 汇报生成的文稿路径、编译结果和剩余缺口。
+1. Read the experiment directory, summary files, figures, and logs.
+2. Identify the user-supplied `latex/template.tex` or the existing draft.
+3. Write or edit paper content directly in the editor.
+4. On user request, run `pdflatex` / `bibtex` for a compilation check.
+5. Report the produced manuscript path, compilation result, and remaining gaps.
 
-## 输入
+## Verification before declaring completion
 
-- `folder`：实验目录
-- `folder/latex/template.tex`：用户自备模板入口
-- 图表、结果摘要、参考文献信息和目标版式要求
+**Before claiming the paper is drafted, you MUST produce one of:**
+- the file path + a short verbatim quote of new content,
+- a `Read` confirmation that the new content is in the file,
+- a successful `pdflatex` exit and the produced PDF path,
+- or an explicit "drafted but could not verify — here is what I have so far."
 
-## 输出
+A turn that ends with "the paper is drafted" without one of the above is a failure mode.
 
-- 修改后的 LaTeX / Markdown 文件
-- 编译后的 PDF 路径（如果执行了编译）
-- 未满足前提列表
+## Input
 
-## 使用原则
+- `folder`: experiment directory
+- `folder/latex/template.tex`: user-provided template entry
+- Figures, summarized results, citation info, and target-layout requirements
 
-1. 先确认模板和依赖文件已经存在。
-2. 先使用真实实验结果写作，不要编造结论或引用。
-3. 当用户只要文字草稿时，不必强行编译 PDF。
+## Output
 
-## 禁止事项
+- Edited LaTeX / Markdown files
+- Compiled PDF path (if compilation was run)
+- List of unmet prerequisites
 
-- 不要调用任何 workspace 自定义模型写作脚本
-- 不要通过 workspace 代码自行调用模型生成论文内容
+## Operating principles
 
-## 结果要求
+1. Confirm the template and dependency files exist before writing.
+2. Write from real experimental results; NEVER fabricate conclusions or citations.
+3. When the user only wants a text draft, do not force a PDF compile.
 
-- 指出修改了哪些论文文件
-- 如果编译失败，返回真实 LaTeX 错误摘要
-- 如果结论还缺实验支撑，明确说明还缺哪些结果
+## Forbidden
+
+- NEVER call any workspace-custom writeup model pipeline.
+- NEVER use custom model calls in workspace code to generate paper text.
+
+## Deliverable requirements
+
+- Name which paper files were edited.
+- If compilation fails, return the real LaTeX error summary.
+- If conclusions still lack experimental support, name the missing results explicitly.

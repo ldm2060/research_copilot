@@ -1,49 +1,49 @@
 ---
 name: scientist-plotting
-description: "This skill should be used when the user asks to \"聚合作图\", \"补图表\", \"整理实验图\", or wants experiment outputs converted into plots and plotting scripts directly in Copilot. AI Scientist 作图技能。"
-version: 0.1.0
+description: "Use when the user asks to '聚合作图', '补图表', '整理实验图', or wants experiment outputs converted into plots + plotting scripts directly in Copilot. Triggers on: 'aggregate plots', 'make figures from results'. Copilot-native — Copilot designs the figure and edits the script; the terminal only runs the Python plotting code. Do NOT use without existing experiment outputs."
+version: 0.2.0
 ---
 
 # scientist-plotting
 
-从已有实验目录中直接生成图表和作图脚本，但模型判断与图表设计由 Copilot 在会话里完成。
+Generate plots and plotting scripts from an existing experiment directory. Model judgment and figure design are done by Copilot in-session.
 
-## 执行方式
+## Execution model
 
-这是 **Copilot-native 模型任务**。Copilot 直接读取结果、决定图表结构、编写或修改 plotting 代码；终端只负责运行纯 Python 作图脚本。
+This is a **Copilot-native model task**. Copilot reads results, decides figure structure, writes / edits plotting code; the terminal only runs pure-Python plotting scripts.
 
-## 工作流
+## Workflow
 
-1. 读取实验目录中的 summary JSON、日志、CSV、NPY 或已有图表。
-2. 确定应该展示哪些指标和对比关系。
-3. 直接创建或修改 matplotlib / seaborn / pandas 作图代码。
-4. 运行作图脚本并检查产物。
-5. 如图表不清晰，再由 Copilot 继续迭代。
+1. Read the experiment directory's summary JSON, logs, CSVs, NPY files, or existing plots.
+2. Decide which metrics and comparisons to display.
+3. Create or edit matplotlib / seaborn / pandas plotting code directly.
+4. Run the plotting script and inspect the output.
+5. If the figure is unclear, iterate.
 
-## 输入
+## Input
 
-- `folder`：实验目录
-- 结果文件路径和格式
-- 用户希望保留的图表规范或论文版式要求
+- `folder`: experiment directory
+- Result file paths and formats
+- Figure conventions or paper-layout constraints the user wants preserved
 
-## 输出
+## Output
 
-- 作图脚本或对现有脚本的修改
-- 图表产物路径
-- 图表设计理由和关键可视化结论
+- Plotting script or edits to an existing script
+- Output figure paths
+- Figure design rationale and the key visual conclusions
 
-## 使用约束
+## Operating principles
 
-- 只在已有实验输出时使用
-- 如果结果文件不完整，先指出缺口，不要伪造图表
+- Only invoke this skill when the experiment outputs already exist.
+- If result files are incomplete, flag the gap; NEVER fabricate plots.
 
-## 禁止事项
+## Forbidden
 
-- 不要调用任何 workspace 自定义模型作图脚本
-- 不要在 workspace 代码里通过自定义模型调用来“自动作图”
+- NEVER call any workspace-custom plotting model pipeline.
+- NEVER use custom model calls in workspace code to "auto-plot."
 
-## 结果要求
+## Deliverable requirements
 
-- 汇报图表路径
-- 说明使用了哪些原始结果文件
-- 如果图未成功生成，返回真实错误和下一步建议
+- Report figure paths.
+- Name the source result files used.
+- If a figure failed to render, return the real error and a suggested next step.

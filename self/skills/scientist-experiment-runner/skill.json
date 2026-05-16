@@ -1,0 +1,5 @@
+{
+  "name": "scientist-experiment-runner",
+  "description": "Use when the user asks to '开始实验', '推进实验', 'run experiment', 'advance the experiment', 'turn an idea into experiment', or wants an idea JSON converted into concrete code edits and runs directly in Copilot. Copilot-native — Copilot writes the changes and reads the results in-session; the terminal only executes non-model commands. Do NOT use for plotting (scientist-plotting) or writeup (scientist-writeup).",
+  "entry": "SKILL.md"
+}

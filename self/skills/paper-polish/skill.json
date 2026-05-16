@@ -1,0 +1,5 @@
+{
+  "name": "paper-polish",
+  "description": "Use when the user asks to deep-polish an English LaTeX paper or a Chinese grant proposal — rigorous academic register, reduced AI feel, structured contribution framing. Triggers on: \"polish\", \"润色\", \"deep rewrite\", \"publication quality\", \"基金润色\". Works in both English (top-conference papers) and Chinese (NSFC-style proposals). Do NOT use for translation, expansion, or shortening — those have their own skills.",
+  "entry": "SKILL.md"
+}

@@ -1,0 +1,5 @@
+{
+  "name": "paper-en2zh",
+  "description": "Use when the user asks to translate English LaTeX paper text into Chinese for comprehension. Triggers on: \"翻译成中文\", \"English to Chinese\", \"英译中\", \"translate to Chinese\". Outputs natural-language Chinese (not LaTeX). Strips citations / refs / formatting commands.",
+  "entry": "SKILL.md"
+}

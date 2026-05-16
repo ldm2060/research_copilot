@@ -1,32 +1,22 @@
 ---
 name: arxivsub-skill
-description: >
-  Academic paper search assistant that routes through the arxivsub-search MCP server to find the latest
-  research papers from arXiv and major AI/CV conferences (CVPR, ICCV, ICLR, ICML, NeurIPS, AAAI, MICCAI).
-  Use this skill whenever the user wants to search for academic papers, find recent research,
-  look up conference publications, discover what's new in a research area, or explore literature
-  on any AI/ML/CV topic. Trigger even for casual phrasing like "find papers on X", "what are
-  the latest papers about Y", "search arXiv for Z", or "any recent work on W".
-version: 0.1.0
+description: "Use whenever the user wants to search for academic papers, find recent research, look up conference publications, or explore literature on any AI / ML / CV topic. Routes through the `arxivsub-search` MCP server (arXiv + CVPR / ICCV / ICLR / ICML / NeurIPS / AAAI / MICCAI). Triggers on: \"find papers on X\", \"what are the latest papers about Y\", \"search arXiv for Z\", \"any recent work on W\", '论文检索', '最新研究'."
+version: 0.2.0
 ---
 
 # arxivsub-skill
 
 Search academic papers via the arXIVSub API through MCP.
 
----
-
 ## Language Rule
 
 **Always respond in the same language the user is using.**
 
----
-
 ## Step 0: Authentication
 
-The `arxivsub-search` MCP server reads the API key automatically from the environment or a `.env` file in the workspace root. Never ask the user for it unless the MCP call fails with a missing-key or auth error, and never pass it as a chat parameter.
+The `arxivsub-search` MCP server reads the API key automatically from the environment or a `.env` file at the workspace root. Never ask the user for it unless the MCP call fails with a missing-key or auth error, and never pass it as a chat parameter.
 
-If the MCP tool reports `missing_api_key` or authentication failure involving `ARXIVSUB_SKILL_KEY`, tell the user (in their language) to set it up via **one** of these methods:
+If the MCP tool reports `missing_api_key` or an auth failure involving `ARXIVSUB_SKILL_KEY`, tell the user (in their language) to set it up via **one** of:
 
 1. Export as a shell environment variable (add to `~/.zshrc` or `~/.bashrc` for persistence):
    ```
@@ -37,23 +27,19 @@ If the MCP tool reports `missing_api_key` or authentication failure involving `A
    ARXIVSUB_SKILL_KEY=your_key_here
    ```
 
-Their API key is found on the Skills page of the arXivSub website.
+The user's API key is found on the Skills page of the arXivSub website.
 
----
+## Step 1: Show search parameters and execute
 
-## Step 1: Show Search Parameters and Execute
-
-Before calling the API, briefly show the interpreted parameters in one line (in the user's language), then proceed immediately without waiting:
+Before calling the API, briefly show the interpreted parameters in one line (in the user's language), then proceed without waiting:
 
 > Searching: query=`"..."`, locations=`[...]`, time=`...`, limit=`...`
 
-Only pause to ask for confirmation if the search intent is genuinely ambiguous (e.g. the user named a term that could mean multiple very different topics).
+Pause only if the search intent is genuinely ambiguous (e.g. a term that could mean multiple very different topics).
 
----
+## Step 2: Call MCP search
 
-## Step 2: Call MCP Search
-
-Call `arxivsub-search.search_papers` with the interpreted search parameters. Omit `arxiv_days` / `conference_years` if not applicable.
+Call `arxivsub-search.search_papers` with the interpreted parameters. Omit `arxiv_days` / `conference_years` if not applicable.
 
 Expected MCP arguments:
 
@@ -70,23 +56,21 @@ Expected MCP arguments:
 
 The MCP tool returns full paper details and `quota_remaining` in structured content. Do not create temp JSON files.
 
----
+## Step 3: Filter and rank
 
-## Step 3: Filter and Rank
-
-Use the returned paper list and select the **top 5–10** papers using this priority:
-1. **Relevance first** — how directly the paper addresses the user's query
+From the returned list, select the **top 5–10** using:
+1. **Relevance first** — how directly the paper addresses the query
 2. **Recency as tiebreaker** — among equally relevant papers, prefer the most recent
 
-## Step 4: Fetch Full Details and Respond
+## Step 4: Fetch full details and respond
 
-Use the returned full paper details to compose the response. **Never mention files, scripts, temp files, or internal mechanics.**
+Compose the response from the returned details. **Never mention files, scripts, temp files, or internal mechanics.**
 
-### Output structure (translate headers to user's language):
+### Output structure (translate headers to the user's language)
 
 **[Research Findings]** — Synthesize insights. Answer the user's question directly.
 
-**[Recommended Papers]** — For each paper, use the full details to write a substantive description (not just `what_about`). Cover: what problem it solves, the key method or contribution, and notable results or significance. Typically 3–5 sentences.
+**[Recommended Papers]** — For each paper, write a substantive description (not just `what_about`). Cover: what problem it solves, the key method or contribution, and notable results or significance. Typically 3–5 sentences.
 
 ```
 **[Title]**
@@ -96,21 +80,19 @@ Use the returned full paper details to compose the response. **Never mention fil
 🔗 [pdf_url]
 ```
 
-At the bottom, show quota in user's language as subscript:
+At the bottom, show quota in the user's language as a footnote:
 English: `Daily quota remaining: N searches` / Chinese: `当日剩余搜索额度：N 次`
 
----
-
-## Key Rules
+## Key rules
 
 - `locations` is **case-sensitive**: `arxiv`, `CVPR`, `ICCV`, `ICLR`, `ICML`, `NeurIPS`, `AAAI`, `MICCAI`
-- Show parameters as a one-liner before calling MCP; only ask for confirmation if the intent is ambiguous
-- If the MCP tool returns an error, classify and handle it:
-  - **Retryable** (network timeout, temporary server error): inform the user and offer to retry automatically
+- Show parameters as a one-liner before calling the MCP; only ask for confirmation if intent is ambiguous
+- If the MCP returns an error, classify and handle:
+  - **Retryable** (network timeout, transient server error): inform the user; offer to retry
   - **Needs user intervention**:
-    - Quota exhausted → tell user their daily quota is used up, no retry
-    - Auth failure / missing key → direct to Step 0 setup instructions
+    - Quota exhausted → tell the user the daily quota is used up; do not retry
+    - Auth failure / missing key → go to Step 0
     - Empty results → suggest broadening the query (fewer locations, wider date range, looser terms)
-    - JSON parse failure / malformed response → report it as an unexpected error and ask user to try again later
-- Never output raw JSON or expose internal mechanics
-- Do not call local skill scripts; all network access must go through MCP
+    - JSON parse failure / malformed response → report as an unexpected error; ask the user to try again later
+- NEVER output raw JSON or expose internal mechanics
+- NEVER call local skill scripts; all network access MUST go through MCP

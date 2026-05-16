@@ -1,92 +1,93 @@
 ---
 name: model-escalation
-description: "This skill should be used when repeated debugging or writing iterations fail, the root cause remains unclear, environment limits block progress, the user is still dissatisfied after multiple attempts, or the user asks to \"疑难杂症\", \"卡住\", \"多轮迭代无解\", \"反复失败\", \"更强模型\", or \"升级求助\". 疑难问题升级技能。"
-version: 0.1.0
+description: "Use when repeated debugging or writing iterations fail, root cause is unclear, environment limits block progress, the user is still dissatisfied after multiple attempts, or the user says '疑难杂症', '卡住', '多轮迭代无解', '反复失败', '更强模型', '升级求助', 'stuck', 'escalate', 'stronger model'. Produces a hand-off summary suitable for a stronger model to pick up."
+version: 0.2.0
 ---
 
-# 疑难问题升级 (Model Escalation)
+# Model Escalation
 
 ## Role
-当问题在当前会话中经过多轮尝试仍无法稳定解决，或你已经清楚感知到当前模型、环境、上下文不足以继续高质量推进时，你的任务是停止低收益试错，并生成一份可直接转交给更强模型的高质量求助摘要。
+When a problem has resisted multiple solid attempts in the current session, or you can clearly perceive that the current model / environment / context cannot continue to make high-quality progress, your job is to **stop low-yield trial-and-error** and produce a high-quality help summary suitable for handoff to a stronger model.
 
-## Use This Skill When
-- 已经进行了 2-3 轮以上有效尝试，问题仍未解决
-- 当前根因不清晰，继续修改会显著增加误改风险
-- 环境、权限、工具或上下文限制阻断验证
-- 用户对结果持续不满意，且你没有新的高置信改进路径
-- 你能明确描述卡点，但不能在当前会话内可靠收敛
+## Use this skill when
+- You have already done ≥ 2–3 rounds of substantive attempts; the problem is unresolved
+- The root cause is unclear; continuing edits will significantly raise the risk of accidental damage
+- Environment / permission / tool / context limits block verification
+- The user remains dissatisfied and you have no high-confidence improvement path
+- You can clearly describe the impasse but cannot reliably converge within this session
 
-## Core Requirements
-- 诚实说明当前状态，不夸大，不掩饰
-- 只写已经验证过的信息；未验证内容必须明确标注为“当前假设”
-- 把目标、现状、已尝试方案、结果、阻塞点分开写清楚
-- 优先保留可执行上下文：错误信息、文件路径、命令、输入输出、影响范围
-- 不要把责任推给用户；你的职责是把求助材料整理到最容易接手的程度
+## Core requirements
+- Be honest about the current state; do not exaggerate, do not cover up
+- Write only verified information; mark anything unverified explicitly as a "current hypothesis"
+- Separate goal, current state, attempts, results, and blocker
+- Preserve executable context: error messages, file paths, commands, I/O, blast radius
+- Do not push responsibility onto the user; your job is to make the handoff as easy to pick up as possible
 
-## Output Format
-严格按以下结构输出给用户。
+## Output format
 
-### 建议升级处理
-当前问题已经进入高成本迭代区，继续在当前会话中试错的收益偏低。建议把下面这份摘要直接发给更强的模型继续处理。
+Output strictly in the structure below.
 
-### 1. 目标
-- 用 1-3 句说明最终想达成什么
-- 写清验收标准或用户期待结果
+### Recommend Escalating
+The current problem has entered a high-cost iteration zone; continued trial-and-error in this session has low yield. Forward the following summary to a stronger model to continue.
 
-### 2. 当前现状
-- 当前做到哪一步
-- 实际表现或错误现象是什么
-- 哪些文件、模块、命令、数据与问题直接相关
+### 1. Goal
+- 1–3 sentences on the desired end state
+- Acceptance criteria or the user's expected outcome
 
-### 3. 已尝试方案
-按时间顺序列出，每一项都包含：
-1. 做了什么
-2. 观察到什么结果
-3. 由此排除了什么，或为什么仍然失败
+### 2. Current state
+- Where you currently are
+- Actual behavior or error symptom
+- Files / modules / commands / data directly related to the issue
 
-### 4. 当前判断
-- 已确认事实
-- 当前假设
-- 真正卡住的位置
+### 3. Attempts so far
+List in chronological order; each item includes:
+1. What was done
+2. Observed result
+3. What this rules out, or why it still fails
 
-### 5. 建议更强模型重点回答的问题
-- 列出 1-3 个最核心问题
-- 问题必须具体，不能泛泛地说“帮我看看哪里错了”
+### 4. Current judgment
+- Confirmed facts
+- Current hypotheses
+- The actual blocker location
 
-### 6. 可直接转发的求助提示词
+### 5. Suggested questions for the stronger model
+- 1–3 most central questions
+- MUST be specific. NEVER "help me see what's wrong."
+
+### 6. Forwardable help prompt
+
 ```text
-我在处理一个问题，请基于下面信息继续推进，并优先给出最小可验证方案。
+I am working on a problem; please continue from the information below and prioritize a minimum verifiable plan.
 
-目标：
+Goal:
 ...
 
-当前现状：
+Current state:
 ...
 
-已尝试方案：
+Attempts so far:
 ...
 
-已确认事实：
+Confirmed facts:
 ...
 
-当前假设：
+Current hypotheses:
 ...
 
-卡点：
+Blocker:
 ...
 
-请重点回答：
+Please focus on:
 1. ...
 2. ...
 3. ...
 
-如果你建议修改代码，请优先给出最小改动方案，并说明如何验证。
+If you recommend code changes, prefer a minimum-change plan and state how to verify it.
 ```
 
-## Execution Checklist
-在输出前自查：
-1. 是否明确区分了“事实”和“假设”
-2. 是否写清了用户真正要的结果，而不只是表面报错
-3. 是否完整列出了已经尝试过的关键路径，避免更强模型重复走弯路
-4. 是否给出了具体问题，方便对方直接切入
-5. 是否已经停止继续无把握地试错，把重点转为高质量交接
+## Execution checklist before output
+1. Have you clearly separated facts from hypotheses?
+2. Have you stated the user's actual desired outcome rather than just the surface error?
+3. Are the critical paths attempted listed completely, so a stronger model does not waste time repeating them?
+4. Are the suggested questions specific enough to act on?
+5. Have you stopped doing uncertain trial-and-error and shifted to high-quality handoff?

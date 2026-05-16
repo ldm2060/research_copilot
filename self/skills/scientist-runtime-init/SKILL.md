@@ -1,46 +1,46 @@
 ---
 name: scientist-runtime-init
-description: "This skill should be used when the user asks to \"检查环境\", \"能不能跑 AI Scientist\", \"runtime check\", \"初始化 AI Scientist 环境\", or wants the ai-scientist MCP to validate Python, CUDA, LaTeX, poppler, and runtime prerequisites. AI Scientist 运行环境检查技能。"
-version: 0.1.0
+description: "Use when the user asks to '检查环境', '能不能跑 AI Scientist', 'runtime check', '初始化 AI Scientist 环境', or wants the ai-scientist MCP to validate Python / CUDA / LaTeX / poppler / runtime prerequisites. Routes through the `ai-scientist` MCP `validate_runtime`. Do NOT use as a substitute for actually running an experiment."
+version: 0.2.0
 ---
 
 # scientist-runtime-init
 
-通过 ai-scientist MCP 检查当前工作区里的 scientist-support AI Scientist runtime 运行条件。
+Validate the scientist-support AI Scientist runtime preconditions in the current workspace via the `ai-scientist` MCP.
 
-## 目标
+## Goal
 
-优先确认以下条件，而不是直接启动长时间实验：
+Confirm the following before launching any long experiment:
 
-- runtime 根目录是否存在
-- Python 是否可用
-- `pdflatex`、`bibtex`、`pdftotext`、`chktex` 是否可用
-- `torch.cuda.is_available()` 是否为真
-- 当前平台是否适合继续做本地实验和 LaTeX 编译
+- Runtime root directory exists
+- Python is available
+- `pdflatex`, `bibtex`, `pdftotext`, `chktex` are available
+- `torch.cuda.is_available()` is true
+- The current platform is suitable for local experiments and LaTeX compilation
 
-## 首选方式
+## Preferred method
 
-如果要做完整检查，统一调用 ai-scientist MCP 的 `validate_runtime`。
+For a full check, use the `ai-scientist` MCP `validate_runtime` tool.
 
-这个 skill 负责组织检查步骤和输出格式，不应该再依赖 skill 目录里的 runner 或其他脚本入口。
+This skill organizes the check steps and the output format; it does NOT depend on any in-skill runner or alternative script entry point.
 
-如果 MCP 不可用，再用终端手动检查同一组宿主条件，但保持同样的输出结构。
+If the MCP is unavailable, fall back to terminal checks on the same conditions, keeping the same output structure.
 
-## 输出要求
+## Output requirements
 
-以“就绪 / 缺失 / 风险”三栏归纳：
+Summarize in three columns: Ready / Missing / Risk:
 
-- 已满足项
-- 缺失项
-- 风险项（例如 Windows 平台、无 GPU、无 LaTeX）
+- **Ready**: satisfied items
+- **Missing**: missing items
+- **Risk**: e.g. Windows platform, no GPU, no LaTeX
 
-最后给出下一步建议：
+End with a next-step recommendation:
 
-- 可以继续 ideation
-- 可以继续本地实验、plotting 辅助或论文编译
-- 必须先补环境
+- Can continue with ideation
+- Can continue with local experiments, plotting support, or paper compilation
+- Must fix the environment first
 
-## 禁止事项
+## Forbidden
 
-- 不要调用任何 skill 内 runner 或脚本入口
-- 不要把 API key 或模型 SDK 可用性当成 runtime-init 检查项
+- NEVER call any in-skill runner or script entry point.
+- NEVER treat API-key or model-SDK availability as a runtime-init check item.

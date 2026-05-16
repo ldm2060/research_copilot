@@ -1,0 +1,5 @@
+{
+  "name": "arxivsub-skill",
+  "description": "Use whenever the user wants to search for academic papers, find recent research, look up conference publications, or explore literature on any AI / ML / CV topic. Routes through the `arxivsub-search` MCP server (arXiv + CVPR / ICCV / ICLR / ICML / NeurIPS / AAAI / MICCAI). Triggers on: \"find papers on X\", \"what are the latest papers about Y\", \"search arXiv for Z\", \"any recent work on W\", '论文检索', '最新研究'.",
+  "entry": "SKILL.md"
+}

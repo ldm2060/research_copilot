@@ -1,0 +1,5 @@
+{
+  "name": "paper-sanity-check",
+  "description": "Use when the user is preparing to submit a paper or has completed a major revision and needs a pre-submission factual / structural / logical audit. Triggers on: \"sanity check\", \"查错\", \"基础检查\", \"check paper\", \"verify paper\", \"论文检查\", \"pre-submission check\". Six-pass audit. Do NOT use for writing style (paper-polish) or substantive review (paper-review).",
+  "entry": "SKILL.md"
+}

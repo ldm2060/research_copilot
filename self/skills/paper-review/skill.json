@@ -1,0 +1,5 @@
+{
+  "name": "paper-review",
+  "description": "Use when the user wants a top-conference reviewer perspective on paper quality, with a severe-but-constructive tone. Triggers on: \"审稿\", \"review\", \"reviewer\", \"peer review\", \"评审\". Outputs a review report + strategic author advice. Do NOT use for pre-submission sanity check (paper-sanity-check) or polish (paper-polish).",
+  "entry": "SKILL.md"
+}

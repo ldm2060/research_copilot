@@ -8,8 +8,10 @@ What it does (idempotent):
   1. Install Python deps from self/mcp/requirements.txt (pdfplumber)
   2. Write a project-level .mcp.json that points at self/mcp/servers/
   3. Register the SessionStart hook in .claude/settings.json
-  4. Verify each MCP server can start by handshaking JSON-RPC initialize
-  5. Warn (without failing) if optional secrets like ARXIVSUB_SKILL_KEY are missing
+  4. Regenerate skill.json metadata for every self/skills/* (required by
+     Claude Code 2.1.142+ for plugin skill discovery)
+  5. Verify each MCP server can start by handshaking JSON-RPC initialize
+  6. Warn (without failing) if optional secrets like ARXIVSUB_SKILL_KEY are missing
 
 Usage:
   python self/install.py                 # full install at repo root
@@ -35,6 +37,8 @@ MCP_SOURCE_DIR = SELF_DIR / "mcp"
 MCP_SERVERS_DIR = MCP_SOURCE_DIR / "servers"
 MCP_REQUIREMENTS = MCP_SOURCE_DIR / "requirements.txt"
 HOOK_SCRIPT = SELF_DIR / "hooks" / "scripts" / "scientist_guardrails.py"
+SKILLS_DIR = SELF_DIR / "skills"
+SKILL_JSON_GENERATOR = SELF_DIR / "scripts" / "generate-skill-json.py"
 
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
@@ -69,7 +73,7 @@ def step(msg: str) -> None:
 # -------- Step 1: install Python deps --------
 
 def install_python_deps(dry_run: bool) -> bool:
-    step("Step 1/4: install Python dependencies")
+    step("Step 1/5: install Python dependencies")
     if not MCP_REQUIREMENTS.is_file():
         warn(f"requirements file not found: {MCP_REQUIREMENTS}; skipping")
         return True
@@ -132,7 +136,7 @@ def build_mcp_config(target: Path) -> dict[str, Any]:
                 "PYTHONUTF8": "1",
                 "PYTHONUNBUFFERED": "1",
                 # Print Python traceback to stderr if a server hangs
-                # (helps diagnose "socket 超时" symptoms).
+                # (helps diagnose socket-timeout symptoms).
                 "PYTHONFAULTHANDLER": "1",
                 # Avoid numpy/openblas multi-threading deadlocks on Windows
                 # when MCP servers are spawned as children of Claude Code.
@@ -143,7 +147,7 @@ def build_mcp_config(target: Path) -> dict[str, Any]:
 
 
 def write_mcp_config(target: Path, dry_run: bool) -> dict[str, Any]:
-    step("Step 2/4: write project .mcp.json")
+    step("Step 2/5: write project .mcp.json")
     config = build_mcp_config(target)
     out_path = target / ".mcp.json"
     info(f"Writing {len(config['mcpServers'])} servers to {out_path}")
@@ -158,7 +162,7 @@ def write_mcp_config(target: Path, dry_run: bool) -> dict[str, Any]:
 # -------- Step 3: register SessionStart hook --------
 
 def register_hook(target: Path, dry_run: bool) -> None:
-    step("Step 3/4: register SessionStart hook in .claude/settings.json")
+    step("Step 3/5: register SessionStart hook in .claude/settings.json")
     if not HOOK_SCRIPT.is_file():
         warn(f"hook script missing: {HOOK_SCRIPT}; skipping hook registration")
         return
@@ -209,10 +213,37 @@ def register_hook(target: Path, dry_run: bool) -> None:
     settings_path.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-# -------- Step 4: verify each MCP server starts --------
+# -------- Step 4: regenerate skill.json metadata --------
+
+def regenerate_skill_jsons(dry_run: bool) -> bool:
+    """Run self/scripts/generate-skill-json.py to ensure every skill has a
+    skill.json sibling (required by Claude Code 2.1.142+)."""
+    step("Step 4/5: regenerate skill.json metadata for self/skills/*")
+    if not SKILL_JSON_GENERATOR.is_file():
+        warn(f"missing generator: {SKILL_JSON_GENERATOR}; skipping")
+        return True
+    if not SKILLS_DIR.is_dir():
+        warn(f"missing skills dir: {SKILLS_DIR}; skipping")
+        return True
+    cmd = [sys.executable, str(SKILL_JSON_GENERATOR), "--root", str(SKILLS_DIR)]
+    info("Plan: " + " ".join(cmd))
+    if dry_run:
+        return True
+    try:
+        result = subprocess.run(cmd, check=False)
+    except FileNotFoundError as exc:
+        error(f"failed to spawn generator: {exc}")
+        return False
+    if result.returncode != 0:
+        warn(f"generator exited with {result.returncode}; skills may not be discoverable")
+        return False
+    return True
+
+
+# -------- Step 5: verify each MCP server starts --------
 
 def verify_mcp_servers(config: dict[str, Any]) -> dict[str, str]:
-    step("Step 4/4: verify each MCP server initializes")
+    step("Step 5/5: verify each MCP server initializes")
     results: dict[str, str] = {}
     initialize_payload = {
         "jsonrpc": "2.0",
@@ -301,6 +332,7 @@ def main() -> int:
 
     config = write_mcp_config(target, args.dry_run)
     register_hook(target, args.dry_run)
+    regenerate_skill_jsons(args.dry_run)
 
     if not args.skip_verify and not args.dry_run:
         verify_mcp_servers(config)
@@ -311,9 +343,9 @@ def main() -> int:
     info("Install complete.")
     info("Next steps:")
     print("  1. Restart Claude Code (or run /clear) to pick up new MCP servers")
-    print("  2. Try: @research-copilot '看看这个研究当前在哪一步'")
-    print("  3. 直调子 agent: @copilot-literature / @copilot-ideation / @copilot-experiment / @copilot-writer / @copilot-polisher / @copilot-reviewer / @copilot-rebuttal")
-    print("  4. MCP 卡顿排查: python self/scripts/diagnose-mcp.py")
+    print("  2. Try: @research-copilot 'show me where this research currently stands'")
+    print("  3. Call a sub-agent directly: @copilot-literature / @copilot-ideation / @copilot-experiment / @copilot-writer / @copilot-polisher / @copilot-reviewer / @copilot-rebuttal")
+    print("  4. Diagnose MCP latency: python self/scripts/diagnose-mcp.py")
     return 0
 
 
