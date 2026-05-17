@@ -1,0 +1,5 @@
+{
+  "name": "deep-interview",
+  "description": "Pre-plan Socratic clarification. Use BEFORE drafting any plan (ideation direction, experiment Goal anchor, rebuttal strategy, pipeline routing) to expose hidden assumptions, lock topology, and converge on scope. Walks the decision tree one branch at a time with a recommended answer per question and an explicit ambiguity score, stopping only when the score crosses the threshold. Triggers on: '帮我厘清需求', '我有个想法不太明确', '在写计划前先聊清楚', '深度访谈', 'clarify before planning', 'deep interview', 'requirements interview', 'scope before plan'.",
+  "entry": "SKILL.md"
+}

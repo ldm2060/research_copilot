@@ -57,7 +57,7 @@ self/
 │   ├── copilot-polisher.agent.md       ✨ paper polishing
 │   ├── copilot-reviewer.agent.md       🔍 paper review
 │   └── copilot-rebuttal.agent.md       💬 rebuttal drafting
-├── skills/                         # 23 skills (not hardcoded by any agent file)
+├── skills/                         # 25 skills (not hardcoded by any agent file)
 │   ├── paper-*/                        # paper writing / rewriting / checks
 │   ├── scientist-*/                    # AI Scientist workflow capabilities
 │   ├── arxivsub-skill/                 # arXiv + top-venue search capability

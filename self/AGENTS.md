@@ -123,7 +123,7 @@ Agents request a capability skill in one of two ways. The default is the **capab
 | **Capability phrase** (default) | The user has not named a specific skill | "Use the available *paper-polish* capability to ..." |
 | **Explicit `Skill(...)`** | The user typed `/<skill-name>` in their request, or auto-activation has demonstrably missed in this session | "Invoke `Skill(skill='paper-polish', args='...')` for this round." |
 
-`self/` ships 23 skills; `third_party/` adds more if installed (`scripts/build_copilot_workspace.py` merges them into `dist/`). The hard constraint "**NEVER hardcode skill / MCP / other agent names in capability prose**" applies to all agents — explicit `Skill(...)` is allowed only for the two carve-outs above.
+`self/` ships 25 skills; `third_party/` adds more if installed (`scripts/build_copilot_workspace.py` merges them into `dist/`). The hard constraint "**NEVER hardcode skill / MCP / other agent names in capability prose**" applies to all agents — explicit `Skill(...)` is allowed only for the two carve-outs above.
 
 ## Socket-timeout mitigation
 

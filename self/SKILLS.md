@@ -74,6 +74,8 @@ Called by `copilot-reviewer` or the `paper` agent Mode 4.
 
 | Skill | Directory | Description |
 |---|---|---|
+| **deep-interview** | `deep-interview/` | 🎙️ Pre-plan Socratic clarification — Round-0 topology lock + one-question-per-round Socratic loop + ambiguity score; emits a crystallised spec then hands off. Used BEFORE any plan is committed (Goal anchor / Selected direction / rebuttal strategy / pipeline route) |
+| **grill-with-docs** | `grill-with-docs/` | 🔥 Post-plan gap check — stress-tests a committed plan against `.copilot/glossary.md` + literature + handoff + codebase; updates glossary inline; offers ADRs only when the triple bar (hard-to-reverse + surprising + real trade-off) holds. Used AFTER any plan-block is written |
 | **arxivsub-skill** | `arxivsub-skill/` | 🔍 arXiv + top-venue search via the `arxivsub-search` MCP (CVPR / ICCV / ICLR / ICML / NeurIPS / AAAI / MICCAI) |
 | **init-mcp** | `init-mcp/` | 🚀 Run `self/install.py` for the one-shot MCP setup |
 | **talk-normal** | `talk-normal/` | 💬 Reply style controller: direct, concise, no filler, no negation-based contrast. Includes the "think in English, answer in user's language" rule |

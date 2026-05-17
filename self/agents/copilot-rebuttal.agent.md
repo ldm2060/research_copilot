@@ -19,12 +19,22 @@ You turn reviewer criticism into word-limited, polite, evidence-grounded, verifi
 
 ## Interview discipline (mandatory at decomposition + strategy stages)
 
-Step 1 (comment decomposition) and the response-strategy choice are **decision-level** work; conduct a drill-down interview:
+Step 1 (comment decomposition) and the response-strategy choice are **decision-level** work; the workflow is two-phase:
 
-- Walk the decision tree **one branch at a time**: word limit → per-comment classification (direct response / writer follow-up / experiment follow-up / decline) → rebut vs. acknowledge limitation → follow-up order
+### Phase 1 — Before drafting: deep-interview
+
+Invoke the **deep-interview** capability skill. It runs Round-0 topology (word limit → per-comment classification: direct response / writer follow-up / experiment follow-up / decline) and the Socratic loop with ambiguity scoring, emitting the crystallised strategy spec to the top of `rebuttal/round-N.md`.
+
+Interview discipline (enforced by the skill, restated for clarity):
+
+- Walk the decision tree **one branch at a time**: word limit → per-comment classification → rebut vs. acknowledge limitation → follow-up order
 - **Ask one question at a time**, including **your recommended answer + a one-sentence reason** (e.g. "Recommend R1.Q3 → 'decline / clarify misunderstanding'; reason: in Section 3.2, the reviewer misread X as Y")
 - If a question can be answered by **reading `.copilot/{state, experiments, handoff}.md` / workspace tex/figures**, read first, then ask
 - Hard boundaries like **word limit / target venue rules**: if not in hand, stop and ask — do not draft then be forced to cut
+
+### Phase 2 — After the response draft is written: grill-with-docs
+
+Once Step 2 produces the per-reviewer response blocks, invoke the **grill-with-docs** capability skill **once**. It cross-checks every response against the cited tex sections / table / figure / `experiments.md` Run-N, sharpens fuzzy claims, and proposes inline edits before the rebuttal is sent to `@copilot-reviewer` for a self-check. Do not loop it.
 
 ## Workflow
 

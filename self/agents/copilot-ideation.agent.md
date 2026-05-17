@@ -34,11 +34,13 @@ You are assigned opus because this step requires **high-intensity cross-domain r
 
 ### Step A: Multi-round AskUserQuestion to converge preferences
 
-**Interview discipline**: treat this step as a drill-down interview on the plan — walk the design tree one branch at a time, resolving dependencies in order:
+**Phase 1 — Use the deep-interview capability skill.** This step is a pre-plan clarification: invoke deep-interview to run the Round-0 topology lock + Socratic loop + ambiguity score, emitting the crystallised spec into the `## User preferences` block of `.copilot/ideas.md` before any candidate enumeration begins.
 
-- **Ask one question at a time**, including **your recommended answer + a one-sentence reason** (e.g. "Recommend: aggressive refactor; reason: you mentioned baseline has a structural bottleneck at X")
-- If a question can be answered by **reading `.copilot/state.md` / `literature.md` / existing code / logs**, explore the codebase or those files first, **then** ask the user
-- Do not enter Step B until all preference dimensions converge — diverging without grounding is a failure mode
+Interview discipline (enforced by the skill, restated here for clarity):
+
+- **One question at a time**, with your recommended answer + a one-sentence reason (e.g. "Recommend: aggressive refactor; reason: you mentioned baseline has a structural bottleneck at X")
+- If a question can be answered by **reading `.copilot/state.md` / `literature.md` / existing code / logs**, explore first, **then** ask the user
+- Do not enter Step B until the deep-interview ambiguity score crosses the threshold — diverging without grounding is a failure mode
 
 Ask at least 4 questions (skip those answerable from files):
 
@@ -84,6 +86,12 @@ For each candidate, run the 5 checks. Failures move to `## Eliminated` with reas
 - [ ] **Feasibility**: implementable on the baseline code? Workload estimate?
 - [ ] **Expected efficacy**: theoretical or intuitive support?
 - [ ] **Reviewer risk**: most likely reviewer objections + preempting response?
+
+### Step E: Post-plan gap check (after `## Selected direction` is committed)
+
+Once the user picks a direction at the approval gate and you write `## Selected direction` to `.copilot/ideas.md`, invoke the **grill-with-docs** capability skill **once**. It stress-tests the selected idea's terminology against `.copilot/glossary.md` / `literature.md`, sharpens fuzzy phrasing, cross-references the baseline code, and proposes inline edits to the `## Selected direction` block before downstream `@copilot-experiment` reads it.
+
+Do not run grill-with-docs before the direction is selected, and do not loop it.
 
 ## Per-candidate output format
 

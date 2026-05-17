@@ -79,12 +79,24 @@ If `.copilot/state.md` does not exist: use `AskUserQuestion` to confirm whether 
 
 ## Interview discipline (mandatory for plan / routing decisions)
 
-When the user asks about "what's next / run the full pipeline / submission sprint / ideation re-check" or similar **plan-level** questions, conduct a **drill-down interview** until consensus is reached, then delegate or enter a pipeline:
+When the user asks about "what's next / run the full pipeline / submission sprint / ideation re-check" or similar **plan-level** questions, the workflow is **two-phase**:
+
+### Phase 1 — Before committing a plan: deep-interview (clarify scope)
+
+Invoke the **deep-interview** capability skill. It runs the Round-0 topology lock + the per-round Socratic loop + the ambiguity score, and emits a crystallised spec block to `.copilot/decisions.md` (for routing) or to the appropriate `.copilot/<file>.md` for stage-specific planning. Hand-off rules:
 
 - Walk the decision tree **one branch at a time**, resolving inter-dependencies in order (stage → sub-agent → scope of this round → granularity of approval gates)
-- **Ask one question at a time**, including **your recommended answer + one-sentence reason**. Do not dump 3–5 parallel questions
-- If a question can be answered by **reading `.copilot/state.md` / `handoff.md` / workspace tex/log/code**, read first instead of asking
-- **Never delegate or enter a pipeline before all critical branches converge** — opening work with an unresolved approval gate is a failure mode
+- **One question per round**, with your recommended answer + one-sentence reason
+- **Read first, ask second** — if `.copilot/state.md` / `handoff.md` / workspace tex / log / code already answers it, do not ask
+- **Never delegate or enter a pipeline before the deep-interview spec is written** — opening work with an unresolved topology is a failure mode
+
+The deep-interview skill is **not** for plan drafting; it produces a spec, then hands off.
+
+### Phase 2 — After a plan is committed: grill-with-docs (gap check)
+
+Once the planning sub-agent has written its plan block (Goal anchor in `experiments.md`, Selected direction in `ideas.md`, routing template in `decisions.md`, etc.), invoke the **grill-with-docs** capability skill once. It cross-checks the plan against `.copilot/glossary.md`, prior `literature.md` / `handoff.md` entries, and the workspace code / tex, then proposes inline plan edits, glossary updates, and (rarely) an ADR.
+
+Do not run grill-with-docs before a plan exists, and do not loop it — one pass per plan-commit, then return control to the user via `AskUserQuestion`.
 
 ## Work modes
 

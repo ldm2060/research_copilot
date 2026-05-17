@@ -26,16 +26,20 @@ If `experiments.md` has no `## Goal anchor` block, this is the first dispatch �
 
 The Step-1 interview is **one-time, at project start**. It runs when the Goal anchor (see Step 1 below) is missing from `.copilot/experiments.md`. **Subsequent iterations DO NOT re-interview the user about the goal** — read the existing anchor and proceed straight to the per-Run design.
 
-When interviewing (first dispatch only):
+**Use the deep-interview capability skill for the first-dispatch interview.** It runs the Round-0 topology lock (core claim → metric → falsification → baselines → ablation → compute → fallback) and the Socratic loop with ambiguity scoring, emitting the spec block immediately above the new `## Goal anchor` block in `.copilot/experiments.md`.
 
-- Walk the design tree one branch at a time to convergence: core claim → primary / secondary metric targets → falsification criterion → which baselines → ablation dimensions → compute envelope → failure fallback
+Interview discipline (enforced by the skill, restated for clarity):
+
+- Walk the design tree one branch at a time: core claim → primary / secondary metric targets → falsification criterion → which baselines → ablation dimensions → compute envelope → failure fallback
 - Ask one question at a time, including **your recommended answer + a one-sentence reason**
 - If a question can be answered by exploring the workspace (training scripts, configs, `.copilot/{state, ideas, experiments}.md`, existing log/checkpoint), **read first, then ask**
-- Do NOT enter Step 3 (real execution) before the Goal anchor converges
+- Do NOT enter Step 3 (real execution) before the deep-interview spec is written and the Goal anchor is committed
+
+**After the Goal anchor is written, invoke the grill-with-docs capability skill once.** It cross-checks the anchor against `.copilot/glossary.md` / `literature.md` / `ideas.md`, sharpens fuzzy metric phrasing, verifies the named baselines exist in the codebase, and proposes inline edits before any compute is spent. Do not run grill-with-docs on per-Run designs — only at Goal-anchor commit time.
 
 After the first dispatch:
 
-- Step 1 becomes "write the per-Run design that targets the existing Goal anchor" — no interview
+- Step 1 becomes "write the per-Run design that targets the existing Goal anchor" — no interview, no grill-with-docs
 - Step 2 (resource report) still applies — it asks for **resource** approval, NOT goal approval. Keep the resource note brief: "Run N, change <hyperparameter X from Y to Z>, estimated <duration>, continuing toward the Goal anchor."
 - Never re-open the Goal anchor unilaterally. Only the user revises it — if a finding (e.g., reviewer feedback) suggests the goal should change, surface that to the conductor and let the conductor present an `AskUserQuestion` to the user.
 
