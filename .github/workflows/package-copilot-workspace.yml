@@ -195,13 +195,53 @@ jobs:
           git remote add gitee https://ldm2060:${{ secrets.GITEE_TOKEN }}@gitee.com/ldm2060/research_copilot.git
 
       - name: Fetch existing deploy branch from Gitee
-        run: git fetch gitee deploy 2>/dev/null || true
+        shell: bash
+        run: |
+          GITEE_GIT_TIMEOUT_SECONDS=180
+
+          gitee_git() {
+            timeout "${GITEE_GIT_TIMEOUT_SECONDS}s" git \
+              -c http.lowSpeedLimit=1000 \
+              -c http.lowSpeedTime=60 \
+              "$@"
+          }
+
+          gitee_git fetch gitee deploy || true
 
       - name: Deploy to Gitee (deploy branch + tag)
         shell: bash
         run: |
           VERSION="${{ needs.build.outputs.version }}"
           TAG="v${VERSION}"
+          GITEE_GIT_TIMEOUT_SECONDS=180
+          GITEE_RETRY_ATTEMPTS=4
+          GITEE_RETRY_DELAY_SECONDS=30
+
+          retry() {
+            local label="$1"
+            local attempts="$2"
+            local delay_seconds="$3"
+            shift 3
+            local attempt=1
+
+            until "$@"; do
+              local exit_code=$?
+              if [ "$attempt" -ge "$attempts" ]; then
+                echo "${label} failed after ${attempts} attempts (exit code ${exit_code})."
+                return "$exit_code"
+              fi
+              echo "${label} failed on attempt ${attempt}/${attempts} (exit code ${exit_code}); retrying in ${delay_seconds}s."
+              sleep "$delay_seconds"
+              attempt=$((attempt + 1))
+            done
+          }
+
+          gitee_git() {
+            timeout "${GITEE_GIT_TIMEOUT_SECONDS}s" git \
+              -c http.lowSpeedLimit=1000 \
+              -c http.lowSpeedTime=60 \
+              "$@"
+          }
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -226,21 +266,21 @@ jobs:
             echo "$ALL_TAGS" | head -n -3 | while read old_tag; do
               echo "  Pruning old tag: ${old_tag}"
               # Delete Gitee Release: get release ID first, then delete by ID
-              RELEASE_ID=$(curl -s \
+              RELEASE_ID=$(curl -fsS --connect-timeout 20 --max-time 60 --retry 3 --retry-delay 5 --retry-connrefused \
                 "https://gitee.com/api/v5/repos/ldm2060/research_copilot/releases/tags/${old_tag}?access_token=${{ secrets.GITEE_TOKEN }}" \
                 | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('id',''))" 2>/dev/null || true)
               if [ -n "$RELEASE_ID" ]; then
-                curl -s -X DELETE \
+                curl -fsS --connect-timeout 20 --max-time 60 --retry 3 --retry-delay 5 --retry-connrefused -X DELETE \
                   "https://gitee.com/api/v5/repos/ldm2060/research_copilot/releases/${RELEASE_ID}?access_token=${{ secrets.GITEE_TOKEN }}" \
                   2>/dev/null || true
               fi
               # Delete remote tag
-              git push gitee ":refs/tags/${old_tag}" 2>/dev/null || true
+              gitee_git push gitee ":refs/tags/${old_tag}" 2>/dev/null || true
               # Delete local tag
               git tag -d "${old_tag}" 2>/dev/null || true
             done
           fi
 
           # Push
-          git push gitee deploy --force
-          git push gitee "${TAG}"
+          retry "Push Gitee deploy branch" "$GITEE_RETRY_ATTEMPTS" "$GITEE_RETRY_DELAY_SECONDS" gitee_git push gitee deploy --force
+          retry "Push Gitee tag ${TAG}" "$GITEE_RETRY_ATTEMPTS" "$GITEE_RETRY_DELAY_SECONDS" gitee_git push gitee "${TAG}"
