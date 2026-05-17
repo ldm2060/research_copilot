@@ -1,0 +1,5 @@
+{
+  "name": "ppw-logic",
+  "description": "Verify logical consistency across paper sections.\nTraces argument chains and identifies gaps, unsupported claims,\nterminology inconsistencies, and number contradictions.\n论文逻辑验证，识别论证链断裂、无支撑声明、术语不一致、数字矛盾。",
+  "entry": "SKILL.md"
+}

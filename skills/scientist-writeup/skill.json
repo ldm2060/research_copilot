@@ -1,0 +1,5 @@
+{
+  "name": "scientist-writeup",
+  "description": "Use when the user asks to '开始写论文', '生成 PDF', '整理成论文', or wants LaTeX / Markdown drafted directly in Copilot from experiment artifacts. Triggers on: 'write the paper', 'generate PDF', 'compile to paper'. Copilot-native — no workspace writeup script call. Do NOT use for review (scientist-review) or plotting (scientist-plotting).",
+  "entry": "SKILL.md"
+}

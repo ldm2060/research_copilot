@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ai-scientist",
+      "mcp__arxiv-search",
+      "mcp__arxivsub-search",
+      "mcp__dblp-bib",
+      "mcp__google-scholar",
+      "mcp__pdf-text"
+    ]
+  }
+}

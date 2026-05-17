@@ -1,0 +1,5 @@
+{
+  "name": "scientist-runtime-init",
+  "description": "Use when the user asks to '检查环境', '能不能跑 AI Scientist', 'runtime check', '初始化 AI Scientist 环境', or wants the ai-scientist MCP to validate Python / CUDA / LaTeX / poppler / runtime prerequisites. Routes through the `ai-scientist` MCP `validate_runtime`. Do NOT use as a substitute for actually running an experiment.",
+  "entry": "SKILL.md"
+}

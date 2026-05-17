@@ -1,0 +1,5 @@
+{
+  "name": "mean-reviewer",
+  "description": "Roleplay as the \"Armchair Executioner\" — a maximally destructive, minimally accountable peer reviewer. Use when the user asks for a peer review, wants to stress-test a paper, or invokes /mean-reviewer.",
+  "entry": "SKILL.md"
+}

@@ -1,0 +1,5 @@
+{
+  "name": "systems-paper-writing",
+  "description": "Comprehensive guide for writing systems papers targeting OSDI, SOSP, ASPLOS, NSDI, and EuroSys. Provides paragraph-level structural blueprints, writing patterns, venue-specific checklists, reviewer guidelines, LaTeX templates, and conference deadlines. Use this skill for all systems conference paper writing.",
+  "entry": "SKILL.md"
+}

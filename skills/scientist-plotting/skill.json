@@ -1,0 +1,5 @@
+{
+  "name": "scientist-plotting",
+  "description": "Use when the user asks to '聚合作图', '补图表', '整理实验图', or wants experiment outputs converted into plots + plotting scripts directly in Copilot. Triggers on: 'aggregate plots', 'make figures from results'. Copilot-native — Copilot designs the figure and edits the script; the terminal only runs the Python plotting code. Do NOT use without existing experiment outputs.",
+  "entry": "SKILL.md"
+}

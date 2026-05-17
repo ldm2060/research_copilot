@@ -1,0 +1,5 @@
+{
+  "name": "ppw-update",
+  "description": "Sync local skills and references from the GitHub repo. Triggers on update skills, sync skills, 更新技能, 同步技能",
+  "entry": "SKILL.md"
+}

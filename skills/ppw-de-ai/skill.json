@@ -1,0 +1,5 @@
+{
+  "name": "ppw-de-ai",
+  "description": "Detect and rewrite AI-generated patterns in English academic text.\nTwo-phase workflow: scan with risk tagging, then batch rewrite.\nTriggers on \"de-AI\", \"降AI\", \"reduce AI traces\", \"AI检测\".",
+  "entry": "SKILL.md"
+}

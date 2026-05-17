@@ -1,0 +1,5 @@
+{
+  "name": "ppw-cover-letter",
+  "description": "Generate submission-ready cover letters from paper content and target journal requirements.\nIncludes contribution statement, data availability, conflict of interest, and contact block.\n生成投稿信，包含贡献声明、数据可用性、利益冲突声明和联系方式。",
+  "entry": "SKILL.md"
+}
