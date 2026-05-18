@@ -1,0 +1,5 @@
+{
+  "name": "ppw-experiment",
+  "description": "Analyze experiment results and generate discussion paragraphs for academic papers.\nTwo-phase workflow: identify measurable findings (Phase 1), confirm with user,\nthen generate grounded discussion paragraphs (Phase 2).\nAccepts tables, statistics, or result descriptions. 实验分析与讨论段落生成。",
+  "entry": "SKILL.md"
+}

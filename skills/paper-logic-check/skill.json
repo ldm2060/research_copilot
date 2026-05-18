@@ -1,0 +1,5 @@
+{
+  "name": "paper-logic-check",
+  "description": "Use when the user asks for a red-line consistency / logic check on near-final English LaTeX. High tolerance — only fatal issues are reported. Triggers on: \"逻辑检查\", \"logic check\", \"校对\", \"proofread\", \"consistency check\". Do NOT use for style polishing (paper-polish) or pre-submission audit (paper-sanity-check).",
+  "entry": "SKILL.md"
+}

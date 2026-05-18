@@ -1,0 +1,5 @@
+{
+  "name": "figure-designer",
+  "description": "Advises on the design of the three core figures in a technical paper:\nthe Motivated Example (Figure 1), the Solution Overview\n(Methodology), and the Experimental Results figures. Recommends the\nright design paradigm, layout, labelling, and tool for each figure\ntype, then runs a quality-control audit. Use when the user asks to\n'design a figure', 'draw Figure 1', 'plot experiment results',\n'choose the right chart type', 'which figure tool to use', or\n'figure looks unprofessional'.",
+  "entry": "SKILL.md"
+}

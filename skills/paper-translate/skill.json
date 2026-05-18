@@ -1,0 +1,5 @@
+{
+  "name": "paper-translate",
+  "description": "Use when the user has a Chinese academic draft and needs it converted to publication-ready English LaTeX. Triggers on: \"中译英\", \"Chinese to English\", \"translate\", \"翻译成英文\". Combined translation + light polish. Do NOT use for English-to-Chinese (use paper-en2zh) or deep rewriting (use paper-polish).",
+  "entry": "SKILL.md"
+}

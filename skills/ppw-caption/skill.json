@@ -1,0 +1,5 @@
+{
+  "name": "ppw-caption",
+  "description": "Generate or optimize figure/table captions for academic papers.\nGeography-aware: study area, CRS notation, data source.\nWrites output to .tex file. 图表标题生成与优化。",
+  "entry": "SKILL.md"
+}

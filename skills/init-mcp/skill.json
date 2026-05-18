@@ -1,0 +1,5 @@
+{
+  "name": "init-mcp",
+  "description": "Use when configuring MCP servers for the first time, installing MCP dependencies, checking MCP status, or when the user says '初始化 MCP', 'init mcp', 'setup mcp', '装环境', '配置 MCP', 'install MCP', 'configure MCP'. Delegates to self/install.py for cross-platform one-shot setup.",
+  "entry": "SKILL.md"
+}

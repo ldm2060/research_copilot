@@ -1,0 +1,5 @@
+{
+  "name": "ppw-team",
+  "description": "Orchestrate parallel paper processing. Split paper into sections and run\nany eligible Skill (polish, translation, de-ai) across sections via subagents.\n团队协作模式：将论文拆分为章节并行处理。",
+  "entry": "SKILL.md"
+}

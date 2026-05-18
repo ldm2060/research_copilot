@@ -1,0 +1,5 @@
+{
+  "name": "ppw-visualization",
+  "description": "Recommend appropriate chart types for experimental data with rationale and tool hints.\nGeography-aware: choropleth, spatial scatter, kernel density when spatial data detected.\n为实验数据推荐合适的图表类型，支持地理空间数据可视化建议。",
+  "entry": "SKILL.md"
+}

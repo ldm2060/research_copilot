@@ -1,0 +1,5 @@
+{
+  "name": "scientist-review",
+  "description": "Use when the user asks to '审一下这篇 PDF', '自动审稿', '给我 review', or wants a manuscript / PDF reviewed in Copilot with structured feedback. Triggers on: 'review this manuscript', 'auto-review'. Copilot-native — no workspace review script call.",
+  "entry": "SKILL.md"
+}

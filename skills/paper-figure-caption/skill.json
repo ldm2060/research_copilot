@@ -1,0 +1,5 @@
+{
+  "name": "paper-figure-caption",
+  "description": "Use when the user asks for a publication-ready English figure caption from a Chinese description. Triggers on: \"图标题\", \"figure caption\", \"figure title\", \"图的标题\". Outputs the caption text only — no `Figure 1:` prefix. Do NOT use for table captions (paper-table-caption).",
+  "entry": "SKILL.md"
+}

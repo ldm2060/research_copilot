@@ -1,0 +1,5 @@
+{
+  "name": "paper-shorten",
+  "description": "Use when the user asks to lightly compress English LaTeX text without losing information (target 5-15 words removed). Triggers on: \"缩写\", \"缩减\", \"shorten\", \"compress\", \"reduce length\". Does NOT delete content; only tightens syntax. Do NOT use for expansion (paper-expand) or translation (paper-translate).",
+  "entry": "SKILL.md"
+}

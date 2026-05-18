@@ -1,0 +1,5 @@
+{
+  "name": "pre-submission-reviewer",
+  "description": "Runs a pre-submission review of a technical paper across five\ndimensions: macro logic, writing details, English grammar, LaTeX\nformatting, and figure quality. Uses a reviewer-style severity\ntaxonomy (CRITICAL / MAJOR / MINOR) and flags banned AI-tone\nvocabulary and em-dash misuse. Use when the user asks to 'review\nthis paper', 'audit before submission', 'check the draft', 'find\nissues', 'proofread', or within one week of a submission\ndeadline.",
+  "entry": "SKILL.md"
+}

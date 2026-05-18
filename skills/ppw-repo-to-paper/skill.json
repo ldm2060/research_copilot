@@ -1,0 +1,5 @@
+{
+  "name": "ppw-repo-to-paper",
+  "description": "Scan an experiment repo and generate a complete paper outline (H1/H2/H3)\nwith user approval checkpoints at each level, then generate body text\nwith evidence annotations, citations, and bilingual output. Python ML repos.\n扫描实验仓库，逐级生成论文大纲（H1/H2/H3），每级用户确认后推进，\n然后生成带证据标注、引用和双语输出的正文文本。",
+  "entry": "SKILL.md"
+}

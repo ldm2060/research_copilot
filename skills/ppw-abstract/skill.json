@@ -1,0 +1,5 @@
+{
+  "name": "ppw-abstract",
+  "description": "Generate or optimize academic paper abstracts using the 5-sentence Farquhar formula.\nSupports generate-from-scratch and restructure-existing paths. Produces labeled output\nfor formula verification plus a clean version for clipboard use.\n摘要生成与优化，支持从原始材料生成或改写现有摘要。",
+  "entry": "SKILL.md"
+}

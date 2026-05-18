@@ -1,0 +1,5 @@
+{
+  "name": "talk-normal",
+  "description": "Reply-style controller. Use this skill on every turn to keep responses direct, dense, and free of filler. Triggers on: every conversational context — load this skill as the default reply style, in any language. 对话风格控制技能。",
+  "entry": "SKILL.md"
+}

@@ -1,0 +1,5 @@
+{
+  "name": "model-escalation",
+  "description": "Use when repeated debugging or writing iterations fail, root cause is unclear, environment limits block progress, the user is still dissatisfied after multiple attempts, or the user says '疑难杂症', '卡住', '多轮迭代无解', '反复失败', '更强模型', '升级求助', 'stuck', 'escalate', 'stronger model'. Produces a hand-off summary suitable for a stronger model to pick up.",
+  "entry": "SKILL.md"
+}

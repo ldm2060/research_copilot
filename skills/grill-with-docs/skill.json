@@ -1,0 +1,5 @@
+{
+  "name": "grill-with-docs",
+  "description": "Post-plan stress test. Use AFTER a plan is drafted (Goal anchor, ideation candidate, rebuttal strategy, pipeline template) to gap-check the plan against the project's existing documentation, terminology, and recent reviewer / handoff history in `.copilot/`. Sharpens fuzzy terms inline, cross-references the codebase / tex / logs, and offers ADRs only when a decision is hard to reverse. Never used to draft the plan itself. Triggers on: '校验计划', '对着文档拷问', '把计划放到文档里盘一遍', 'grill the plan', 'stress-test plan', 'audit plan against docs', 'check plan for gaps'.",
+  "entry": "SKILL.md"
+}
