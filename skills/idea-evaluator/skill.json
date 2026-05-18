@@ -1,0 +1,5 @@
+{
+  "name": "idea-evaluator",
+  "description": "Evaluates a preliminary research idea against a five-dimension framework\n(Higher, Faster, Stronger, Cheaper, Broader) plus idea-lifecycle and\nstudent-capability matching, paradigm-shift probing, and a fatal-flaws\naudit. Returns a reviewer-style verdict. Use when the user has a draft\nresearch idea and asks whether it is worth pursuing, asks to 'evaluate\nthis idea', 'score this idea', 'assess feasibility', 'novelty check',\n'is this a good research direction', or before committing to a paper\nscope.",
+  "entry": "SKILL.md"
+}

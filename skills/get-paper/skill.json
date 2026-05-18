@@ -1,0 +1,5 @@
+{
+  "name": "get-paper",
+  "description": "Search Google Scholar via Chrome DevTools MCP, let the user select a paper,\nand retrieve its BibTeX entry. 通过 Chrome DevTools MCP 在 Google Scholar 搜索论文并获取 BibTeX 引用。",
+  "entry": "SKILL.md"
+}

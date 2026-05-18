@@ -1,0 +1,5 @@
+{
+  "name": "scientist-ideation",
+  "description": "Use when the user has a workshop / topic Markdown and wants it turned into an AI-Scientist-format ideas JSON, generated directly in Copilot. Triggers on: '生成 ideas', 'topic 变成想法', 'AI Scientist 出点子', 'generate ideas from topic'. Copilot-native — no workspace ideation script call.",
+  "entry": "SKILL.md"
+}

@@ -1,0 +1,5 @@
+{
+  "name": "paper-deai",
+  "description": "Use when the user asks to de-AI English LaTeX prose, humanize it, or remove the mechanical / chat-bot patterns. Triggers on: \"去AI味\", \"de-AI\", \"remove AI patterns\", \"humanize\", \"去机械化\". Rewrites at the same word count — does not add or delete content. Do NOT use for translation, expansion, or shortening — those have their own skills.",
+  "entry": "SKILL.md"
+}

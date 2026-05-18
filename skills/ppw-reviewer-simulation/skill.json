@@ -1,0 +1,5 @@
+{
+  "name": "ppw-reviewer-simulation",
+  "description": "Simulate peer review of academic papers with structured feedback.\nProduces bilingual review report with scoring and actionable suggestions.\nTriggers on \"review\", \"peer review\", \"simulate reviewer\",\n\"审稿\", \"模拟评审\".",
+  "entry": "SKILL.md"
+}

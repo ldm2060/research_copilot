@@ -1,0 +1,5 @@
+{
+  "name": "ppw-translation",
+  "description": "Translate Chinese academic text into polished English for journal submission.\nProduces LaTeX output with bilingual comparison. 将中文学术草稿翻译为投稿级英文。",
+  "entry": "SKILL.md"
+}

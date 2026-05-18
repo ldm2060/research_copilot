@@ -1,0 +1,5 @@
+{
+  "name": "intro-drafter",
+  "description": "Drafts a 6-paragraph Introduction outline for a technical paper from a\nstructured Flowchart: background and running example, existing\nlimitations, problem essence and goal, key challenges, solution\noverview, contributions. Positions the paper as Technique or New\nProblem/Setting and aligns contributions with challenges. Use when\nthe user asks to 'draft the Introduction', 'outline the\nIntroduction', 'intro logic needs clarifying', 'help structure the\npaper story', or before writing any Introduction prose.",
+  "entry": "SKILL.md"
+}

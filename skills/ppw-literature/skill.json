@@ -1,0 +1,5 @@
+{
+  "name": "ppw-literature",
+  "description": "Search academic literature via Semantic Scholar MCP, select papers interactively,\nand generate verified BibTeX entries. 文献检索与BibTeX生成，通过Semantic Scholar MCP。",
+  "entry": "SKILL.md"
+}

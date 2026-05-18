@@ -1,0 +1,5 @@
+{
+  "name": "scientific-figure-making",
+  "description": "Covers publication-ready matplotlib figures for academic papers, slides, and\nreports—bars, trends, scatter, heatmaps, and multi-panel layouts—with this\nrepository’s house style, print/vector export conventions, and parity with\nfigures4papers demos. Use when the user is finalizing or creating such figures\nin matplotlib. Do not use for interactive dashboards or web viz (Plotly, Altair,\nBokeh), exploratory-only plots without a publication target, dominant 3D or\ngeographic mapping, or Illustrator/Figma-first infographic workflows.",
+  "entry": "SKILL.md"
+}

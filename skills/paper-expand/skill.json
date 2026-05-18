@@ -1,0 +1,5 @@
+{
+  "name": "paper-expand",
+  "description": "Use when the user asks to lightly expand English LaTeX text — add depth, surface implicit reasoning, increase logical connection. Triggers on: \"扩写\", \"expand\", \"enrich\", \"elaborate\". Does NOT pad with filler. Do NOT use for shortening (paper-shorten) or translation (paper-translate).",
+  "entry": "SKILL.md"
+}

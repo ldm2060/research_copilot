@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python self/hooks/scripts/scientist_guardrails.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
