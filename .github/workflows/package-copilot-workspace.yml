@@ -190,58 +190,29 @@ jobs:
           print('Done')
           "
 
+      - name: Setup SSH key for Gitee
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.GITEE_SSH_KEY }}
+
+      - name: Add Gitee's SSH host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -t rsa,ecdsa,ed25519 gitee.com >> ~/.ssh/known_hosts 2>/dev/null
+
       - name: Add Gitee remote
         run: |
-          git remote add gitee https://ldm2060:${{ secrets.GITEE_TOKEN }}@gitee.com/ldm2060/research_copilot.git
+          git remote add gitee git@gitee.com:ldm2060/research_copilot.git
 
       - name: Fetch existing deploy branch from Gitee
         shell: bash
-        run: |
-          GITEE_GIT_TIMEOUT_SECONDS=180
-
-          gitee_git() {
-            timeout "${GITEE_GIT_TIMEOUT_SECONDS}s" git \
-              -c http.lowSpeedLimit=1000 \
-              -c http.lowSpeedTime=60 \
-              "$@"
-          }
-
-          gitee_git fetch gitee deploy || true
+        run: git fetch gitee deploy || true
 
       - name: Deploy to Gitee (deploy branch + tag)
         shell: bash
         run: |
           VERSION="${{ needs.build.outputs.version }}"
           TAG="v${VERSION}"
-          GITEE_GIT_TIMEOUT_SECONDS=180
-          GITEE_RETRY_ATTEMPTS=4
-          GITEE_RETRY_DELAY_SECONDS=30
-
-          retry() {
-            local label="$1"
-            local attempts="$2"
-            local delay_seconds="$3"
-            shift 3
-            local attempt=1
-
-            until "$@"; do
-              local exit_code=$?
-              if [ "$attempt" -ge "$attempts" ]; then
-                echo "${label} failed after ${attempts} attempts (exit code ${exit_code})."
-                return "$exit_code"
-              fi
-              echo "${label} failed on attempt ${attempt}/${attempts} (exit code ${exit_code}); retrying in ${delay_seconds}s."
-              sleep "$delay_seconds"
-              attempt=$((attempt + 1))
-            done
-          }
-
-          gitee_git() {
-            timeout "${GITEE_GIT_TIMEOUT_SECONDS}s" git \
-              -c http.lowSpeedLimit=1000 \
-              -c http.lowSpeedTime=60 \
-              "$@"
-          }
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -275,12 +246,12 @@ jobs:
                   2>/dev/null || true
               fi
               # Delete remote tag
-              gitee_git push gitee ":refs/tags/${old_tag}" 2>/dev/null || true
+              git push gitee ":refs/tags/${old_tag}" 2>/dev/null || true
               # Delete local tag
               git tag -d "${old_tag}" 2>/dev/null || true
             done
           fi
 
           # Push
-          retry "Push Gitee deploy branch" "$GITEE_RETRY_ATTEMPTS" "$GITEE_RETRY_DELAY_SECONDS" gitee_git push gitee deploy --force
-          retry "Push Gitee tag ${TAG}" "$GITEE_RETRY_ATTEMPTS" "$GITEE_RETRY_DELAY_SECONDS" gitee_git push gitee "${TAG}"
+          git push gitee deploy --force
+          git push gitee "${TAG}"
