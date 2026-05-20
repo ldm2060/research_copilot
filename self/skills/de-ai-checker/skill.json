@@ -1,0 +1,5 @@
+{
+  "name": "de-ai-checker",
+  "description": "Validation skill for de-AI quality checking. Use AFTER polishing to verify that AI patterns have been removed and text reads naturally. Triggers on: 'check de-AI quality', 'verify humanization', 'validate polish', 'de-AI checker', '检查去AI效果'. This is a validation-gate compatible wrapper around paper-deai.",
+  "entry": "SKILL.md"
+}
