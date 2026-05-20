@@ -18,7 +18,7 @@ Every file under `self/agents/` follows Claude Code's native format (frontmatter
                                   ├─ MCP tool   → match a capability MCP
                                   └─ Bash / Edit / Write / Glob / Grep / Read → local operations
 
-Iron rule: sub-agents do NOT call Task on each other; they coordinate via "soft suggestions" + user decisions
+Coordination rule: `research-copilot` owns cross-stage routing; `copilot-*` stage coordinators may dispatch narrow worker sub-agents only after writing a `.copilot/pipelines/<round>.md` ledger and must review worker returns before reporting.
 ```
 
 ## The 8 agents
@@ -100,6 +100,7 @@ This bounds runaway experiment↔ideation or reviewer↔experiment cycles.
 | `handoff.md` | writer / polisher / reviewer / rebuttal | Sub-agent fact handoff (append) |
 | `decisions.md` | research-copilot | Decision record at every approval gate |
 | `reviews/round-N.md` | copilot-reviewer | Each independent review round |
+| `pipelines/*.md` | current stage coordinator | Per-round plan, worker dispatch log, worker returns, coordinator review, stage output |
 
 **All sub-agents may read every file** (facts shared). `handoff.md` is the only multi-writer file and is append-only.
 
@@ -110,7 +111,7 @@ All agents share these hard constraints:
 1. **MCP priority (generic)** — for paper retrieval prefer the paper-retrieval MCP class; BibTeX edits only via the BibTeX MCP class; fall back to `WebSearch` only if these miss. **Agent files do NOT hardcode MCP names** — let Claude Code match by description keywords against the current tool list.
 2. **NEVER fabricate** — data, citations, experiment results, reviewer consensus must never be reconstructed from memory.
 3. **NEVER hardcode skill / MCP / other agent names** — describe by capability phrase ("paper-retrieval class," "BibTeX metadata class") so future tool-list changes do not require agent edits.
-4. **Sub-agents do NOT Task each other** — all cross-agent dispatch flows through `research-copilot`; sub-agents emit only soft suggestions at end-of-response.
+4. **Controlled worker dispatch** — cross-stage dispatch still flows through `research-copilot`, while a `copilot-*` stage coordinator may dispatch narrow worker sub-agents inside its own stage after creating a pipeline ledger. Workers emit evidence and artifacts; the parent coordinator decides what is accepted.
 5. **Long-task discipline** — training / large-scale retrieval / long fetches MUST use `Bash(run_in_background=true)`, `Monitor`, or `ScheduleWakeup`. **NEVER** poll with repeated `Bash(timeout=600000)` to "just wait." See `copilot-experiment.agent.md` §"Step 3: Execute — long-task time-budget rule" for the full table.
 6. **WebFetch single-call timeout cap 30 s** — drop on timeout, fall back to `WebSearch` summary.
 
@@ -127,7 +128,7 @@ Agents request a capability skill in one of two ways. The default is the **capab
 
 ## Socket-timeout mitigation
 
-- Nested Task deadlocks → the iron rule "sub-agents do not call each other" eliminates nesting
+- Nested Task deadlocks → worker dispatch is narrow, ledger-gated, and never cross-stage; long tasks still use background / monitor / wakeup discipline
 - Hardcoded MCP-priority accumulating timeouts → no hardcoding, match capability at runtime
 - Long-task blocking → enforced background mode
 - MCP server hang without logs → `self/scripts/diagnose-mcp.py` probes each server individually

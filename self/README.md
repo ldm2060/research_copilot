@@ -57,10 +57,11 @@ self/
 │   ├── copilot-polisher.agent.md       ✨ paper polishing
 │   ├── copilot-reviewer.agent.md       🔍 paper review
 │   └── copilot-rebuttal.agent.md       💬 rebuttal drafting
-├── skills/                         # 25 skills (not hardcoded by any agent file)
+├── skills/                         # 26 skills (not hardcoded by any agent file)
 │   ├── paper-*/                        # paper writing / rewriting / checks
 │   ├── scientist-*/                    # AI Scientist workflow capabilities
 │   ├── arxivsub-skill/                 # arXiv + top-venue search capability
+│   ├── plugin-dev-agent-development/   # agent / skill / plugin workflow capability
 │   ├── init-mcp/                       # MCP install entry
 │   ├── talk-normal/                    # reply style
 │   └── model-escalation/               # escalation handoff
@@ -84,8 +85,11 @@ Cross-session working memory lives in the repo-root `.copilot/`, owned by `@rese
 ├── experiments.md               experiment log                                        ← only copilot-experiment writes
 ├── handoff.md                   sub-agent fact handoff (append-only)                  ← writer / polisher / reviewer / rebuttal
 ├── decisions.md                 approval-gate decision record                         ← only research-copilot writes
-└── reviews/round-N.md           each independent review round                         ← only copilot-reviewer writes
+├── reviews/round-N.md           each independent review round                         ← only copilot-reviewer writes
+└── pipelines/YYYY-MM-DD-SN-agent-round-M.md  per-round plan + worker dispatch ledger  ← current stage coordinator writes
 ```
+
+For complex rounds, each `copilot-*` sub-agent acts as a stage-local coordinator: it first writes a `.copilot/pipelines/<round>.md` ledger, then dispatches narrow worker sub-agents, reviews their evidence, and only then persists accepted facts to the stage-owned `.copilot/*.md` file.
 
 ## 🧭 Entry point selection
 

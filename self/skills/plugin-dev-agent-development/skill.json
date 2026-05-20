@@ -1,0 +1,5 @@
+{
+  "name": "plugin-dev-agent-development",
+  "description": "Workflow for Research Copilot plugin development. Use when creating, updating, reviewing, or debugging `.agent.md`, `SKILL.md`, agent orchestration rules, worker dispatch protocols, pipeline ledger workflows, or plugin packaging docs. Triggers on: plugin-dev, agent-development, agent development, skill development, pipeline ledger, worker dispatch, agent orchestration.",
+  "entry": "SKILL.md"
+}
