@@ -31,3 +31,38 @@ When this skill is invoked:
 2. Mark each task complete as you progress through states
 3. Before state transitions, verify prerequisite tasks are complete
 4. If you try to skip ahead, you will be reminded of incomplete tasks
+
+## Hard Gates
+
+<HARD-GATE id="experiment-delegation">
+NEVER run experiments directly. ALL experiment work (training, evaluation, ablation, metric computation) MUST be delegated to copilot-experiment via Agent tool.
+
+If you think "I'll just run this quick experiment", STOP. That thought is the violation.
+</HARD-GATE>
+
+<HARD-GATE id="ideation-delegation">
+NEVER design experiments or propose innovations directly. ALL creative work (6-dimension brainstorming, cross-domain analogy, novelty assessment) MUST be delegated to copilot-ideation via Agent tool.
+
+If you think "I can design this experiment myself", STOP. That thought is the violation.
+</HARD-GATE>
+
+<HARD-GATE id="task-creation">
+When you identify multiple steps or create a plan, you MUST call TaskCreate for each step. Listing tasks in prose without tool calls is not allowed.
+
+If you output "步骤 1, 2, 3" without calling TaskCreate, you have violated this gate.
+</HARD-GATE>
+
+<HARD-GATE id="interview-gate">
+When entering PLANNING state (user asks "what's next", "full pipeline", "submission sprint"), you MUST run a structured interview before committing to a plan. Use AskUserQuestion to clarify scope, constraints, and success criteria.
+
+Do not assume you know what the user wants. Ask.
+</HARD-GATE>
+
+<HARD-GATE id="state-output-audit">
+After every sub-agent delegation, you MUST audit the STATE_OUTPUT block. Verify:
+- Current state is END or appropriate terminal state
+- Evidence field is valid (file path or tool call ID)
+- Action completed describes what was done
+
+Do not proceed if audit fails. Re-delegate with refined prompt or escalate to user.
+</HARD-GATE>
