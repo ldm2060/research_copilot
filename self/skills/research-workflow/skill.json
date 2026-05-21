@@ -1,0 +1,5 @@
+{
+  "name": "research-workflow",
+  "description": "Research pipeline workflow enforcement. Use when coordinating any research stage (literature/ideation/experiment/writing/polishing/review/rebuttal). Provides mandatory checklist and state machine rules.",
+  "entry": "SKILL.md"
+}

@@ -37,6 +37,29 @@ MCP_SOURCE_DIR = SELF_DIR / "mcp"
 MCP_SERVERS_DIR = MCP_SOURCE_DIR / "servers"
 MCP_REQUIREMENTS = MCP_SOURCE_DIR / "requirements.txt"
 HOOK_SCRIPT = SELF_DIR / "hooks" / "scripts" / "scientist_guardrails.py"
+RESEARCH_COPILOT_GUARD_SCRIPT = SELF_DIR / "hooks" / "scripts" / "research_copilot_guard.py"
+RESEARCH_COPILOT_GUARD_PROMPT = (
+    "You are the research-copilot-guard fallback. This hook runs in parallel with a "
+    "primary Python guard (if Python is available on this machine). Default to APPROVE "
+    "unless you have STRONG, CONCRETE evidence that ALL of the following are true:\n\n"
+    "1. The active sub-agent is literally `research-copilot` (not the main session, "
+    "not `copilot-experiment`, not any other agent). Evidence must be a "
+    "`subagent_type: \"research-copilot\"` marker in the recent transcript context "
+    "— not an inference from the tool call alone.\n"
+    "2. The tool input clearly violates one specific rule:\n"
+    "   - Bash/PowerShell command running an experiment script (literal `train.py`, "
+    "`run_experiment`, `wandb`, `mlflow`, `torchrun`, `deepspeed`) AND not a read-only "
+    "inspection (`cat`, `grep`, `ls`, `Get-Content`, `Select-String`).\n\n"
+    "If you cannot point to a transcript line that names research-copilot as the active "
+    "agent, output `approve`. If the active agent is the main session or any sub-agent "
+    "OTHER than research-copilot, output `approve`. If you are uncertain for any reason, "
+    "output `approve`.\n\n"
+    "Only when both conditions above are concretely met, output `deny` with message: "
+    "'Blocked by research-copilot-guard (prompt fallback): delegate experiment work to "
+    "copilot-experiment via Agent tool.'\n\n"
+    "Return the standard PreToolUse decision JSON. Be brief."
+)
+RESEARCH_COPILOT_GUARD_MATCHER = "Bash|PowerShell|Agent|Write|Edit"
 SKILLS_DIR = SELF_DIR / "skills"
 SKILL_JSON_GENERATOR = SELF_DIR / "scripts" / "generate-skill-json.py"
 
@@ -213,6 +236,87 @@ def register_hook(target: Path, dry_run: bool) -> None:
     settings_path.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+# -------- Step 3b: register PreToolUse research-copilot guard --------
+
+def _detect_python_in_path() -> bool:
+    """Whether `python` resolves in PATH at install time.
+
+    The PreToolUse hook command uses `python ...` so it must be locatable
+    by name when Claude Code spawns the hook process. `sys.executable`
+    works for THIS process but the hook runs in a fresh subprocess that
+    inherits the user's PATH, not ours.
+    """
+    return shutil.which("python") is not None or shutil.which("python3") is not None
+
+
+def register_research_copilot_guard(target: Path, dry_run: bool) -> None:
+    step("Step 3b/5: register research-copilot-guard PreToolUse hook")
+    if not RESEARCH_COPILOT_GUARD_SCRIPT.is_file():
+        warn(f"guard script missing: {RESEARCH_COPILOT_GUARD_SCRIPT}; skipping")
+        return
+
+    python_available = _detect_python_in_path()
+    if python_available:
+        info("Python found in PATH; registering Python command hook + prompt fallback.")
+    else:
+        info("Python NOT found in PATH; registering prompt-based fallback only.")
+
+    settings_dir = target / ".claude"
+    settings_path = settings_dir / "settings.json"
+    if settings_path.is_file():
+        try:
+            settings = json.loads(settings_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            error(f"existing settings.json is invalid JSON ({exc}); aborting hook registration")
+            return
+    else:
+        settings = {}
+
+    hooks_root = settings.setdefault("hooks", {})
+    pre_tool_use = hooks_root.setdefault("PreToolUse", [])
+
+    # Remove any prior research-copilot-guard registrations so this is idempotent
+    def _is_guard_block(block: Any) -> bool:
+        if not isinstance(block, dict):
+            return False
+        for hk in block.get("hooks", []):
+            if not isinstance(hk, dict):
+                continue
+            cmd = hk.get("command", "")
+            prompt = hk.get("prompt", "")
+            if "research_copilot_guard" in cmd or "research-copilot-guard" in prompt:
+                return True
+        return False
+
+    pre_tool_use[:] = [b for b in pre_tool_use if not _is_guard_block(b)]
+
+    hook_entries: list[dict[str, Any]] = []
+    if python_available:
+        guard_cmd = f'python "{RESEARCH_COPILOT_GUARD_SCRIPT.resolve()}"'.replace("\\", "/")
+        hook_entries.append({
+            "type": "command",
+            "command": guard_cmd,
+            "timeout": 10,
+        })
+    hook_entries.append({
+        "type": "prompt",
+        "prompt": RESEARCH_COPILOT_GUARD_PROMPT,
+        "timeout": 15,
+    })
+
+    desired_block = {
+        "matcher": RESEARCH_COPILOT_GUARD_MATCHER,
+        "hooks": hook_entries,
+    }
+    info(f"Adding PreToolUse block (matcher: {RESEARCH_COPILOT_GUARD_MATCHER})")
+    pre_tool_use.append(desired_block)
+
+    if dry_run:
+        return
+    settings_dir.mkdir(parents=True, exist_ok=True)
+    settings_path.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 # -------- Step 4: regenerate skill.json metadata --------
 
 def regenerate_skill_jsons(dry_run: bool) -> bool:
@@ -332,6 +436,7 @@ def main() -> int:
 
     config = write_mcp_config(target, args.dry_run)
     register_hook(target, args.dry_run)
+    register_research_copilot_guard(target, args.dry_run)
     regenerate_skill_jsons(args.dry_run)
 
     if not args.skip_verify and not args.dry_run:

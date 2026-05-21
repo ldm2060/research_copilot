@@ -144,18 +144,28 @@ If you only want `self/`, run `install.py` and you are done; `third_party/` is n
 
 ## Workflow Enforcement
 
-research-copilot agent uses hook-based enforcement:
-- `hooks/scripts/research_copilot_guard.py` - PreToolUse guard (executable)
-- `hooks/research-copilot-guard.json` - Hook registration manifest
-- `hooks/research-copilot-guard.hook.md` - Specification doc (non-executable)
-- `skills/research-workflow/SKILL.md` - Provides checklist and hard gates
+research-copilot agent uses hook-based enforcement, registered automatically
+by `self/install.py`:
 
-The guard reads the session transcript to detect whether research-copilot is
-the active sub-agent. It blocks direct experiment execution and missing
-delegation only when research-copilot is active; other sub-agents (e.g.
-copilot-experiment) are allowed to do their work.
+- `hooks/scripts/research_copilot_guard.py` — PreToolUse guard (cross-platform Python)
+- `hooks/research-copilot-guard.hook.md` — Specification doc
+- `skills/research-workflow/SKILL.md` — Workflow checklist and hard gates
 
-Registered in `.claude/settings.json` as a PreToolUse hook on
-`Bash|PowerShell|Agent|Write|Edit`.
+At install time, `install.py` detects whether `python` is in PATH and registers
+the appropriate combination into `.claude/settings.json`:
+
+- If Python is available: a `type: "command"` Python guard + a `type: "prompt"`
+  LLM fallback (parallel, redundant for safety).
+- If Python is not available: only the prompt-based fallback.
+
+The guard reads the session transcript to detect whether `research-copilot` is
+the active sub-agent. It is a no-op for the main session and for other sub-agents
+(e.g. `copilot-experiment` runs experiments unblocked).
+
+To re-register after editing the script or prompt, run:
+
+```bash
+python self/install.py --skip-deps --skip-verify
+```
 
 See `docs/superpowers/specs/2026-05-21-research-copilot-workflow-enforcement-design.md` for details.
