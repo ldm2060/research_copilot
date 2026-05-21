@@ -86,3 +86,27 @@ S1_LITERATURE → S2_IDEATION → S3_EXPERIMENT → S4_WRITER → S5_POLISHER �
 - Each back-edge has a counter in `.copilot/state.md`
 - After 3 fires of the same back-edge, hard-stop via AskUserQuestion
 - Do not dispatch that back-edge again until user chooses to reset counter
+
+## Delegation Prompt Template
+
+Every Agent call MUST include all six fields:
+
+```
+Context & stage: <user is at SN, last round did X, why we are doing this now>
+This round's goal: <what this round completes, and what it explicitly does NOT do>
+Available facts: <.copilot/<file>.md paths, workspace file paths, specified PDFs, etc.>
+Hard constraints: <target venue, style, do-not-touch files, no fabricated citations>
+Expected output: <conclusion / file diff / draft / table — concrete form>
+Stop condition: <when to stop and report rather than push through>
+```
+
+## Anti-Patterns
+
+| Thought | Reality |
+|---------|---------|
+| "I'll just run this quick experiment" | STOP. Delegate to copilot-experiment. |
+| "Let me list the tasks first" | STOP. Call TaskCreate tool. |
+| "I can design this experiment myself" | STOP. Delegate to copilot-ideation. |
+| "The sub-agent finished, moving on" | STOP. Audit STATE_OUTPUT block first. |
+| "This is too simple to need delegation" | STOP. Delegation is mandatory regardless of perceived simplicity. |
+| "I'll just check one thing before delegating" | STOP. Delegate first, let sub-agent do the checking. |
