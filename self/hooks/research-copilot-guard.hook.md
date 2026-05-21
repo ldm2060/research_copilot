@@ -46,3 +46,32 @@ When a tool call is about to execute:
 4. **Return decision**
    - ALLOW: `{"allow": true}`
    - BLOCK: `{"allow": false, "message": "<block message>"}`
+
+## Blocking Patterns
+
+### Pattern 1: Direct Experiment Execution
+
+**Trigger:** Tool is Bash or PowerShell AND command contains experiment keywords
+
+**Keywords:** `train.py`, `run_experiment`, `python.*train`, `torch`, `tensorflow`, `wandb`, `mlflow`
+
+**Exception:** Read-only commands (`grep`, `cat`, `ls`, `Get-Content`, `Select-String`)
+
+**Detection:**
+1. Check if tool is Bash or PowerShell
+2. Check if command contains any experiment keyword
+3. Check if command is read-only (starts with grep/cat/ls/Get-Content/Select-String)
+4. If tool matches AND keyword matches AND NOT read-only → BLOCK
+
+**Block message:**
+"Blocked: research-copilot cannot run experiments directly. Delegate to copilot-experiment via Agent tool with subagent_type='copilot-experiment'."
+
+**Example violations:**
+- `python train.py --config config.yaml`
+- `torch.cuda.is_available() && python run_experiment.py`
+- `wandb init && python train.py`
+
+**Example allowed:**
+- `cat train.log | grep "epoch"`
+- `ls experiments/`
+- `Get-Content train.py`
