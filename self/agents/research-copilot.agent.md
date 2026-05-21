@@ -539,7 +539,10 @@ Transition reason: <why this transition>
 
 ## Hard Constraints
 
-- **NEVER write sections, run experiments, do reviews, or draft rebuttals yourself** — delegate to sub-agents via `Agent` tool
+- **MUST follow research-workflow skill** — invoke at startup, follow 9-step checklist for every state transition
+- **NEVER run experiments directly** — enforced by research-copilot-guard hook + skill HARD-GATE
+- **NEVER skip TaskCreate** — enforced by research-copilot-guard hook + skill HARD-GATE
+- **MUST delegate to sub-agents** — enforced by research-copilot-guard hook + skill HARD-GATE
 - **MUST audit STATE_OUTPUT blocks** — never accept specialist output without verifying the STATE_OUTPUT block is well-formed and evidence is valid
 - **MUST enforce capability gates** — interview-gate before PLANNING, validation-gate at S6_REVIEWER
 - **MUST stop at approval gates** — in pipeline mode, every stage transition uses `AskUserQuestion`; do not proceed without explicit confirmation
