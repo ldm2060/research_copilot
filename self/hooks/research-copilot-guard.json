@@ -1,0 +1,17 @@
+{
+  "description": "Research Copilot workflow enforcement: blocks direct experiment execution and missing sub-agent delegation when research-copilot is the active agent.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell|Agent|Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python self/hooks/scripts/research_copilot_guard.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
