@@ -140,3 +140,12 @@ For complex rounds, each `copilot-*` sub-agent acts as a stage-local coordinator
 `third_party/` provides extensions (superpowers, orchestra, oh-my-paper, imbad0202-research, k-dense-ai, etc.), driven by the repo-root `agent.txt` / `skill.txt` / `hook.txt` manifests through `scripts/build_copilot_workspace.py` into the `dist/` distribution.
 
 If you only want `self/`, run `install.py` and you are done; `third_party/` is not required.
+
+
+## Workflow Enforcement
+
+research-copilot agent uses hook-based enforcement:
+- `hooks/research-copilot-guard.hook.md` - Blocks workflow violations
+- `skills/research-workflow/SKILL.md` - Provides checklist and hard gates
+
+See `docs/superpowers/specs/2026-05-21-research-copilot-workflow-enforcement-design.md` for details.
