@@ -24,3 +24,25 @@ You maintain session state that resets on SessionStart:
 ```
 
 When you see a SessionStart event, reset all fields to their default values.
+
+## Detection Logic
+
+When a tool call is about to execute:
+
+1. **Parse agent context**
+   - If `.copilot/state.md` exists, extract current state from it
+   - Load session state from memory
+
+2. **Parse current turn**
+   - Extract tool calls from agent's response
+   - Extract prose output for pattern matching
+
+3. **Apply blocking rules** (check in order, first match triggers block)
+   - Check Pattern 1: Direct experiment execution
+   - Check Pattern 2: Planning without TaskCreate
+   - Check Pattern 3: Missing sub-agent delegation
+   - Check Pattern 4: Missing interview gate
+
+4. **Return decision**
+   - ALLOW: `{"allow": true}`
+   - BLOCK: `{"allow": false, "message": "<block message>"}`
