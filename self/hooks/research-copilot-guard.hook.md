@@ -101,3 +101,28 @@ When a tool call is about to execute:
 **Example allowed:**
 - "I completed tasks 1-3" (referencing existing)
 - [TaskCreate tool call present in same turn]
+
+### Pattern 3: Missing Sub-Agent Delegation
+
+**Trigger:** Current state is S2_IDEATION or S3_EXPERIMENT AND no Agent tool call with matching subagent_type
+
+**Exception:** State is in audit phase (last_delegation matches current state's expected sub-agent)
+
+**Detection:**
+1. Check current_state from session state
+2. If state is S2_IDEATION or S3_EXPERIMENT:
+   - Check if current turn includes Agent tool call
+   - Check if Agent call has subagent_type='copilot-ideation' (for S2) or 'copilot-experiment' (for S3)
+   - Check if last_delegation matches expected sub-agent (audit phase exception)
+3. If state matches AND no matching Agent call AND NOT audit phase → BLOCK
+
+**Block message:**
+"Blocked: State {state} requires delegation to {copilot-stage}. Use Agent tool with subagent_type='{copilot-stage}'."
+
+**Example violations:**
+- State is S3_EXPERIMENT, agent calls Bash instead of Agent
+- State is S2_IDEATION, agent calls Agent with subagent_type='copilot-literature'
+
+**Example allowed:**
+- State is S3_EXPERIMENT, agent calls Agent with subagent_type='copilot-experiment'
+- State is S3_EXPERIMENT, last_delegation='copilot-experiment' (audit phase)
