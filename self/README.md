@@ -145,7 +145,17 @@ If you only want `self/`, run `install.py` and you are done; `third_party/` is n
 ## Workflow Enforcement
 
 research-copilot agent uses hook-based enforcement:
-- `hooks/research-copilot-guard.hook.md` - Blocks workflow violations
+- `hooks/scripts/research_copilot_guard.py` - PreToolUse guard (executable)
+- `hooks/research-copilot-guard.json` - Hook registration manifest
+- `hooks/research-copilot-guard.hook.md` - Specification doc (non-executable)
 - `skills/research-workflow/SKILL.md` - Provides checklist and hard gates
+
+The guard reads the session transcript to detect whether research-copilot is
+the active sub-agent. It blocks direct experiment execution and missing
+delegation only when research-copilot is active; other sub-agents (e.g.
+copilot-experiment) are allowed to do their work.
+
+Registered in `.claude/settings.json` as a PreToolUse hook on
+`Bash|PowerShell|Agent|Write|Edit`.
 
 See `docs/superpowers/specs/2026-05-21-research-copilot-workflow-enforcement-design.md` for details.
