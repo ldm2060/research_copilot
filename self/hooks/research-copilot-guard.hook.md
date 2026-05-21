@@ -75,3 +75,29 @@ When a tool call is about to execute:
 - `cat train.log | grep "epoch"`
 - `ls experiments/`
 - `Get-Content train.py`
+
+### Pattern 2: Planning Without TaskCreate
+
+**Trigger:** Agent output contains planning keywords AND no TaskCreate tool call in current turn
+
+**Keywords:** "步骤", "plan", "tasks", "checklist", numbered lists (1., 2., 3.)
+
+**Exception:** Referencing existing tasks or summarizing completed work (contains "completed", "done", "已完成")
+
+**Detection:**
+1. Check if agent prose output contains any planning keyword
+2. Check if current turn includes TaskCreate tool call
+3. Check if output is referencing existing work (contains exception keywords)
+4. If keyword matches AND no TaskCreate AND NOT referencing existing → BLOCK
+
+**Block message:**
+"Blocked: You listed tasks but didn't call TaskCreate. Create tasks via TaskCreate tool before proceeding."
+
+**Example violations:**
+- "步骤 1: 读取文件, 步骤 2: 分析数据"
+- "Here's the plan: 1. Load data 2. Train model 3. Evaluate"
+- "Tasks: check state, delegate to sub-agent, audit output"
+
+**Example allowed:**
+- "I completed tasks 1-3" (referencing existing)
+- [TaskCreate tool call present in same turn]
