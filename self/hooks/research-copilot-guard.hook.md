@@ -151,3 +151,26 @@ When a tool call is about to execute:
 **Example allowed:**
 - State is PLANNING, agent calls Skill with skill='research-workflow'
 - State is PLANNING, skill_invoked=true (already called)
+
+## Allow-List
+
+Always allow these tool calls (skip all blocking patterns):
+
+- **Read operations:** Read, Grep, Glob
+- **State file updates:** Write to `.copilot/state.md`, `.copilot/decisions.md`
+- **Agent delegations:** Agent tool calls to `copilot-*` agents
+- **Task management:** TaskCreate, TaskUpdate, TaskList, TaskGet
+
+## User Override
+
+If user message contains "override hook" or "bypass guard":
+
+1. Set `override_next = true` in session state
+2. Allow the next tool call through (skip all blocking patterns)
+3. Log override to `.copilot/state.md`: append line "OVERRIDE: [timestamp] [tool] [reason: user requested]"
+4. Reset `override_next = false` after one tool call
+
+**Example:**
+User: "override hook"
+Agent: [attempts Bash command to run experiment]
+Hook: Detects override_next=true → ALLOW → Log to state.md → Reset override_next=false
