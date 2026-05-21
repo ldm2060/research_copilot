@@ -66,3 +66,23 @@ After every sub-agent delegation, you MUST audit the STATE_OUTPUT block. Verify:
 
 Do not proceed if audit fails. Re-delegate with refined prompt or escalate to user.
 </HARD-GATE>
+
+## State Machine Rules
+
+**Forward path:**
+S1_LITERATURE → S2_IDEATION → S3_EXPERIMENT → S4_WRITER → S5_POLISHER → S6_REVIEWER → S7_REBUTTAL → END
+
+**Back-edges (gated behind AskUserQuestion):**
+- S3 → S2 (experiment shows fundamental flaw)
+- S3 → S1 (cannot pick next ablation)
+- S4 → S3 (missing plot/data)
+- S4 → S2 (writing exposes contradiction)
+- S6 → S3 (critical gap requires new experiment)
+- S6 → S2 (critical gap shows unsupported contribution)
+- S7 → S3 (reviewer requires new experiment)
+- S7 → S2 (reviewer undermines novelty)
+
+**Loop counters (3-strike rule):**
+- Each back-edge has a counter in `.copilot/state.md`
+- After 3 fires of the same back-edge, hard-stop via AskUserQuestion
+- Do not dispatch that back-edge again until user chooses to reset counter
