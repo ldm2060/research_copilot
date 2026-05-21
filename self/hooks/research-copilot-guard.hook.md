@@ -126,3 +126,28 @@ When a tool call is about to execute:
 **Example allowed:**
 - State is S3_EXPERIMENT, agent calls Agent with subagent_type='copilot-experiment'
 - State is S3_EXPERIMENT, last_delegation='copilot-experiment' (audit phase)
+
+### Pattern 4: Missing Interview Gate
+
+**Trigger:** Current state is PLANNING or CONTEXT_LOADED with plan-level request AND no Skill tool call for research-workflow
+
+**Exception:** skill_invoked is true (skill already called this session)
+
+**Detection:**
+1. Check current_state from session state
+2. Check skill_invoked from session state
+3. If state is PLANNING or (CONTEXT_LOADED AND planning_mode is true):
+   - Check if current turn includes Skill tool call with skill='research-workflow'
+   - Check if skill_invoked is true
+4. If state matches AND no Skill call AND skill_invoked is false → BLOCK
+
+**Block message:**
+"Blocked: PLANNING state requires structured interview. Invoke research-workflow skill first."
+
+**Example violations:**
+- State is PLANNING, skill_invoked=false, agent calls Agent directly
+- State is CONTEXT_LOADED, planning_mode=true, no Skill call
+
+**Example allowed:**
+- State is PLANNING, agent calls Skill with skill='research-workflow'
+- State is PLANNING, skill_invoked=true (already called)
