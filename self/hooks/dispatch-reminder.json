@@ -1,0 +1,17 @@
+{
+  "description": "UserPromptSubmit hook: nudge main thread to dispatch a sub-agent for execution-class prompts.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python self/hooks/scripts/user_prompt_dispatch_reminder.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
