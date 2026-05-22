@@ -1,0 +1,17 @@
+{
+  "description": "PostToolUse hook: when copilot-experiment launches a long background experiment, recommend arming /loop or CronCreate so results flow back after task notification.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python self/hooks/scripts/post_tool_loop_armer.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
