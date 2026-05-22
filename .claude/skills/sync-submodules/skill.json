@@ -1,0 +1,5 @@
+{
+  "name": "sync-submodules",
+  "description": "Update all third-party skill submodules under third_party/ to their latest upstream commits, report changes, and detect/categorize sync failures. Use when third-party skills look stale, after a fresh clone, or when CI reports submodule mismatches. The project has 17+ submodules from independent maintainers and conflicts are common.",
+  "entry": "SKILL.md"
+}
