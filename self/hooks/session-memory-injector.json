@@ -1,0 +1,17 @@
+{
+  "description": "SessionStart hook: inject .copilot/ __HANDOFF__ summaries so the new session knows where the pipeline stands.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python self/hooks/scripts/session_start_memory_injector.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
