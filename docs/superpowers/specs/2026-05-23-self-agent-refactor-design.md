@@ -38,8 +38,7 @@ The existing architecture (7 sub-agents + 1 conductor + state machines + hook + 
 
 ```
 self/
-├── PIPELINE-OS.md                              [NEW]   ~300 lines  shared spec: state machine + delegation + gates + back-edges + STATE_OUTPUT
-├── HARD-GATES.md                                [NEW]   ~120 lines  7 global hard gates (incl. new research-gate, longrun-gate, memory-gate, handoff-gate)
+├── PIPELINE-OS.md                              [NEW]   ~300 lines  shared spec: state machine + delegation + capability gates + back-edges + STATE_OUTPUT + approval-gate policy
 ├── AGENTS.md                                    [EDIT]  11 KB → ~4 KB. Remove repeated state-machine / delegation / gate prose; keep only 8-agent index + usage notes.
 ├── agents/
 │   ├── research-copilot.agent.md                [REWRITE]  28.7 KB → ≤5 KB
@@ -63,7 +62,7 @@ self/
 │   ├── loop-armer.json                          [NEW]
 │   └── scientist-guardrails.json                [KEEP]
 ├── skills/
-│   └── research-workflow/SKILL.md               [EDIT]  reference PIPELINE-OS.md; hard-gates 5 → 7
+│   └── research-workflow/SKILL.md               [EDIT]  reference PIPELINE-OS.md §3 (capability gates) and §5 (approval policy); existing 5 HARD-GATE blocks retained
 └── install.py                                   [EDIT]  register 3 new hooks
 .copilot/
 ├── state.md                                     [EDIT]   add __HANDOFF__ trailer
@@ -76,7 +75,7 @@ self/
 docs/superpowers/specs/2026-05-23-self-agent-refactor-design.md   [THIS]
 ```
 
-Target byte budget for a fresh dispatch (main session → first sub-agent): `PIPELINE-OS.md` (~5 KB) + one agent (~3.5 KB) ≈ **8 KB**, down from 28.7 + 11 ≈ **40 KB** (a 5× reduction). `AGENTS.md` is reference doc, not auto-loaded.
+Target byte budget for a fresh dispatch (main session → first sub-agent): `PIPELINE-OS.md` (~5 KB) + one agent (~3.5 KB) ≈ **8 KB**, down from the single agent file at **28.7 KB** for the conductor (a 3.6× reduction). `AGENTS.md` is reference doc and is not auto-loaded during dispatch; trimming it from 11 KB → ~4 KB is a separate readability win.
 
 ## 4. PIPELINE-OS.md — Shared Spec
 
@@ -110,7 +109,7 @@ Ten sections, ~300 lines total:
    `session_start_memory_injector.py` reads only this block; sub-agents in `END` state write only this block.
 10. **Error Recovery** — `malformed-output` / `invalid-transition` / `capability-gate-failed` / `no-handoff-block`.
 
-`HARD-GATES.md` is a companion 120-line file mirroring the 7 gates in agent-prose form (used by `research-workflow/SKILL.md`).
+`research-workflow/SKILL.md` (skill) keeps its 5 enforcement-style HARD-GATE blocks (`experiment-delegation`, `ideation-delegation`, `task-creation`, `interview-gate`, `state-output-audit`); it gains references to PIPELINE-OS.md §3 (capability gates) and §5 (approval-gate policy) but does not duplicate their content.
 
 ## 5. Per-agent Slim Blueprint
 
@@ -228,7 +227,7 @@ Detects: `Write` to `.copilot/ideas.md` with `## Idea` heading + zero paper-retr
 
 **Fallback**: if MCP unavailable, accept `WebFetch` to arxiv.org / scholar.google.com with non-empty result; sub-agent must mark `Capability gate: passed-degraded`.
 
-**Coverage threshold**: ≥2 distinct queries (not the same query repeated). Stretch goal: ≥1 query per active dimension of the 6-dimension enumeration.
+**Coverage threshold**: ≥2 distinct queries (distinct = different query string covering different topical aspect; not the same query repeated against different MCP). Stretch goal: ≥1 query per active dimension of the 6-dimension enumeration.
 
 **Side effect**: every research-gate MCP hit must be appended to `.copilot/literature.md` under a "novelty-evidence" subsection so the next session's memory injector surfaces it.
 
@@ -278,7 +277,7 @@ Written into `PIPELINE-OS.md` §5.
 | Phase | Content | Est. | Depends on | Risk | Rollback |
 |---|---|---|---|---|---|
 | 0 | Backup to `self/agents/backup-2026-05-23/`; commit this spec & plan | 5 min | — | — | git revert |
-| 1 | Create `self/PIPELINE-OS.md` + `self/HARD-GATES.md`; existing agents untouched | 1 h | 0 | low | delete both files |
+| 1 | Create `self/PIPELINE-OS.md`; existing agents untouched | 1 h | 0 | low | delete the file |
 | 2 | Add `__HANDOFF__` trailer block to existing `.copilot/state.md`, `ideas.md`, `experiments.md`, `literature.md`, `decisions.md`; validate parseability | 30 min | 1 | low | strip trailer block |
 | 3 | Create `session_start_memory_injector.py` + hook json; local validate injection ≤2 KB | 1 h | 2 | low | delete hook json |
 | 4 | Create `user_prompt_dispatch_reminder.py` + hook json; validate against 10 prompt fixtures | 1 h | 1 | medium (noisy?) | delete hook json or `.disabled` file |
