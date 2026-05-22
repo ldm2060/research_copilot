@@ -93,6 +93,118 @@ def is_read_only(command: str) -> bool:
     return any(stripped.startswith(prefix) for prefix in READ_ONLY_PREFIXES)
 
 
+def _iter_transcript_tool_uses(transcript_path: str | None):
+    """Yield {name, input} dicts for every prior tool_use in the JSONL transcript.
+
+    Handles two common formats:
+      1. Flat record: {"type": "tool_use", "name": ..., "input": ...}
+      2. Wrapped message: {"role": ..., "content": [{"type": "tool_use", ...}, ...]}
+    """
+    if not transcript_path:
+        return
+    p = Path(transcript_path)
+    if not p.is_file():
+        return
+    try:
+        text = p.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(rec, dict) and rec.get("type") == "tool_use":
+            yield {"name": rec.get("name", ""), "input": rec.get("input", {}) or {}}
+            continue
+        content = None
+        if isinstance(rec, dict):
+            content = rec.get("content")
+            if content is None:
+                msg = rec.get("message")
+                if isinstance(msg, dict):
+                    content = msg.get("content")
+        if isinstance(content, list):
+            for item in content:
+                if isinstance(item, dict) and item.get("type") == "tool_use":
+                    yield {
+                        "name": item.get("name", ""),
+                        "input": item.get("input", {}) or {},
+                    }
+
+
+COPILOT_ARTIFACT_NAMES = ("ideas.md", "experiments.md", "literature.md", "decisions.md")
+RESEARCH_MCP_PREFIXES = (
+    "mcp__arxiv-search__",
+    "mcp__arxivsub-search__",
+    "mcp__google-scholar__",
+    "mcp__dblp-bib__",
+)
+
+
+def check_pattern_5_no_memory_read(tool_name: str, tool_input: dict[str, Any],
+                                   transcript_path: str | None) -> str | None:
+    """Pattern 5 (memory-gate): block Write/Edit to .copilot/{ideas,experiments,
+    literature,decisions}.md when no prior Read of any .copilot/*.md exists in
+    the current session transcript."""
+    if tool_name not in ("Write", "Edit"):
+        return None
+    path = str((tool_input or {}).get("file_path", ""))
+    norm = path.replace("\\", "/")
+    if ".copilot" not in norm:
+        return None
+    if not any(name in path for name in COPILOT_ARTIFACT_NAMES):
+        return None
+    for entry in _iter_transcript_tool_uses(transcript_path):
+        if entry["name"] != "Read":
+            continue
+        prior_path = str((entry.get("input") or {}).get("file_path", "")).replace("\\", "/")
+        if ".copilot" in prior_path:
+            return None
+    return ("Blocked by research-copilot-guard (memory-gate): writing to "
+            ".copilot/* artifact without prior Read of any .copilot/*.md in "
+            "this session. Per PIPELINE-OS §3 memory-gate, Read the existing "
+            "artifact first to avoid re-proposing the same idea/experiment.")
+
+
+def check_pattern_6_no_research_mcp(tool_name: str, tool_input: dict[str, Any],
+                                    transcript_path: str | None) -> str | None:
+    """Pattern 6 (research-gate): block a new '## Idea' block being written to
+    .copilot/ideas.md when fewer than 2 distinct paper-retrieval MCP queries
+    appear in the current session transcript."""
+    if tool_name not in ("Write", "Edit"):
+        return None
+    inp = tool_input or {}
+    path = str(inp.get("file_path", ""))
+    if "ideas.md" not in path:
+        return None
+    content = str(inp.get("content") or inp.get("new_string") or "")
+    if "## Idea" not in content:
+        return None
+
+    queries: set[str] = set()
+    for entry in _iter_transcript_tool_uses(transcript_path):
+        if not any(entry["name"].startswith(prefix) for prefix in RESEARCH_MCP_PREFIXES):
+            continue
+        inp_e = entry.get("input") or {}
+        q = inp_e.get("query") or inp_e.get("q") or ""
+        if q:
+            queries.add(str(q).strip().lower())
+
+    if len(queries) >= 2:
+        return None
+
+    return ("Blocked by research-copilot-guard (research-gate): "
+            "'## Idea' block being written to .copilot/ideas.md but only "
+            f"{len(queries)} distinct paper-retrieval MCP query(ies) recorded "
+            "in this session; need ≥2 distinct queries (different topical "
+            "keywords). Call arxiv-search / arxivsub-search / google-scholar "
+            "/ dblp-bib MCPs first.")
+
+
 def check_pattern_1_experiment(tool_name: str, tool_input: dict[str, Any]) -> str | None:
     if tool_name not in ("Bash", "PowerShell"):
         return None
@@ -188,9 +300,12 @@ def main() -> int:
         if sub_type.startswith("copilot-"):
             print(json.dumps(allow()))
             return 0
+    transcript_path = payload.get("transcript_path")
     for check in (
         check_pattern_1_experiment(tool_name, tool_input),
         check_pattern_3_delegation(tool_name, tool_input, state),
+        check_pattern_5_no_memory_read(tool_name, tool_input, transcript_path),
+        check_pattern_6_no_research_mcp(tool_name, tool_input, transcript_path),
     ):
         if check:
             print(json.dumps(deny(check)))
