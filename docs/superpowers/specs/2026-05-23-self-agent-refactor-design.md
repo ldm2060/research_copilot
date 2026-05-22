@@ -337,3 +337,23 @@ Total ≈ 12 h. Phase 5 is the heaviest; can be split into 8 commits (1 per agen
 ## 16. Handoff to writing-plans
 
 This spec is the input to `superpowers:writing-plans` next, which will produce a step-by-step implementation plan with TaskCreate-ready items per phase.
+
+## 17. Acceptance Evidence (Phase 9 result, 2026-05-23)
+
+| Pain | Evidence | Result |
+|---|---|---|
+| ① files too long | `wc -c self/agents/*.agent.md` | research-copilot 3.6 KB (was 28.7), 7 copilots 1.3-3.5 KB each (target met). PIPELINE-OS 8.3 KB, AGENTS.md 4.0 KB |
+| ② no MCP research | `pytest test_research_copilot_guard_pattern6.py` | 4/4 PASSED; guard now denies '## Idea' write when <2 distinct MCP queries in transcript |
+| ③ no sub-agent dispatch | `pytest test_user_prompt_dispatch_reminder.py` | 7/7 PASSED; hook registered in `.claude/settings.json` UserPromptSubmit; `.disabled` flag honored |
+| ④ no memory | `pytest test_session_start_memory_injector.py` + `pytest test_research_copilot_guard_pattern5.py` | 5/5 + 3/3 PASSED; injector reads `__HANDOFF__` blocks (≤400 lines/2 KB), Pattern 5 blocks writes without prior `.copilot/*.md` Read |
+| ⑤ no loop / no result update | `pytest test_post_tool_loop_armer.py` | 6/6 PASSED; hook registered in `.claude/settings.json` PostToolUse; suggests `CronCreate("<<autonomous-loop>>", recurring=true)` on long Bash background launches |
+| ⑥ walks one step asks one step | `grep -c AskUserQuestion self/agents/*.agent.md` | 1 hit in research-copilot, 1 in copilot-experiment, 0 in 6 others; PIPELINE-OS §5 limits asks to 6 explicit cases |
+
+**Total**: 25/25 hook tests pass. 7 hook registrations confirmed in `.claude/settings.json` (4 new + 3 existing). All 8 agents slimmed; conductor 28.7 KB → 3.6 KB (8× reduction). Net diff: −1500 lines across 8 agents + AGENTS.md.
+
+**Phase 9 manual smoke test**: deferred to first real-session use. The user is expected to:
+1. `/clear` or restart the session
+2. Verify SessionStart prints `[memory-injector]` (will currently show "exists but no __HANDOFF__ blocks found" because the trailers in `.copilot/*.md` are placeholders until agents write real handoffs)
+3. Submit a brainstorm prompt; verify `[dispatch-reminder]` block appears
+4. Verify `@copilot-ideation` dispatch is suggested
+5. (If running a real experiment later) verify `[loop-armer]` block appears and `.copilot/.loop-armed` is set
