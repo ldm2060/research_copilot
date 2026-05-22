@@ -9,6 +9,10 @@ You are following the research-workflow skill for the research-copilot agent.
 
 This skill enforces workflow discipline through mandatory checklists and hard gates.
 
+## Source of Truth
+
+Shared workflow rules — state-machine format, 7 capability gates (interview / validation / research / longrun / execution / memory / handoff), 6-field delegation template, approval-gate policy, dispatch policy, back-edge matrix, `.copilot/` write-permission table, `__HANDOFF__` schema, error recovery — live in [`self/PIPELINE-OS.md`](../../PIPELINE-OS.md). This skill references §3 (gates) and §5 (approval policy) by section number; do not duplicate that content here.
+
 ## Mandatory Checklist
 
 You MUST create a task for each item via TaskCreate and complete them in order:
@@ -53,7 +57,7 @@ If you output "步骤 1, 2, 3" without calling TaskCreate, you have violated thi
 </HARD-GATE>
 
 <HARD-GATE id="interview-gate">
-When entering PLANNING state (user asks "what's next", "full pipeline", "submission sprint"), you MUST run a structured interview before committing to a plan. Use AskUserQuestion to clarify scope, constraints, and success criteria.
+When entering PLANNING state (user asks "what's next", "full pipeline", "submission sprint"), you MUST run a structured interview before committing to a plan. Use the interview skill (deep-interview / quick-interview / user-preference-interview) to clarify scope, constraints, and success criteria — per PIPELINE-OS §3 interview-gate. AskUserQuestion is reserved for the 6 cases listed in §5.
 
 Do not assume you know what the user wants. Ask.
 </HARD-GATE>
@@ -72,7 +76,7 @@ Do not proceed if audit fails. Re-delegate with refined prompt or escalate to us
 **Forward path:**
 S1_LITERATURE → S2_IDEATION → S3_EXPERIMENT → S4_WRITER → S5_POLISHER → S6_REVIEWER → S7_REBUTTAL → END
 
-**Back-edges (gated behind AskUserQuestion):**
+**Back-edges (approval-gated per PIPELINE-OS §5 case ②):**
 - S3 → S2 (experiment shows fundamental flaw)
 - S3 → S1 (cannot pick next ablation)
 - S4 → S3 (missing plot/data)

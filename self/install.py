@@ -38,6 +38,9 @@ MCP_SERVERS_DIR = MCP_SOURCE_DIR / "servers"
 MCP_REQUIREMENTS = MCP_SOURCE_DIR / "requirements.txt"
 HOOK_SCRIPT = SELF_DIR / "hooks" / "scripts" / "scientist_guardrails.py"
 RESEARCH_COPILOT_GUARD_SCRIPT = SELF_DIR / "hooks" / "scripts" / "research_copilot_guard.py"
+SESSION_MEMORY_INJECTOR_SCRIPT = SELF_DIR / "hooks" / "scripts" / "session_start_memory_injector.py"
+DISPATCH_REMINDER_SCRIPT = SELF_DIR / "hooks" / "scripts" / "user_prompt_dispatch_reminder.py"
+LOOP_ARMER_SCRIPT = SELF_DIR / "hooks" / "scripts" / "post_tool_loop_armer.py"
 RESEARCH_COPILOT_GUARD_PROMPT = (
     "You are the research-copilot-guard fallback. This hook runs in parallel with a "
     "primary Python guard (if Python is available on this machine). Default to APPROVE "
@@ -317,6 +320,131 @@ def register_research_copilot_guard(target: Path, dry_run: bool) -> None:
     settings_path.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+# -------- Step 3c-3e: register the three new hooks --------
+
+def _load_settings(target: Path) -> tuple[Path, dict]:
+    settings_dir = target / ".claude"
+    settings_path = settings_dir / "settings.json"
+    if settings_path.is_file():
+        settings = json.loads(settings_path.read_text(encoding="utf-8"))
+    else:
+        settings = {}
+    return settings_path, settings
+
+
+def _save_settings(settings_path: Path, settings: dict) -> None:
+    settings_path.parent.mkdir(parents=True, exist_ok=True)
+    settings_path.write_text(
+        json.dumps(settings, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _already_registered(blocks: list, identifier_substr: str) -> bool:
+    for b in blocks:
+        if not isinstance(b, dict):
+            continue
+        for hk in b.get("hooks", []):
+            if not isinstance(hk, dict):
+                continue
+            if identifier_substr in (hk.get("command", "") or ""):
+                return True
+    return False
+
+
+def _add_session_start_hook(target: Path, dry_run: bool, script: Path,
+                            identifier_substr: str, timeout: int) -> None:
+    settings_path, settings = _load_settings(target)
+    blocks = settings.setdefault("hooks", {}).setdefault("SessionStart", [])
+    if _already_registered(blocks, identifier_substr):
+        info(f"  {identifier_substr} already registered; skipping.")
+        return
+    cmd = f'python "{script.resolve()}"'.replace("\\", "/")
+    blocks.append({
+        "hooks": [{"type": "command", "command": cmd, "timeout": timeout}]
+    })
+    info(f"  added SessionStart hook: {cmd}")
+    if not dry_run:
+        _save_settings(settings_path, settings)
+
+
+def _add_user_prompt_submit_hook(target: Path, dry_run: bool, script: Path,
+                                 identifier_substr: str, timeout: int) -> None:
+    settings_path, settings = _load_settings(target)
+    blocks = settings.setdefault("hooks", {}).setdefault("UserPromptSubmit", [])
+    if _already_registered(blocks, identifier_substr):
+        info(f"  {identifier_substr} already registered; skipping.")
+        return
+    cmd = f'python "{script.resolve()}"'.replace("\\", "/")
+    blocks.append({
+        "matcher": "*",
+        "hooks": [{"type": "command", "command": cmd, "timeout": timeout}]
+    })
+    info(f"  added UserPromptSubmit hook: {cmd}")
+    if not dry_run:
+        _save_settings(settings_path, settings)
+
+
+def _add_post_tool_use_hook(target: Path, dry_run: bool, script: Path,
+                            matcher: str, identifier_substr: str, timeout: int) -> None:
+    settings_path, settings = _load_settings(target)
+    blocks = settings.setdefault("hooks", {}).setdefault("PostToolUse", [])
+    if _already_registered(blocks, identifier_substr):
+        info(f"  {identifier_substr} already registered; skipping.")
+        return
+    cmd = f'python "{script.resolve()}"'.replace("\\", "/")
+    blocks.append({
+        "matcher": matcher,
+        "hooks": [{"type": "command", "command": cmd, "timeout": timeout}]
+    })
+    info(f"  added PostToolUse hook ({matcher}): {cmd}")
+    if not dry_run:
+        _save_settings(settings_path, settings)
+
+
+def register_session_memory_injector(target: Path, dry_run: bool) -> None:
+    step("Step 3c/5: register SessionStart memory injector hook")
+    if not SESSION_MEMORY_INJECTOR_SCRIPT.is_file():
+        warn(f"injector script missing: {SESSION_MEMORY_INJECTOR_SCRIPT}; skipping")
+        return
+    _add_session_start_hook(
+        target=target,
+        dry_run=dry_run,
+        script=SESSION_MEMORY_INJECTOR_SCRIPT,
+        identifier_substr="session_start_memory_injector.py",
+        timeout=10,
+    )
+
+
+def register_dispatch_reminder(target: Path, dry_run: bool) -> None:
+    step("Step 3d/5: register UserPromptSubmit dispatch-reminder hook")
+    if not DISPATCH_REMINDER_SCRIPT.is_file():
+        warn(f"reminder script missing: {DISPATCH_REMINDER_SCRIPT}; skipping")
+        return
+    _add_user_prompt_submit_hook(
+        target=target,
+        dry_run=dry_run,
+        script=DISPATCH_REMINDER_SCRIPT,
+        identifier_substr="user_prompt_dispatch_reminder.py",
+        timeout=5,
+    )
+
+
+def register_loop_armer(target: Path, dry_run: bool) -> None:
+    step("Step 3e/5: register PostToolUse loop-armer hook")
+    if not LOOP_ARMER_SCRIPT.is_file():
+        warn(f"loop-armer script missing: {LOOP_ARMER_SCRIPT}; skipping")
+        return
+    _add_post_tool_use_hook(
+        target=target,
+        dry_run=dry_run,
+        script=LOOP_ARMER_SCRIPT,
+        matcher="Bash",
+        identifier_substr="post_tool_loop_armer.py",
+        timeout=5,
+    )
+
+
 # -------- Step 4: regenerate skill.json metadata --------
 
 def regenerate_skill_jsons(dry_run: bool) -> bool:
@@ -437,6 +565,9 @@ def main() -> int:
     config = write_mcp_config(target, args.dry_run)
     register_hook(target, args.dry_run)
     register_research_copilot_guard(target, args.dry_run)
+    register_session_memory_injector(target, args.dry_run)
+    register_dispatch_reminder(target, args.dry_run)
+    register_loop_armer(target, args.dry_run)
     regenerate_skill_jsons(args.dry_run)
 
     if not args.skip_verify and not args.dry_run:
