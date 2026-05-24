@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -447,3 +448,54 @@ def log_violation(workspace: Path, sev: str, kind: str, agent: str | None,
     log = _copilot_dir(workspace) / VIOLATIONS_NAME
     with log.open("a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+
+# ---------------------------------------------------------------------------
+# Overrides
+# ---------------------------------------------------------------------------
+
+OVERRIDE_NAME = ".guard_override"
+_OVERRIDE_LINE_RE = re.compile(
+    r"^\s*(?P<agent>[\w-]+)\s*:\s*(?P<directive>skip-[\w-]+)\s+until\s+(?P<until>\S+)\s*$"
+)
+
+
+def env_guard_disabled() -> bool:
+    """True iff the global kill-switch env var COPILOT_HOOK_GUARD is 'off'."""
+    return os.environ.get("COPILOT_HOOK_GUARD", "").strip().lower() == "off"
+
+
+def override_match(workspace: Path, agent: str, directive: str) -> bool:
+    """True iff `.copilot/.guard_override` has an active entry for this
+    agent + directive (or `skip-all` for the same agent).
+
+    Comments (#-prefixed) and unparseable lines are ignored. Expired
+    entries (now >= until) are ignored.
+    """
+    f = _copilot_dir(workspace) / OVERRIDE_NAME
+    if not f.is_file():
+        return False
+    try:
+        content = f.read_text(encoding="utf-8")
+    except OSError:
+        return False
+    now = datetime.datetime.now(datetime.timezone.utc)
+    for line in content.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        m = _OVERRIDE_LINE_RE.match(line)
+        if not m or m.group("agent") != agent:
+            continue
+        d = m.group("directive")
+        if d != "skip-all" and d != directive:
+            continue
+        try:
+            until = datetime.datetime.fromisoformat(
+                m.group("until").replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if until.tzinfo is None:
+            until = until.replace(tzinfo=datetime.timezone.utc)
+        if now < until:
+            return True
+    return False

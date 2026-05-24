@@ -293,3 +293,51 @@ class TestViolationsLog:
         lib.log_violation(workspace, "SOFT", "WARN", "copilot-experiment", "warn 2")
         lines = (workspace / ".copilot" / "__violations.log").read_text(encoding="utf-8").strip().splitlines()
         assert len(lines) == 2
+
+
+class TestOverride:
+    def test_env_var_off(self, monkeypatch):
+        monkeypatch.setenv("COPILOT_HOOK_GUARD", "off")
+        assert lib.env_guard_disabled() is True
+
+    def test_env_var_unset(self, monkeypatch):
+        monkeypatch.delenv("COPILOT_HOOK_GUARD", raising=False)
+        assert lib.env_guard_disabled() is False
+
+    def test_env_var_other_value(self, monkeypatch):
+        monkeypatch.setenv("COPILOT_HOOK_GUARD", "on")
+        assert lib.env_guard_disabled() is False
+
+    def test_override_file_missing(self, workspace):
+        assert lib.override_match(workspace, "copilot-literature", "skip-handoff-check") is False
+
+    def test_override_file_match(self, workspace):
+        (workspace / ".copilot" / ".guard_override").write_text(
+            "copilot-literature: skip-handoff-check until 2099-01-01T00:00:00Z\n",
+            encoding="utf-8")
+        assert lib.override_match(workspace, "copilot-literature", "skip-handoff-check") is True
+
+    def test_override_file_expired(self, workspace):
+        (workspace / ".copilot" / ".guard_override").write_text(
+            "copilot-literature: skip-handoff-check until 2000-01-01T00:00:00Z\n",
+            encoding="utf-8")
+        assert lib.override_match(workspace, "copilot-literature", "skip-handoff-check") is False
+
+    def test_override_skip_all(self, workspace):
+        (workspace / ".copilot" / ".guard_override").write_text(
+            "copilot-experiment: skip-all until 2099-01-01T00:00:00Z\n",
+            encoding="utf-8")
+        assert lib.override_match(workspace, "copilot-experiment", "skip-handoff-check") is True
+        assert lib.override_match(workspace, "copilot-experiment", "skip-owned-check") is True
+
+    def test_override_comment(self, workspace):
+        (workspace / ".copilot" / ".guard_override").write_text(
+            "# comment\ncopilot-literature: skip-handoff-check until 2099-01-01T00:00:00Z\n",
+            encoding="utf-8")
+        assert lib.override_match(workspace, "copilot-literature", "skip-handoff-check") is True
+
+    def test_override_wrong_agent(self, workspace):
+        (workspace / ".copilot" / ".guard_override").write_text(
+            "copilot-literature: skip-handoff-check until 2099-01-01T00:00:00Z\n",
+            encoding="utf-8")
+        assert lib.override_match(workspace, "copilot-experiment", "skip-handoff-check") is False
