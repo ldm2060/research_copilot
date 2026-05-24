@@ -101,3 +101,37 @@ class TestSafeMain:
         guard.real_main()
         d = json.loads(out.getvalue().strip().splitlines()[-1])
         assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+
+
+class TestHandoffSpecial:
+    def _writer_transcript(self, tmp_path: Path) -> str:
+        t = tmp_path / "writer.jsonl"
+        t.write_text('{"role":"assistant","metadata":{"subagent_type":"copilot-writer"}}\n')
+        return str(t)
+
+    def _ideation_transcript(self, tmp_path: Path) -> str:
+        t = tmp_path / "ideation.jsonl"
+        t.write_text('{"role":"assistant","metadata":{"subagent_type":"copilot-ideation"}}\n')
+        return str(t)
+
+    def test_writer_edit_handoff_allowed(self, monkeypatch, workspace, tmp_path, payload_builder):
+        p = payload_builder("Edit",
+                            {"file_path": str(workspace / ".copilot" / "handoff.md")},
+                            self._writer_transcript(tmp_path))
+        d = _run(monkeypatch, p, workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+
+    def test_writer_write_handoff_denied(self, monkeypatch, workspace, tmp_path, payload_builder):
+        p = payload_builder("Write",
+                            {"file_path": str(workspace / ".copilot" / "handoff.md")},
+                            self._writer_transcript(tmp_path))
+        d = _run(monkeypatch, p, workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "deny"
+        assert "append" in d["hookSpecificOutput"]["permissionDecisionReason"].lower()
+
+    def test_ideation_writing_handoff_denied(self, monkeypatch, workspace, tmp_path, payload_builder):
+        p = payload_builder("Edit",
+                            {"file_path": str(workspace / ".copilot" / "handoff.md")},
+                            self._ideation_transcript(tmp_path))
+        d = _run(monkeypatch, p, workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "deny"

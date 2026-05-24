@@ -54,7 +54,27 @@ def real_main() -> int:
 
     norm = lib.normalize_path(file_path, workspace=workspace)
 
-    # PLACEHOLDER for handoff.md special case — added in Task 10.
+    # handoff.md special case: append-only for the 4 multi-writers.
+    if norm.endswith(".copilot/handoff.md"):
+        tool_name = payload.get("tool_name", "")
+        if agent in lib.HANDOFF_APPEND_ONLY_AGENTS:
+            if tool_name == "Write":
+                lib.log_violation(workspace, "HARD", "DENY", agent,
+                                  "Write (overwrite) to handoff.md; "
+                                  "use Edit to append", file=norm)
+                msg = ("Blocked by copilot-write-guard: handoff.md is "
+                       "append-only. Use Edit to add a new block, not Write.")
+                print(json.dumps(lib.deny_decision(msg)))
+                return 0
+            # Edit allowed for these 4 agents — fall through to owned check
+        else:
+            lib.log_violation(workspace, "HARD", "DENY", agent,
+                              "agent has no write right to handoff.md",
+                              file=norm)
+            msg = (f"Blocked by copilot-write-guard: {agent} is not an "
+                   f"owner of handoff.md.")
+            print(json.dumps(lib.deny_decision(msg)))
+            return 0
 
     if lib.is_owned(agent, norm):
         print(json.dumps(lib.allow_decision()))
