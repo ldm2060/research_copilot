@@ -48,3 +48,46 @@ class TestSnapshotWriting:
         handoff_writer(f, last_updated="2026-05-24T10:00:00Z")
         _run_injector(workspace)
         assert (workspace / ".copilot" / ".session_snapshot.json").is_file()
+
+
+import datetime
+
+
+class TestViolationsSummary:
+    def _write_log(self, workspace, records):
+        log = workspace / ".copilot" / "__violations.log"
+        log.write_text("\n".join(json.dumps(r) for r in records) + "\n",
+                       encoding="utf-8")
+
+    def test_empty_log_no_summary(self, workspace, handoff_writer):
+        handoff_writer(workspace / ".copilot" / "literature.md",
+                       last_updated="2026-05-24T10:00:00Z")
+        stdout, rc = _run_injector(workspace)
+        assert "Last 24h" not in stdout
+
+    def test_recent_blocks_summarized(self, workspace, handoff_writer):
+        handoff_writer(workspace / ".copilot" / "literature.md",
+                       last_updated="2026-05-24T10:00:00Z")
+        now = datetime.datetime.now(datetime.timezone.utc)
+        recent = (now - datetime.timedelta(hours=1)).isoformat().replace("+00:00", "Z")
+        self._write_log(workspace, [
+            {"ts": recent, "sev": "HARD", "kind": "BLOCK", "agent": "copilot-literature", "detail": "x"},
+            {"ts": recent, "sev": "HARD", "kind": "BLOCK", "agent": "copilot-literature", "detail": "y"},
+            {"ts": recent, "sev": "HARD", "kind": "RELEASE", "agent": "copilot-literature", "detail": "z"},
+            {"ts": recent, "sev": "SOFT", "kind": "WARN", "agent": "copilot-experiment", "detail": "w"},
+        ])
+        stdout, rc = _run_injector(workspace)
+        assert "Last 24h" in stdout
+        assert "2 HARD" in stdout
+        assert "1 SOFT" in stdout
+
+    def test_old_entries_ignored(self, workspace, handoff_writer):
+        handoff_writer(workspace / ".copilot" / "literature.md",
+                       last_updated="2026-05-24T10:00:00Z")
+        now = datetime.datetime.now(datetime.timezone.utc)
+        old = (now - datetime.timedelta(hours=48)).isoformat().replace("+00:00", "Z")
+        self._write_log(workspace, [
+            {"ts": old, "sev": "HARD", "kind": "BLOCK", "agent": "x", "detail": "old"},
+        ])
+        stdout, rc = _run_injector(workspace)
+        assert "1 HARD" not in stdout

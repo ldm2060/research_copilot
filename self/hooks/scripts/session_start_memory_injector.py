@@ -118,6 +118,48 @@ def main() -> int:
         "do NOT re-run experiments already in experiments.md unless explicitly asked.\n"
     )
     sys.stdout.flush()
+
+    # ---- Summarize last 24h of violations log ----
+    vlog = copilot / "__violations.log"
+    if vlog.is_file():
+        try:
+            import datetime as _dt
+            now = _dt.datetime.now(_dt.timezone.utc)
+            cutoff = now - _dt.timedelta(hours=24)
+            hard_blocks = 0
+            releases = 0
+            soft_warns = 0
+            for line in vlog.read_text(encoding="utf-8", errors="replace").splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                try:
+                    t = _dt.datetime.fromisoformat(rec.get("ts", "").replace("Z", "+00:00"))
+                except ValueError:
+                    continue
+                if t.tzinfo is None:
+                    t = t.replace(tzinfo=_dt.timezone.utc)
+                if t < cutoff:
+                    continue
+                sev, kind = rec.get("sev"), rec.get("kind")
+                if sev == "HARD" and kind == "BLOCK":
+                    hard_blocks += 1
+                elif sev == "HARD" and kind == "RELEASE":
+                    releases += 1
+                elif sev == "SOFT" and kind == "WARN":
+                    soft_warns += 1
+            if hard_blocks or releases or soft_warns:
+                sys.stdout.write(
+                    f"\n[memory-injector] Last 24h: {hard_blocks} HARD blocks "
+                    f"({releases} 3-strike releases), {soft_warns} SOFT warns. "
+                    f"See .copilot/__violations.log.\n"
+                )
+                sys.stdout.flush()
+        except OSError:
+            pass
     return 0
 
 
