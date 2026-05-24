@@ -1,0 +1,2 @@
+{"role":"user","content":"run experiment"}
+{"role":"assistant","metadata":{"subagent_type":"copilot-experiment"},"content":[{"type":"text","text":"[STATE_OUTPUT]\nPrevious: JUDGED\nCurrent: END\nAction completed: Wrote handoff\nCapability gate: passed\nEvidence: experiments.md:42\nNext allowed: []\nTransition reason: goal met\n[/STATE_OUTPUT]"}]}

@@ -1,0 +1,2 @@
+{"role":"user","content":"go"}
+{"role":"assistant","metadata":{"subagent_type":"copilot-literature"},"content":[{"type":"text","text":"[STATE_OUTPUT]\nPrevious: SCANNING\nCurrent: END\nTransition reason: done\n[/STATE_OUTPUT]"}]}

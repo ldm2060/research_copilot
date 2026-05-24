@@ -1,0 +1,2 @@
+{"role":"user","content":"scan papers"}
+{"role":"assistant","metadata":{"subagent_type":"copilot-literature"},"content":[{"type":"text","text":"[STATE_OUTPUT]\nPrevious: UNINITIALIZED\nCurrent: SCANNING\nAction completed: Loaded literature.md\nCapability gate: passed\nEvidence: literature.md:1\nNext allowed: [BASELINE_LOCKED, RELATED_WORK_AUGMENTED]\nTransition reason: memory-gate passed\n[/STATE_OUTPUT]"}]}
