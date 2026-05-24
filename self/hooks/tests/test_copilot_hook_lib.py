@@ -36,3 +36,37 @@ class TestScopePredicates:
     def test_is_copilot_agent_negative(self):
         for n in [None, "", "general-purpose", "Explore", "code-reviewer", "main"]:
             assert lib.is_copilot_agent(n) is False
+
+
+class TestPathNormalize:
+    def test_backslash_to_forward(self):
+        assert lib.normalize_path("D:\\article\\.copilot\\state.md") == \
+               "d:/article/.copilot/state.md"
+
+    def test_already_forward(self):
+        assert lib.normalize_path(".copilot/state.md") == ".copilot/state.md"
+
+    def test_relative_workspace(self, workspace):
+        f = workspace / ".copilot" / "state.md"
+        assert lib.normalize_path(str(f), workspace=workspace) == ".copilot/state.md"
+
+    def test_empty(self):
+        assert lib.normalize_path("") == ""
+
+
+class TestGlobMatch:
+    def test_exact(self):
+        assert lib.glob_match(".copilot/state.md", ".copilot/state.md") is True
+
+    def test_star(self):
+        assert lib.glob_match(".copilot/reviews/round-3.md",
+                              ".copilot/reviews/round-*.md") is True
+
+    def test_no_match(self):
+        assert lib.glob_match(".copilot/ideas.md", ".copilot/state.md") is False
+
+    def test_s2_pipelines(self):
+        assert lib.glob_match(".copilot/pipelines/2026-05-24-S2-ideation-round-1.md",
+                              ".copilot/pipelines/*-s2-*.md") is True
+        assert lib.glob_match(".copilot/pipelines/2026-05-24-S3-experiment-1.md",
+                              ".copilot/pipelines/*-s2-*.md") is False

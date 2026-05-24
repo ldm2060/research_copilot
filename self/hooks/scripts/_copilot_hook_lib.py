@@ -60,3 +60,40 @@ def detect_active_agent(transcript_path: str) -> str | None:
         if candidate:
             return str(candidate)
     return None
+
+
+# ---------------------------------------------------------------------------
+# Path utilities
+# ---------------------------------------------------------------------------
+
+import fnmatch
+
+
+def normalize_path(s: str, workspace: Path | None = None) -> str:
+    """Normalize a path for matching: lowercase, forward-slash, relative-if-possible.
+
+    - Empty string returns empty string.
+    - If `workspace` is given AND the path resolves inside workspace,
+      returns the relative path under workspace.
+    - Otherwise returns lowercased forward-slashed absolute path.
+    """
+    if not s:
+        return ""
+    if workspace is not None:
+        try:
+            rel = Path(s).resolve().relative_to(workspace.resolve())
+            return str(rel).replace("\\", "/").lower()
+        except (ValueError, OSError):
+            pass
+    return s.replace("\\", "/").lower()
+
+
+def glob_match(path: str, pattern: str) -> bool:
+    """Case-insensitive fnmatch.
+
+    Both `path` and `pattern` are lowercased and forward-slashed before
+    matching, so glob patterns work regardless of input case/slash style.
+    """
+    p = path.replace("\\", "/").lower()
+    g = pattern.replace("\\", "/").lower()
+    return fnmatch.fnmatchcase(p, g)
