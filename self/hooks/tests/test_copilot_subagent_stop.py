@@ -123,3 +123,25 @@ class TestFuse:
                  workspace)
         assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
         assert lib.counter_get(workspace, "copilot-literature", "literature.md") == 0
+
+
+class TestFirstBoot:
+    def test_no_snapshot_fresh_handoff_passes(self, monkeypatch, workspace,
+                                                fixtures_dir, handoff_writer):
+        s = workspace / ".copilot" / ".session_snapshot.json"
+        if s.exists():
+            s.unlink()
+        f = workspace / ".copilot" / "literature.md"
+        handoff_writer(f, last_updated="2026-05-24T10:00:00Z")
+        d = _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
+                 workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+
+    def test_no_snapshot_no_handoff_soft_not_hard(self, monkeypatch, workspace, fixtures_dir):
+        d = _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
+                 workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+        log = (workspace / ".copilot" / "__violations.log").read_text(encoding="utf-8")
+        assert "NO-SNAPSHOT" in log
