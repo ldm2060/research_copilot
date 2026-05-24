@@ -341,3 +341,36 @@ class TestOverride:
             "copilot-literature: skip-handoff-check until 2099-01-01T00:00:00Z\n",
             encoding="utf-8")
         assert lib.override_match(workspace, "copilot-experiment", "skip-handoff-check") is False
+
+
+class TestDecisions:
+    def test_allow(self):
+        d = lib.allow_decision()
+        assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+
+    def test_deny(self):
+        d = lib.deny_decision("nope")
+        assert d["hookSpecificOutput"]["permissionDecision"] == "deny"
+        assert "nope" in d["hookSpecificOutput"]["permissionDecisionReason"]
+
+    def test_block(self):
+        d = lib.block_decision("come back and write handoff")
+        assert d["decision"] == "block"
+        assert "come back" in d["reason"]
+
+
+class TestSafeMain:
+    def test_clean_exit(self, capsys):
+        def real():
+            print(_json_in_tests.dumps(lib.allow_decision()))
+            return 0
+        rc = lib.safe_main(real)
+        assert rc == 0
+        assert "allow" in capsys.readouterr().out
+
+    def test_exception_falls_open(self, capsys):
+        def real():
+            raise RuntimeError("boom")
+        rc = lib.safe_main(real)
+        assert rc == 0
+        assert "allow" in capsys.readouterr().out

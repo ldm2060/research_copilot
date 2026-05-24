@@ -12,6 +12,8 @@ import datetime
 import json
 import os
 import re
+import sys
+import traceback
 from pathlib import Path
 from typing import Any
 
@@ -499,3 +501,47 @@ def override_match(workspace: Path, agent: str, directive: str) -> bool:
         if now < until:
             return True
     return False
+
+
+# ---------------------------------------------------------------------------
+# Decision builders + safe_main
+# ---------------------------------------------------------------------------
+
+def allow_decision() -> dict[str, Any]:
+    return {"hookSpecificOutput": {"permissionDecision": "allow"}}
+
+
+def deny_decision(reason: str) -> dict[str, Any]:
+    return {
+        "hookSpecificOutput": {
+            "permissionDecision": "deny",
+            "permissionDecisionReason": reason,
+        },
+        "systemMessage": reason,
+    }
+
+
+def block_decision(reason: str) -> dict[str, Any]:
+    """SubagentStop block decision — agent resumes with `reason` appended to context."""
+    return {"decision": "block", "reason": reason}
+
+
+def safe_main(real_main) -> int:
+    """Wrap a hook's main(): exceptions yield `allow` to stdout, never trap user.
+
+    Hook scripts MUST call this from their `if __name__ == "__main__"` block:
+        if __name__ == "__main__":
+            raise SystemExit(lib.safe_main(real_main))
+    """
+    try:
+        return int(real_main() or 0)
+    except SystemExit:
+        raise
+    except Exception:
+        sys.stderr.write(traceback.format_exc())
+        try:
+            sys.stdout.write(json.dumps(allow_decision()) + "\n")
+            sys.stdout.flush()
+        except Exception:
+            pass
+        return 0
