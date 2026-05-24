@@ -82,6 +82,62 @@ def _check_handoff_freshness(workspace: Path, agent: str
     return "PASS", "", None
 
 
+def _read_last_assistant_text(transcript_path: str) -> str:
+    """Return the concatenated text content of the most recent assistant
+    message in the transcript JSONL. Empty string if none found.
+    """
+    if not transcript_path:
+        return ""
+    p = Path(transcript_path)
+    if not p.is_file():
+        return ""
+    try:
+        lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return ""
+    for line in reversed(lines[-100:]):
+        if not line.strip():
+            continue
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if entry.get("role") != "assistant":
+            continue
+        chunks: list[str] = []
+        content = entry.get("content")
+        if isinstance(content, list):
+            for item in content:
+                if isinstance(item, dict) and item.get("type") == "text":
+                    chunks.append(item.get("text", ""))
+        elif isinstance(content, str):
+            chunks.append(content)
+        if chunks:
+            return "\n".join(chunks)
+    return ""
+
+
+def _run_soft_checks(workspace: Path, agent: str, transcript: str) -> None:
+    """CHECK 3 (STATE_OUTPUT 6 fields) + CHECK 4 (state transition legality).
+    Both are SOFT — append to violations.log but never block."""
+    text = _read_last_assistant_text(transcript)
+    so = lib.extract_state_output(text)
+    missing = lib.state_output_missing_fields(so)
+    if missing:
+        if so is None:
+            lib.log_violation(workspace, "SOFT", "WARN", agent,
+                              "STATE_OUTPUT block absent from final reply")
+        else:
+            lib.log_violation(workspace, "SOFT", "WARN", agent,
+                              f"STATE_OUTPUT missing fields: {missing}")
+    if so:
+        prev, curr = so.get("Previous"), so.get("Current")
+        if prev and curr and not lib.is_transition_legal(agent, prev, curr):
+            lib.log_violation(workspace, "SOFT", "WARN", agent,
+                              f"transition {prev} -> {curr} not in allowed "
+                              f"set {lib.STATE_MACHINE.get(agent, {}).get(prev, [])}")
+
+
 def real_main() -> int:
     raw = sys.stdin.read()
     if not raw.strip():
@@ -135,7 +191,8 @@ def real_main() -> int:
     if status == "PASS":
         lib.counter_reset_all(workspace, agent)
 
-    # CHECK 3+4 SOFT — Task 14
+    # CHECK 3+4 SOFT — never block
+    _run_soft_checks(workspace, agent, payload.get("transcript_path", ""))
     print(json.dumps(lib.allow_decision()))
     return 0
 

@@ -145,3 +145,42 @@ class TestFirstBoot:
         assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
         log = (workspace / ".copilot" / "__violations.log").read_text(encoding="utf-8")
         assert "NO-SNAPSHOT" in log
+
+
+class TestSoftWarns:
+    def _setup_pass(self, workspace, handoff_writer, fname):
+        handoff_writer(workspace / ".copilot" / fname, last_updated="2026-05-24T10:00:00Z")
+        lib.write_snapshot(workspace, {fname: "2026-05-23T00:00:00Z"})
+
+    def test_malformed_state_output_warned(self, monkeypatch, workspace,
+                                            fixtures_dir, handoff_writer):
+        self._setup_pass(workspace, handoff_writer, "literature.md")
+        d = _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_malformed_state_output.jsonl")),
+                 workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+        log = (workspace / ".copilot" / "__violations.log").read_text(encoding="utf-8")
+        assert "SOFT" in log and "WARN" in log
+        assert "STATE_OUTPUT" in log
+
+    def test_illegal_state_jump_warned(self, monkeypatch, workspace,
+                                        fixtures_dir, handoff_writer):
+        self._setup_pass(workspace, handoff_writer, "experiments.md")
+        d = _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_copilot_experiment_state_jump.jsonl")),
+                 workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+        log = (workspace / ".copilot" / "__violations.log").read_text(encoding="utf-8")
+        assert "SOFT" in log
+        assert "UNINITIALIZED" in log or "transition" in log.lower()
+
+    def test_clean_run_no_soft_warns(self, monkeypatch, workspace,
+                                      fixtures_dir, handoff_writer):
+        self._setup_pass(workspace, handoff_writer, "experiments.md")
+        d = _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_copilot_experiment_complete.jsonl")),
+                 workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+        log_path = workspace / ".copilot" / "__violations.log"
+        if log_path.exists():
+            assert "SOFT" not in log_path.read_text(encoding="utf-8")
