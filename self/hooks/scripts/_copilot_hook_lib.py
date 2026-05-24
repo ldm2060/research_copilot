@@ -9,6 +9,7 @@ any exception yields an `allow` decision rather than trapping the user.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -267,3 +268,92 @@ def is_transition_legal(agent: str, previous: str, current: str) -> bool:
     if allowed is None:
         return True
     return current in allowed
+
+
+# ---------------------------------------------------------------------------
+# Parsers (HANDOFF + STATE_OUTPUT)
+# ---------------------------------------------------------------------------
+
+_HANDOFF_HEADER = "## __HANDOFF__"
+_STATE_OUTPUT_RE = re.compile(
+    r"\[STATE_OUTPUT\](.*?)\[/STATE_OUTPUT\]",
+    re.DOTALL,
+)
+REQUIRED_STATE_OUTPUT_FIELDS = (
+    "Previous", "Current", "Action completed", "Capability gate",
+    "Evidence", "Next allowed",
+)
+
+
+def extract_handoff(text: str) -> dict[str, Any] | None:
+    """Parse the LAST `## __HANDOFF__` block in `text`.
+
+    Returns dict with keys last_updated, written_by, key_facts (list), next_owner;
+    None if no block present. Missing individual fields are None / [].
+    """
+    if not text:
+        return None
+    idx = text.rfind(_HANDOFF_HEADER)
+    if idx < 0:
+        return None
+    body = text[idx + len(_HANDOFF_HEADER):].strip()
+    end = body.find("\n## ")
+    if end >= 0:
+        body = body[:end]
+    result: dict[str, Any] = {
+        "last_updated": None,
+        "written_by": None,
+        "key_facts": [],
+        "next_owner": None,
+    }
+    in_key_facts = False
+    for line in body.splitlines():
+        s = line.strip()
+        if s.startswith("- last_updated:"):
+            result["last_updated"] = s.split(":", 1)[1].strip() or None
+            in_key_facts = False
+        elif s.startswith("- written_by:"):
+            result["written_by"] = s.split(":", 1)[1].strip() or None
+            in_key_facts = False
+        elif s.startswith("- next_owner:"):
+            result["next_owner"] = s.split(":", 1)[1].strip() or None
+            in_key_facts = False
+        elif s.startswith("- key_facts:"):
+            in_key_facts = True
+        elif in_key_facts and s.startswith("- "):
+            result["key_facts"].append(s[2:].strip())
+        elif in_key_facts and s.startswith("-"):
+            result["key_facts"].append(s[1:].strip())
+        else:
+            in_key_facts = False
+    return result
+
+
+def extract_state_output(text: str) -> dict[str, str] | None:
+    """Parse the LAST [STATE_OUTPUT]...[/STATE_OUTPUT] block.
+
+    Missing fields are absent from the dict (NOT present as None).
+    Returns None if no block found at all.
+    """
+    if not text:
+        return None
+    matches = _STATE_OUTPUT_RE.findall(text)
+    if not matches:
+        return None
+    body = matches[-1].strip()
+    result: dict[str, str] = {}
+    for line in body.splitlines():
+        s = line.strip()
+        if ":" not in s:
+            continue
+        k, v = s.split(":", 1)
+        result[k.strip()] = v.strip()
+    return result or None
+
+
+def state_output_missing_fields(so: dict[str, str] | None) -> list[str]:
+    """Return REQUIRED_STATE_OUTPUT_FIELDS missing from `so`.
+    If so is None (no block at all), all 6 are reported."""
+    if so is None:
+        return list(REQUIRED_STATE_OUTPUT_FIELDS)
+    return [f for f in REQUIRED_STATE_OUTPUT_FIELDS if f not in so]

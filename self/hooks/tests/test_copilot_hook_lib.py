@@ -161,3 +161,80 @@ class TestStateMachine:
     def test_transition_unknown_state_allowed(self):
         assert lib.is_transition_legal(
             "copilot-literature", "NEW_STATE", "END") is True
+
+
+class TestExtractHandoff:
+    def test_full_block(self):
+        text = """# Some artifact
+
+Body.
+
+## __HANDOFF__
+- last_updated: 2026-05-24T10:30:00Z
+- written_by: copilot-literature
+- key_facts:
+  - locked baseline: 1706.03762
+  - 3 nearest prior works
+- next_owner: copilot-ideation
+"""
+        h = lib.extract_handoff(text)
+        assert h is not None
+        assert h["last_updated"] == "2026-05-24T10:30:00Z"
+        assert h["written_by"] == "copilot-literature"
+        assert h["next_owner"] == "copilot-ideation"
+        assert "locked baseline: 1706.03762" in h["key_facts"]
+
+    def test_no_block(self):
+        assert lib.extract_handoff("# header only\nno handoff block") is None
+
+    def test_empty(self):
+        assert lib.extract_handoff("") is None
+
+    def test_block_without_last_updated(self):
+        h = lib.extract_handoff("## __HANDOFF__\n- written_by: x\n")
+        assert h is not None
+        assert h.get("last_updated") is None
+
+
+class TestExtractStateOutput:
+    def test_full_block(self):
+        text = """prose
+[STATE_OUTPUT]
+Previous: SCANNING
+Current: BASELINE_LOCKED
+Action completed: Locked baseline
+Capability gate: passed
+Evidence: literature.md:42
+Next allowed: [RELATED_WORK_AUGMENTED, END]
+Transition reason: 2 MCP queries
+[/STATE_OUTPUT]
+trailing"""
+        so = lib.extract_state_output(text)
+        assert so["Previous"] == "SCANNING"
+        assert so["Current"] == "BASELINE_LOCKED"
+        assert so["Capability gate"] == "passed"
+
+    def test_missing_block(self):
+        assert lib.extract_state_output("no block") is None
+
+    def test_missing_fields(self):
+        text = "[STATE_OUTPUT]\nPrevious: X\nCurrent: Y\n[/STATE_OUTPUT]"
+        so = lib.extract_state_output(text)
+        assert so["Previous"] == "X"
+        assert "Capability gate" not in so
+
+    def test_required_fields_missing_returns_list(self):
+        so = lib.extract_state_output("[STATE_OUTPUT]\nPrevious: X\nCurrent: Y\n[/STATE_OUTPUT]")
+        missing = lib.state_output_missing_fields(so)
+        assert set(missing) == {"Action completed", "Capability gate", "Evidence", "Next allowed"}
+
+    def test_required_fields_complete(self):
+        so = {
+            "Previous": "X", "Current": "Y", "Action completed": "did stuff",
+            "Capability gate": "passed", "Evidence": "x:1", "Next allowed": "[A]",
+        }
+        assert lib.state_output_missing_fields(so) == []
+
+    def test_state_output_none_returns_all_missing(self):
+        missing = lib.state_output_missing_fields(None)
+        assert len(missing) >= 6
