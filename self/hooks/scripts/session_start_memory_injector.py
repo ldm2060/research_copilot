@@ -1,6 +1,7 @@
 """SessionStart hook: inject .copilot/ __HANDOFF__ summaries into context."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import sys
 
@@ -58,6 +59,36 @@ def main() -> int:
         if total_lines >= MAX_TOTAL_LINES:
             blocks.append(f"[memory-injector] truncated at {MAX_TOTAL_LINES} lines budget")
             break
+
+    # ---- Write last_updated snapshot for SubagentStop hook ----
+    snapshot: dict[str, str | None] = {}
+    for fname in COPILOT_FILES:
+        f = copilot / fname
+        if not f.is_file():
+            continue
+        try:
+            text = f.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        idx = text.rfind(HANDOFF_HEADER)
+        if idx < 0:
+            snapshot[fname] = None
+            continue
+        body = text[idx + len(HANDOFF_HEADER):]
+        last_updated: str | None = None
+        for line in body.splitlines():
+            s = line.strip()
+            if s.startswith("- last_updated:"):
+                last_updated = s.split(":", 1)[1].strip() or None
+                break
+        snapshot[fname] = last_updated
+    try:
+        (copilot / ".session_snapshot.json").write_text(
+            json.dumps(snapshot, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
 
     pipelines_dir = copilot / "pipelines"
     if pipelines_dir.is_dir() and total_lines < MAX_TOTAL_LINES:
