@@ -53,3 +53,73 @@ class TestOverride:
                  _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
                  workspace)
         assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+
+
+class TestHandoffFreshness:
+    def test_missing_file_blocks(self, monkeypatch, workspace, fixtures_dir):
+        # Pre-populate snapshot so we trigger HARD_FAIL (not SOFT_FAIL first-boot path)
+        lib.write_snapshot(workspace, {"literature.md": None})
+        d = _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
+                 workspace)
+        assert d.get("decision") == "block"
+        assert "literature.md" in d["reason"] or "HANDOFF" in d["reason"]
+
+    def test_stale_handoff_blocks(self, monkeypatch, workspace, fixtures_dir, handoff_writer):
+        f = workspace / ".copilot" / "literature.md"
+        old = "2026-05-23T00:00:00Z"
+        handoff_writer(f, last_updated=old)
+        lib.write_snapshot(workspace, {"literature.md": old})
+        d = _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
+                 workspace)
+        assert d.get("decision") == "block"
+
+    def test_fresh_handoff_allows(self, monkeypatch, workspace, fixtures_dir, handoff_writer):
+        f = workspace / ".copilot" / "literature.md"
+        handoff_writer(f, last_updated="2026-05-24T10:00:00Z")
+        lib.write_snapshot(workspace, {"literature.md": "2026-05-23T00:00:00Z"})
+        d = _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
+                 workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+
+
+class TestFuse:
+    def test_strikes_1_and_2_block(self, monkeypatch, workspace, fixtures_dir):
+        lib.write_snapshot(workspace, {"literature.md": None})
+        for _ in range(2):
+            d = _run(monkeypatch,
+                     _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
+                     workspace)
+            assert d.get("decision") == "block"
+        assert lib.counter_get(workspace, "copilot-literature", "literature.md") == 2
+
+    def test_strike_3_releases(self, monkeypatch, workspace, fixtures_dir):
+        lib.write_snapshot(workspace, {"literature.md": None})
+        for _ in range(2):
+            _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
+                 workspace)
+        d = _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
+                 workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+        assert lib.counter_get(workspace, "copilot-literature", "literature.md") == 0
+        log = (workspace / ".copilot" / "__violations.log").read_text(encoding="utf-8")
+        assert "RELEASE" in log
+
+    def test_pass_resets_counter(self, monkeypatch, workspace, fixtures_dir, handoff_writer):
+        lib.write_snapshot(workspace, {"literature.md": None})
+        _run(monkeypatch,
+             _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
+             workspace)
+        assert lib.counter_get(workspace, "copilot-literature", "literature.md") == 1
+        f = workspace / ".copilot" / "literature.md"
+        handoff_writer(f, last_updated="2026-05-24T10:00:00Z")
+        lib.write_snapshot(workspace, {"literature.md": "2026-05-23T00:00:00Z"})
+        d = _run(monkeypatch,
+                 _stop_payload(str(fixtures_dir / "transcript_copilot_literature.jsonl")),
+                 workspace)
+        assert d["hookSpecificOutput"]["permissionDecision"] == "allow"
+        assert lib.counter_get(workspace, "copilot-literature", "literature.md") == 0
