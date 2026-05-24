@@ -8,6 +8,7 @@ any exception yields an `allow` decision rather than trapping the user.
 """
 from __future__ import annotations
 
+import datetime
 import json
 import re
 from pathlib import Path
@@ -357,3 +358,92 @@ def state_output_missing_fields(so: dict[str, str] | None) -> list[str]:
     if so is None:
         return list(REQUIRED_STATE_OUTPUT_FIELDS)
     return [f for f in REQUIRED_STATE_OUTPUT_FIELDS if f not in so]
+
+
+# ---------------------------------------------------------------------------
+# Runtime state files (under .copilot/)
+# ---------------------------------------------------------------------------
+
+SNAPSHOT_NAME = ".session_snapshot.json"
+COUNTER_NAME = ".subagent_stop_block_count.json"
+VIOLATIONS_NAME = "__violations.log"
+
+
+def _now_iso() -> str:
+    return datetime.datetime.now(datetime.timezone.utc).isoformat(
+        timespec="seconds").replace("+00:00", "Z")
+
+
+def _copilot_dir(workspace: Path) -> Path:
+    d = workspace / ".copilot"
+    d.mkdir(exist_ok=True)
+    return d
+
+
+def _read_json(path: Path) -> dict:
+    if not path.is_file():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def _write_json(path: Path, data: dict) -> None:
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False),
+                    encoding="utf-8")
+
+
+def read_snapshot(workspace: Path) -> dict[str, Any]:
+    return _read_json(_copilot_dir(workspace) / SNAPSHOT_NAME)
+
+
+def write_snapshot(workspace: Path, data: dict[str, Any]) -> None:
+    _write_json(_copilot_dir(workspace) / SNAPSHOT_NAME, data)
+
+
+def counter_read(workspace: Path) -> dict[str, dict[str, dict[str, Any]]]:
+    return _read_json(_copilot_dir(workspace) / COUNTER_NAME)
+
+
+def counter_inc(workspace: Path, agent: str, file: str) -> int:
+    data = counter_read(workspace)
+    bucket = data.setdefault(agent, {}).setdefault(
+        file, {"count": 0, "last_block_at": None, "reset_at": None})
+    bucket["count"] = int(bucket.get("count", 0)) + 1
+    bucket["last_block_at"] = _now_iso()
+    _write_json(_copilot_dir(workspace) / COUNTER_NAME, data)
+    return bucket["count"]
+
+
+def counter_get(workspace: Path, agent: str, file: str) -> int:
+    return counter_read(workspace).get(agent, {}).get(file, {}).get("count", 0)
+
+
+def counter_reset(workspace: Path, agent: str, file: str) -> None:
+    data = counter_read(workspace)
+    if agent in data and file in data[agent]:
+        data[agent][file]["count"] = 0
+        data[agent][file]["reset_at"] = _now_iso()
+        _write_json(_copilot_dir(workspace) / COUNTER_NAME, data)
+
+
+def counter_reset_all(workspace: Path, agent: str) -> None:
+    data = counter_read(workspace)
+    if agent in data:
+        for bucket in data[agent].values():
+            bucket["count"] = 0
+            bucket["reset_at"] = _now_iso()
+        _write_json(_copilot_dir(workspace) / COUNTER_NAME, data)
+
+
+def log_violation(workspace: Path, sev: str, kind: str, agent: str | None,
+                  detail: str, file: str | None = None) -> None:
+    """Append one JSONL record to .copilot/__violations.log."""
+    rec = {"ts": _now_iso(), "sev": sev, "kind": kind,
+           "agent": agent, "detail": detail}
+    if file is not None:
+        rec["file"] = file
+    log = _copilot_dir(workspace) / VIOLATIONS_NAME
+    with log.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")

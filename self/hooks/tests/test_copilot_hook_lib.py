@@ -238,3 +238,58 @@ trailing"""
     def test_state_output_none_returns_all_missing(self):
         missing = lib.state_output_missing_fields(None)
         assert len(missing) >= 6
+
+
+import json as _json_in_tests
+
+
+class TestSnapshotIO:
+    def test_read_missing(self, workspace):
+        assert lib.read_snapshot(workspace) == {}
+
+    def test_write_and_read(self, workspace):
+        lib.write_snapshot(workspace, {"state.md": "2026-05-24T10:00:00Z"})
+        assert lib.read_snapshot(workspace) == {"state.md": "2026-05-24T10:00:00Z"}
+
+    def test_corrupt_returns_empty(self, workspace):
+        (workspace / ".copilot" / ".session_snapshot.json").write_text("not json")
+        assert lib.read_snapshot(workspace) == {}
+
+
+class TestCounterIO:
+    def test_read_missing(self, workspace):
+        assert lib.counter_read(workspace) == {}
+
+    def test_inc_from_zero(self, workspace):
+        assert lib.counter_inc(workspace, "copilot-literature", "literature.md") == 1
+        assert lib.counter_inc(workspace, "copilot-literature", "literature.md") == 2
+
+    def test_reset_bucket(self, workspace):
+        lib.counter_inc(workspace, "copilot-literature", "literature.md")
+        lib.counter_reset(workspace, "copilot-literature", "literature.md")
+        assert lib.counter_get(workspace, "copilot-literature", "literature.md") == 0
+
+    def test_reset_all_for_agent(self, workspace):
+        lib.counter_inc(workspace, "copilot-experiment", "experiments.md")
+        lib.counter_inc(workspace, "copilot-experiment", "other.md")
+        lib.counter_reset_all(workspace, "copilot-experiment")
+        for v in lib.counter_read(workspace).get("copilot-experiment", {}).values():
+            assert v["count"] == 0
+
+
+class TestViolationsLog:
+    def test_log_appends(self, workspace):
+        lib.log_violation(workspace, "HARD", "DENY", "copilot-literature",
+                          "test detail", file=".copilot/ideas.md")
+        log = (workspace / ".copilot" / "__violations.log").read_text(encoding="utf-8")
+        line = log.strip().splitlines()[-1]
+        rec = _json_in_tests.loads(line)
+        assert rec["sev"] == "HARD"
+        assert rec["kind"] == "DENY"
+        assert rec["agent"] == "copilot-literature"
+
+    def test_log_multiple(self, workspace):
+        lib.log_violation(workspace, "SOFT", "WARN", "copilot-experiment", "warn 1")
+        lib.log_violation(workspace, "SOFT", "WARN", "copilot-experiment", "warn 2")
+        lines = (workspace / ".copilot" / "__violations.log").read_text(encoding="utf-8").strip().splitlines()
+        assert len(lines) == 2
