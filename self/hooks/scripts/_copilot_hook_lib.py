@@ -104,3 +104,166 @@ def glob_match(path: str, pattern: str) -> bool:
     if not g:
         return p == g
     return PurePosixPath(p).match(g)
+
+
+# ---------------------------------------------------------------------------
+# OWNED matrix (PIPELINE-OS §8) and ownership predicates
+# ---------------------------------------------------------------------------
+
+OWNED: dict[str, list[str]] = {
+    "research-copilot": [
+        ".copilot/state.md",
+        ".copilot/decisions.md",
+        ".copilot/pipelines/*.md",
+    ],
+    "copilot-literature": [".copilot/literature.md"],
+    "copilot-ideation": [
+        ".copilot/ideas.md",
+        ".copilot/pipelines/*-s2-*.md",
+    ],
+    "copilot-experiment": [
+        ".copilot/experiments.md",
+        ".copilot/pipelines/*-s3-*.md",
+    ],
+    "copilot-writer": [
+        "sections/*.tex",
+        "references.bib",
+        ".copilot/handoff.md",
+    ],
+    "copilot-polisher": [
+        "sections/*.tex",
+        ".copilot/handoff.md",
+    ],
+    "copilot-reviewer": [
+        ".copilot/reviews/round-*.md",
+        ".copilot/handoff.md",
+    ],
+    "copilot-rebuttal": [".copilot/handoff.md"],
+}
+
+HANDOFF_APPEND_ONLY_AGENTS = frozenset([
+    "copilot-writer", "copilot-polisher",
+    "copilot-reviewer", "copilot-rebuttal",
+])
+
+
+def is_owned(agent: str, path: str) -> bool:
+    """True iff `agent` is allowed to write `path` per PIPELINE-OS §8."""
+    if agent not in OWNED:
+        return False
+    p = path.replace("\\", "/").lower()
+    return any(glob_match(p, pat) for pat in OWNED[agent])
+
+
+_KNOWN_ARTIFACT_GLOBS = [
+    ".copilot/state.md",
+    ".copilot/literature.md",
+    ".copilot/ideas.md",
+    ".copilot/experiments.md",
+    ".copilot/decisions.md",
+    ".copilot/handoff.md",
+    ".copilot/reviews/*.md",
+    ".copilot/pipelines/*.md",
+    "sections/*.tex",
+    "references.bib",
+]
+
+
+def is_known_research_artifact(path: str) -> bool:
+    """True iff `path` is one of the artifacts PIPELINE-OS §8 governs.
+    Paths outside this universe are unconditionally allowed for any agent."""
+    p = path.replace("\\", "/").lower()
+    return any(glob_match(p, pat) for pat in _KNOWN_ARTIFACT_GLOBS)
+
+
+# ---------------------------------------------------------------------------
+# STATE_MACHINE — transcribed from each *.agent.md state table
+# ---------------------------------------------------------------------------
+
+STATE_MACHINE: dict[str, dict[str, list[str]]] = {
+    "research-copilot": {
+        "UNINITIALIZED":        ["DIAGNOSED"],
+        "DIAGNOSED":            ["MODE_A_ROUTING", "MODE_B_PIPELINE", "PAUSED"],
+        "MODE_A_ROUTING":       ["AWAIT_SUBAGENT_END"],
+        "MODE_B_PIPELINE":      ["AWAIT_SUBAGENT_END"],
+        "AWAIT_SUBAGENT_END":   ["DIAGNOSED", "BACK_EDGE_TRIGGERED", "PAUSED", "END"],
+        "BACK_EDGE_TRIGGERED":  ["MODE_A_ROUTING", "PAUSED"],
+        "PAUSED":               ["END"],
+        "END":                  [],
+    },
+    "copilot-literature": {
+        "UNINITIALIZED":          ["SCANNING"],
+        "SCANNING":               ["BASELINE_LOCKED", "RELATED_WORK_AUGMENTED"],
+        "BASELINE_LOCKED":        ["RELATED_WORK_AUGMENTED", "END"],
+        "RELATED_WORK_AUGMENTED": ["END"],
+        "END":                    [],
+    },
+    "copilot-ideation": {
+        "UNINITIALIZED":         ["CONTEXT_LOADED", "END"],
+        "CONTEXT_LOADED":        ["INTERVIEWING"],
+        "INTERVIEWING":          ["PREFERENCES_LOCKED"],
+        "PREFERENCES_LOCKED":    ["CANDIDATES_GENERATED"],
+        "CANDIDATES_GENERATED":  ["ANALOGIES_ADDED"],
+        "ANALOGIES_ADDED":       ["FILTERED"],
+        "FILTERED":              ["AWAITING_SELECTION"],
+        "AWAITING_SELECTION":    ["DIRECTION_SELECTED", "PREFERENCES_LOCKED"],
+        "DIRECTION_SELECTED":    ["VALIDATED"],
+        "VALIDATED":             ["END"],
+        "END":                   [],
+    },
+    "copilot-experiment": {
+        "UNINITIALIZED":   ["CONTEXT_LOADED"],
+        "CONTEXT_LOADED":  ["DESIGN_READY"],
+        "DESIGN_READY":    ["APPROVED"],
+        "APPROVED":        ["EXECUTING"],
+        "EXECUTING":       ["COMPLETED"],
+        "COMPLETED":       ["VERIFIED"],
+        "VERIFIED":        ["JUDGED"],
+        "JUDGED":          ["END", "EXECUTING"],
+        "END":             [],
+    },
+    "copilot-writer": {
+        "UNINITIALIZED": ["PLAN_DRAFT", "EXPAND", "SHORTEN", "TRANSLATE", "CAPTION"],
+        "PLAN_DRAFT":    ["DRAFTING"],
+        "DRAFTING":      ["REVIEW_SELF", "END"],
+        "EXPAND":        ["REVIEW_SELF", "END"],
+        "SHORTEN":       ["REVIEW_SELF", "END"],
+        "TRANSLATE":     ["END"],
+        "CAPTION":       ["END"],
+        "REVIEW_SELF":   ["END"],
+        "END":           [],
+    },
+    "copilot-polisher": {
+        "UNINITIALIZED": ["POLISHING"],
+        "POLISHING":     ["DE_AI"],
+        "DE_AI":         ["VALIDATED"],
+        "VALIDATED":     ["END"],
+        "END":           [],
+    },
+    "copilot-reviewer": {
+        "UNINITIALIZED":   ["SIMULATE_REVIEW"],
+        "SIMULATE_REVIEW": ["EXTRACT_GAPS"],
+        "EXTRACT_GAPS":    ["WRITE_ROUND"],
+        "WRITE_ROUND":     ["END"],
+        "END":             [],
+    },
+    "copilot-rebuttal": {
+        "UNINITIALIZED":   ["PARSE_REVIEWS"],
+        "PARSE_REVIEWS":   ["DRAFT_RESPONSE"],
+        "DRAFT_RESPONSE":  ["RE_REVIEW", "END"],
+        "RE_REVIEW":       ["END"],
+        "END":             [],
+    },
+}
+
+
+def is_transition_legal(agent: str, previous: str, current: str) -> bool:
+    """True if `previous -> current` appears in agent's table.
+    Returns True (no false warns) for unknown agent OR unknown source state."""
+    sm = STATE_MACHINE.get(agent)
+    if sm is None:
+        return True
+    allowed = sm.get(previous)
+    if allowed is None:
+        return True
+    return current in allowed
