@@ -89,11 +89,18 @@ def normalize_path(s: str, workspace: Path | None = None) -> str:
 
 
 def glob_match(path: str, pattern: str) -> bool:
-    """Case-insensitive fnmatch.
+    """Case-insensitive single-segment glob match.
+
+    Uses `pathlib.PurePosixPath.match` semantics — `*` matches one path
+    segment, NOT across `/`. So `sections/*.tex` matches `sections/foo.tex`
+    but NOT `sections/sub/foo.tex`.
 
     Both `path` and `pattern` are lowercased and forward-slashed before
-    matching, so glob patterns work regardless of input case/slash style.
+    matching, so callers don't have to pre-normalize.
     """
+    from pathlib import PurePosixPath
     p = path.replace("\\", "/").lower()
     g = pattern.replace("\\", "/").lower()
-    return fnmatch.fnmatchcase(p, g)
+    if not g:
+        return p == g
+    return PurePosixPath(p).match(g)

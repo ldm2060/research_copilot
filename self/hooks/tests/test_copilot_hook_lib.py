@@ -70,3 +70,18 @@ class TestGlobMatch:
                               ".copilot/pipelines/*-s2-*.md") is True
         assert lib.glob_match(".copilot/pipelines/2026-05-24-S3-experiment-1.md",
                               ".copilot/pipelines/*-s2-*.md") is False
+
+    def test_star_does_not_cross_slash(self):
+        # Tightened semantics: `*` is single-segment only
+        assert lib.glob_match("sections/sub/foo.tex", "sections/*.tex") is False
+        assert lib.glob_match(".copilot/reviews/round-2/sub/x.md",
+                              ".copilot/reviews/round-*.md") is False
+
+    def test_star_single_segment_still_matches(self):
+        assert lib.glob_match("sections/intro.tex", "sections/*.tex") is True
+        assert lib.glob_match(".copilot/pipelines/2026-05-24-S2-ideation.md",
+                              ".copilot/pipelines/*-s2-*.md") is True
+
+    def test_empty_pattern(self):
+        assert lib.glob_match("", "") is True
+        assert lib.glob_match("anything", "") is False
