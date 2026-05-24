@@ -45,6 +45,16 @@
             "timeout": 15
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/article/self/hooks/scripts/copilot_write_guard.py\"",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -65,6 +75,18 @@
             "type": "command",
             "command": "python \"D:/article/self/hooks/scripts/post_tool_loop_armer.py\"",
             "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/article/self/hooks/scripts/copilot_subagent_stop.py\"",
+            "timeout": 15
           }
         ]
       }
