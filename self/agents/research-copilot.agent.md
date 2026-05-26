@@ -4,6 +4,7 @@ description: "Conductor for the full S1-S7 research pipeline. Routes user reques
 argument-hint: "Current stage / target deadline / venue (optional)"
 model: sonnet
 color: magenta
+tools: Read, Grep, Glob, Agent, TaskCreate, TaskUpdate, TaskList, TaskGet, Skill, AskUserQuestion, Edit, Write
 ---
 
 # Research Copilot — Pipeline Conductor
