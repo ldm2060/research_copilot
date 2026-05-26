@@ -63,9 +63,9 @@ Malformed or missing → conductor responds `[STATE_ERROR: malformed-output]` li
 
 `research-gate` minimum coverage: ≥2 distinct queries (different topical keywords, not the same query repeated against different MCP).
 
-## §4. Delegation Template (6-field)
+## §4. Delegation Template (7-field)
 
-Every `Task()` call from research-copilot or any coordinator MUST include all six fields:
+Every `Task()` / `Agent()` call from research-copilot or any coordinator MUST include all seven fields:
 
 ```
 Context & stage: <user is at SN; last round did X; why now>
@@ -74,7 +74,22 @@ Facts: <.copilot/<file>.md paths, workspace paths, PDFs>
 Constraints: <target venue, style, do-not-touch files, no fabricated citations>
 Expected output: <conclusion / file diff / draft / table — concrete>
 Stop condition: <when to stop and report instead of pushing through>
+Model: <haiku | sonnet | opus>     ← matches sub-agent's declared model
 ```
+
+The 7th field `Model:` MUST be passed as the `model` parameter of the `Agent` tool call (NOT only mentioned in prose). The value MUST match the sub-agent's declared frontmatter model:
+
+| Sub-agent | Required Model value |
+|---|---|
+| `copilot-literature` | `haiku` |
+| `copilot-ideation` | `opus` |
+| `copilot-experiment` | `sonnet` |
+| `copilot-writer` | `sonnet` |
+| `copilot-polisher` | `sonnet` |
+| `copilot-reviewer` | `opus` |
+| `copilot-rebuttal` | `sonnet` |
+
+Rationale: per Claude Code sub-agent docs, the per-invocation `model` parameter is item 2 in the model resolution chain (above the frontmatter `model:` field). Passing it explicitly bypasses any failure of item 3 to take effect.
 
 ## §5. Approval Gate Policy
 
@@ -98,7 +113,7 @@ Main thread CAN do: routing, decisions, summary, light reads (≤ 5 tool calls),
 
 Main thread MUST `Agent(subagent_type=<copilot-*>)` for: any execution task that has its own state machine; any task expected to take > 5 tool calls; any task that writes to a `.copilot/*.md` owned by a sub-agent (per §8).
 
-Every `Task()` MUST carry §4's 6-field template. Otherwise `user_prompt_dispatch_reminder.py` re-injects guidance on the next turn.
+Every `Task()` MUST carry §4's 7-field template. Otherwise `user_prompt_dispatch_reminder.py` re-injects guidance on the next turn.
 
 ## §7. Back-edge Matrix
 
