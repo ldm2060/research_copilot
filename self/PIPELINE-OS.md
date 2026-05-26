@@ -113,7 +113,9 @@ Main thread CAN do: routing, decisions, summary, light reads (≤ 5 tool calls),
 
 Main thread MUST `Agent(subagent_type=<copilot-*>)` for: any execution task that has its own state machine; any task expected to take > 5 tool calls; any task that writes to a `.copilot/*.md` owned by a sub-agent (per §8).
 
-Every `Task()` MUST carry §4's 7-field template. Otherwise `user_prompt_dispatch_reminder.py` re-injects guidance on the next turn.
+Every `Task()` MUST carry §4's 7-field template (including `Model:`). Otherwise `user_prompt_dispatch_reminder.py` re-injects guidance on the next turn.
+
+**Mode B plan-list rule.** When `research-copilot` enters `MODE_B_PIPELINE`, it MUST publish a TaskCreate plan list (one task per planned sub-agent dispatch) before any `Agent()` call. The conductor transitions `MODE_B_PIPELINE → PLAN_PUBLISHED → AWAIT_SUBAGENT_END`; `research_copilot_guard.py` pattern 7 denies any `Agent(copilot-*)` call made from `MODE_B_PIPELINE` / `PLAN_PUBLISHED` / `AWAIT_SUBAGENT_END` with zero TaskCreate calls in the current turn. Mode A (single dispatch) is exempt.
 
 ## §7. Back-edge Matrix
 
