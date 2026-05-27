@@ -34,3 +34,19 @@ originating from the main session or from any agent other than `research-copilot
 The Python guard inspects the transcript JSONL to find the most recent
 `subagent_type` marker; the prompt fallback applies the same rule by reading
 the transcript context.
+
+## Patterns
+
+The Python guard checks five patterns in order; first deny short-circuits the rest. All five fire only when the active sub-agent is `research-copilot`:
+
+| # | Name | Tool match | When it denies |
+|---|---|---|---|
+| 1 | experiment-script | `Bash`, `PowerShell` | Non-read-only command containing experiment keywords (`train.py`, `wandb`, `torchrun`, …) |
+| 3 | state-mandated-delegation | `Agent`, `Bash`, `PowerShell`, `Write`, `Edit` | Current state is `S2_IDEATION` or `S3_EXPERIMENT` and the tool call is not the correct delegation |
+| 5 | memory-gate | `Write`, `Edit` | Writing to `.copilot/{ideas,experiments,literature,decisions}.md` with no prior `Read` of any `.copilot/*.md` in the session |
+| 6 | research-gate | `Write`, `Edit` | Writing a `## Idea` block to `.copilot/ideas.md` with fewer than 2 distinct paper-retrieval MCP queries in the session |
+| 7 | plan-list-gate | `Agent` | research-copilot is in `MODE_B_PIPELINE` / `PLAN_PUBLISHED` / `AWAIT_SUBAGENT_END` state and dispatches `Agent(copilot-*)` with zero `TaskCreate` calls in the current turn |
+
+Patterns 5, 6, 7 each have a dedicated unit test file under `self/hooks/scripts/__tests__/`.
+
+The frontmatter `tools:` allowlist on `research-copilot.agent.md` is a stronger, complementary control: it prevents the conductor from ever invoking `Bash` / `PowerShell` / `WebFetch` / MCP tools in the first place, so patterns 1, 5, 6 act as inner safety net rather than primary defense.
