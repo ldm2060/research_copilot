@@ -272,6 +272,34 @@ def load_state() -> dict[str, Any]:
     return state
 
 
+def check_pattern_7_no_plan_list(tool_name: str, tool_input: dict[str, Any],
+                                 state: dict[str, Any],
+                                 transcript_path: str | None) -> str | None:
+    """Pattern 7 (plan-list-gate): in Mode B pipeline, every Agent dispatch
+    must be preceded by a TaskCreate plan list in the current turn."""
+    if tool_name != "Agent":
+        return None
+    current_state = state.get("current_state", "UNINITIALIZED")
+    if current_state not in {"MODE_B_PIPELINE", "PLAN_PUBLISHED",
+                             "AWAIT_SUBAGENT_END"}:
+        return None
+    sub_type = str((tool_input or {}).get("subagent_type", ""))
+    if not sub_type.startswith("copilot-"):
+        return None
+    if not transcript_path:
+        return None
+    task_count = 0
+    for entry in _iter_transcript_tool_uses(transcript_path):
+        if entry["name"] == "TaskCreate":
+            task_count += 1
+    if task_count == 0:
+        return ("Blocked by research-copilot-guard (pattern 7): Mode B "
+                "pipeline dispatch requires a published TaskCreate plan "
+                "list (one task per planned dispatch). Call TaskCreate "
+                "for each stage in order before invoking Agent().")
+    return None
+
+
 def main() -> int:
     raw = sys.stdin.read()
     if not raw:
@@ -306,6 +334,7 @@ def main() -> int:
         check_pattern_3_delegation(tool_name, tool_input, state),
         check_pattern_5_no_memory_read(tool_name, tool_input, transcript_path),
         check_pattern_6_no_research_mcp(tool_name, tool_input, transcript_path),
+        check_pattern_7_no_plan_list(tool_name, tool_input, state, transcript_path),
     ):
         if check:
             print(json.dumps(deny(check)))
