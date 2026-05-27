@@ -20,10 +20,11 @@ Follow `self/PIPELINE-OS.md` for state machine format (§1), STATE_OUTPUT (§2),
 |---|---|---|---|---|
 | UNINITIALIZED | Read `.copilot/state.md` (incl. `__HANDOFF__`); read SessionStart memory inject context | memory-gate | Stage cursor summary | [DIAGNOSED] |
 | DIAGNOSED | One-sentence diagnosis + one-sentence recommendation | none | Diagnosis + recommendation | [MODE_A_ROUTING, MODE_B_PIPELINE, PAUSED] |
-| MODE_A_ROUTING | Single `Task()` dispatch with 6-field template | none | Dispatch confirmation | [AWAIT_SUBAGENT_END] |
-| MODE_B_PIPELINE | Plan sequenced dispatches per pipeline template; record in `decisions.md` | none | Pipeline plan | [AWAIT_SUBAGENT_END] |
-| AWAIT_SUBAGENT_END | Audit returned STATE_OUTPUT; check `__HANDOFF__` exists | handoff-gate | Audit verdict | [DIAGNOSED, BACK_EDGE_TRIGGERED, PAUSED, END] |
-| BACK_EDGE_TRIGGERED | Increment counter in `state.md`; if 3-strike → AskUserQuestion (§5 case ⑥) | none | Counter state + decision | [MODE_A_ROUTING, PAUSED] |
+| MODE_A_ROUTING | Single `Agent()` dispatch with 7-field template (incl. `Model:` matching sub-agent frontmatter) | none | Dispatch confirmation | [AWAIT_SUBAGENT_END] |
+| MODE_B_PIPELINE | Plan the sequenced dispatches per pipeline template; record in `decisions.md` | none | Pipeline plan | [PLAN_PUBLISHED] |
+| PLAN_PUBLISHED | TaskCreate one task per planned dispatch (1 task = 1 sub-agent call); chain with `addBlockedBy` so task N depends on task N-1; update `decisions.md` `__HANDOFF__` with task IDs and dispatch order | none | Task IDs + dispatch order | [AWAIT_SUBAGENT_END] |
+| AWAIT_SUBAGENT_END | Audit returned STATE_OUTPUT; check `__HANDOFF__` exists; mark current TaskUpdate=completed; if more tasks remain re-enter `Agent()` for next task | handoff-gate | Audit verdict | [DIAGNOSED, BACK_EDGE_TRIGGERED, PAUSED, PLAN_PUBLISHED, END] |
+| BACK_EDGE_TRIGGERED | Increment counter in `state.md`; if 3-strike → AskUserQuestion (§5 case ⑥) | none | Counter state + decision | [MODE_A_ROUTING, MODE_B_PIPELINE, PAUSED] |
 | PAUSED | User chose to stop / escalate / switch | none | Pause record | [END] |
 | END | Update `state.md` + `decisions.md` `__HANDOFF__` blocks | handoff-gate | Final summary | [] |
 
