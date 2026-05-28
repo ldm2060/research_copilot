@@ -956,6 +956,11 @@ def merge_hooks_to_claude_settings(hooks_dir: Path) -> dict:
     return {"hooks": merged_hooks}
 
 
+_HOOK_PATH_REWRITE_RE = re.compile(
+    r'(?:self/hooks/|\.github/hooks/|\$\{CLAUDE_PLUGIN_ROOT\}/hooks/)'
+)
+
+
 def _copy_hook_scripts(
     repo_root: Path,
     copilot_hooks_dir: Path,
@@ -963,88 +968,48 @@ def _copy_hook_scripts(
     settings: dict,
     report: list[CopiedItem],
 ) -> bool:
-    """Copy referenced hook scripts into the bundle and rewrite settings paths."""
-    # Collect all referenced command paths from settings hooks
-    scripts_to_copy: dict[str, str] = {}  # original_rel_path -> bundle_rel_path
-    for event in settings.get("hooks", {}):
-        for group in settings["hooks"][event]:
-            for hook in group.get("hooks", []):
-                cmd = hook.get("command", "")
-                # Extract script path from command, handling quoted paths
-                cmd_stripped = cmd.strip()
-                parts = cmd_stripped.split()
-                script_path = None
-                for part in parts:
-                    # Strip surrounding quotes from each part
-                    clean = part.strip('"').strip("'")
-                    if clean.startswith(".github/hooks/"):
-                        script_path = clean
-                        break
-                    if clean.startswith("${CLAUDE_PLUGIN_ROOT}"):
-                        script_path = clean.replace("${CLAUDE_PLUGIN_ROOT}", ".github")
-                        break
-                if script_path:
-                    scripts_to_copy[script_path] = script_path.replace(".github/hooks/", "hooks/")
+    """Bundle hook scripts and normalize command paths to ${CLAUDE_PLUGIN_ROOT}.
 
-    if not scripts_to_copy:
-        return False
+    Source hook .json files reference scripts as ``python self/hooks/scripts/<name>.py``
+    (relative to the source repo root). In the published plugin, those scripts live at
+    ``${CLAUDE_PLUGIN_ROOT}/hooks/scripts/<name>.py`` — cwd-independent and matches the
+    Claude Code plugin spec.
 
-    # Copy scripts from copilot intermediate hooks dir
-    for orig_rel, bundle_rel in scripts_to_copy.items():
-        src = copilot_hooks_dir / orig_rel.replace(".github/hooks/", "")
-        dst = output_root / bundle_rel
-        if src.exists():
-            if src.is_dir():
-                copy_tree(src, dst)
-            else:
-                copy_file(src, dst)
+    Two steps:
+      1. Copy ``repo_root/self/hooks/scripts/`` verbatim to ``output_root/hooks/scripts/``.
+      2. Rewrite every command in ``settings["hooks"]`` so any ``self/hooks/``,
+         ``.github/hooks/``, or already-prefixed ``${CLAUDE_PLUGIN_ROOT}/hooks/`` segment
+         becomes ``${CLAUDE_PLUGIN_ROOT}/hooks/`` uniformly.
+    """
+    copied_any = False
+    source_scripts_dir = repo_root / "self" / "hooks" / "scripts"
+    if source_scripts_dir.is_dir():
+        dest_scripts_dir = output_root / "hooks" / "scripts"
+        copy_tree(source_scripts_dir, dest_scripts_dir)
+        reset_path(dest_scripts_dir / "__tests__")
+        copied_any = True
+        for child in sorted(source_scripts_dir.iterdir()):
+            if child.name in SKIP_NAMES or child.name.startswith(".") or child.name == "__tests__":
+                continue
             report.append(CopiedItem(
                 kind="claude-hook-script",
-                name=src.name,
-                source=str(src),
-                target=str(dst),
+                name=child.name,
+                source=str(child),
+                target=str(dest_scripts_dir / child.name),
                 operation="copy",
             ))
 
-    # Also copy any other files in the hooks dir that might be referenced indirectly
-    # (e.g. session-start script called by run-hook.cmd)
-    hooks_dest = output_root / "hooks"
-    for child in sorted(copilot_hooks_dir.iterdir()):
-        if child.name in SKIP_NAMES or child.name.startswith("."):
-            continue
-        if child.is_file() and not child.name.endswith(".json"):
-            dest = hooks_dest / child.name
-            if not dest.exists():
-                copy_file(child, dest)
-                report.append(CopiedItem(
-                    kind="claude-hook-script",
-                    name=child.name,
-                    source=str(child),
-                    target=str(dest),
-                    operation="copy",
-                ))
-        elif child.is_dir():
-            dest = hooks_dest / child.name
-            if not dest.exists():
-                copy_tree(child, dest)
-                report.append(CopiedItem(
-                    kind="claude-hook-script",
-                    name=child.name,
-                    source=str(child),
-                    target=str(dest),
-                    operation="copy",
-                ))
-
-    # Rewrite hook command paths in settings
     for event in settings.get("hooks", {}):
         for group in settings["hooks"][event]:
             for hook in group.get("hooks", []):
                 cmd = hook.get("command", "")
-                cmd = cmd.replace(".github/hooks/", "hooks/")
-                cmd = cmd.replace("${CLAUDE_PLUGIN_ROOT}/hooks/", "hooks/")
-                hook["command"] = cmd
+                if not cmd:
+                    continue
+                hook["command"] = _HOOK_PATH_REWRITE_RE.sub(
+                    '${CLAUDE_PLUGIN_ROOT}/hooks/', cmd,
+                )
 
-    return bool(scripts_to_copy)
+    return copied_any
 
 
 def generate_missing_skill_json(
