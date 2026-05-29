@@ -20,7 +20,9 @@ import _copilot_hook_lib as lib
 
 
 HANDOFF_FILES: dict[str, list[str]] = {
-    "research-copilot":    ["state.md", "decisions.md"],
+    # research-copilot retired as a sub-agent (now the main-session conductor);
+    # state.md/decisions.md freshness is a CONDUCTOR-PROTOCOL standing order,
+    # not SubagentStop-enforced (the main session never fires SubagentStop).
     "copilot-literature":  ["literature.md"],
     "copilot-ideation":    ["ideas.md"],
     "copilot-experiment":  ["experiments.md"],
