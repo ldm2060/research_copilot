@@ -42,27 +42,30 @@ SESSION_MEMORY_INJECTOR_SCRIPT = SELF_DIR / "hooks" / "scripts" / "session_start
 DISPATCH_REMINDER_SCRIPT = SELF_DIR / "hooks" / "scripts" / "user_prompt_dispatch_reminder.py"
 LOOP_ARMER_SCRIPT = SELF_DIR / "hooks" / "scripts" / "post_tool_loop_armer.py"
 RESEARCH_COPILOT_GUARD_PROMPT = (
-    "You are the research-copilot-guard fallback. This hook runs in parallel with a "
-    "primary Python guard (if Python is available on this machine). Default to APPROVE "
-    "unless you have STRONG, CONCRETE evidence that ALL of the following are true:\n\n"
-    "1. The active sub-agent is literally `research-copilot` (not the main session, "
-    "not `copilot-experiment`, not any other agent). Evidence must be a "
-    "`subagent_type: \"research-copilot\"` marker in the recent transcript context "
-    "— not an inference from the tool call alone.\n"
-    "2. The tool input clearly violates one specific rule:\n"
-    "   - Bash/PowerShell command running an experiment script (literal `train.py`, "
-    "`run_experiment`, `wandb`, `mlflow`, `torchrun`, `deepspeed`) AND not a read-only "
-    "inspection (`cat`, `grep`, `ls`, `Get-Content`, `Select-String`).\n\n"
-    "If you cannot point to a transcript line that names research-copilot as the active "
-    "agent, output `approve`. If the active agent is the main session or any sub-agent "
-    "OTHER than research-copilot, output `approve`. If you are uncertain for any reason, "
-    "output `approve`.\n\n"
-    "Only when both conditions above are concretely met, output `deny` with message: "
-    "'Blocked by research-copilot-guard (prompt fallback): delegate experiment work to "
-    "copilot-experiment via Agent tool.'\n\n"
+    "You are the research-copilot-guard fallback, running in parallel with a "
+    "primary Python guard (if Python is available). The main session acts as the "
+    "research-pipeline CONDUCTOR and must DELEGATE domain work to copilot-* "
+    "sub-agents. Default to APPROVE unless you have STRONG, CONCRETE evidence "
+    "that ALL of the following hold:\n\n"
+    "1. This call originates from the MAIN SESSION (NOT a sub-agent). In the hook "
+    "payload, a sub-agent call carries a non-empty `agent_id` field; the main "
+    "session has NO `agent_id`. If `agent_id` is present, output `approve` "
+    "(sub-agents run freely).\n"
+    "2. The main session is doing execution-class work that must be delegated:\n"
+    "   - Bash/PowerShell running an experiment script (train.py, run_experiment, "
+    "wandb, mlflow, torchrun, deepspeed) that is NOT read-only inspection; OR\n"
+    "   - a paper-retrieval MCP tool (mcp__arxiv-search__*, mcp__arxivsub-search__*, "
+    "mcp__google-scholar__*, mcp__dblp-bib__*); OR\n"
+    "   - a Write/Edit to sections/*.tex, references.bib, or "
+    ".copilot/{ideas,experiments,literature}.md (but NOT .copilot/state.md or "
+    ".copilot/decisions.md, which the conductor owns).\n\n"
+    "If `agent_id` is present (sub-agent), or the call is read-only, or you are "
+    "uncertain, output `approve`. Only when BOTH conditions above are concretely "
+    "met, output `deny` with message: 'Blocked by research-copilot-guard (prompt "
+    "fallback): the conductor must delegate this to a copilot-* sub-agent.'\n\n"
     "Return the standard PreToolUse decision JSON. Be brief."
 )
-RESEARCH_COPILOT_GUARD_MATCHER = "Bash|PowerShell|Agent|Write|Edit"
+RESEARCH_COPILOT_GUARD_MATCHER = "Bash|PowerShell|Agent|Write|Edit|mcp__arxiv-search__.*|mcp__arxivsub-search__.*|mcp__google-scholar__.*|mcp__dblp-bib__.*"
 SKILLS_DIR = SELF_DIR / "skills"
 SKILL_JSON_GENERATOR = SELF_DIR / "scripts" / "generate-skill-json.py"
 
@@ -579,7 +582,8 @@ def main() -> int:
     info("Install complete.")
     info("Next steps:")
     print("  1. Restart Claude Code (or run /clear) to pick up new MCP servers")
-    print("  2. Try: @research-copilot 'show me where this research currently stands'")
+    print("  2. The main session is now the pipeline conductor — just state your goal")
+    print("     (e.g. 'where does this research stand?'); it will plan and delegate.")
     print("  3. Call a sub-agent directly: @copilot-literature / @copilot-ideation / @copilot-experiment / @copilot-writer / @copilot-polisher / @copilot-reviewer / @copilot-rebuttal")
     print("  4. Diagnose MCP latency: python self/scripts/diagnose-mcp.py")
     return 0
