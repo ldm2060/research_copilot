@@ -67,6 +67,28 @@ def detect_active_agent(transcript_path: str) -> str | None:
     return None
 
 
+COPILOT_SUBAGENT_PREFIX = "copilot-"
+
+
+def is_main_session(payload: dict) -> bool:
+    """True iff this PreToolUse call originates from the MAIN session.
+
+    Authoritative per Claude Code hooks docs: `agent_id` is present ONLY
+    inside a sub-agent call, so its ABSENCE means the main thread. Any
+    ambiguity (missing/empty agent_id) resolves to main — conservative,
+    because a false 'main' over-applies the guard (recoverable) whereas a
+    false 'subagent' silently exempts the main session (defeats the guard).
+    """
+    return not payload.get("agent_id")
+
+
+def is_exempt_subagent(payload: dict) -> bool:
+    """True iff a copilot-* sub-agent made this call (runs freely)."""
+    if is_main_session(payload):
+        return False
+    return str(payload.get("agent_type") or "").startswith(COPILOT_SUBAGENT_PREFIX)
+
+
 # ---------------------------------------------------------------------------
 # Path utilities
 # ---------------------------------------------------------------------------

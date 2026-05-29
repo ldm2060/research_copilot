@@ -374,3 +374,26 @@ class TestSafeMain:
         rc = lib.safe_main(real)
         assert rc == 0
         assert "allow" in capsys.readouterr().out
+
+
+class TestOriginAttribution:
+    def test_no_agent_id_is_main(self):
+        assert lib.is_main_session({"tool_name": "Bash", "tool_input": {}}) is True
+
+    def test_empty_agent_id_is_main(self):
+        assert lib.is_main_session({"agent_id": "", "agent_type": ""}) is True
+
+    def test_present_agent_id_is_subagent(self):
+        p = {"agent_id": "sa_01", "agent_type": "copilot-experiment"}
+        assert lib.is_main_session(p) is False
+
+    def test_exempt_copilot_subagent(self):
+        p = {"agent_id": "sa_01", "agent_type": "copilot-experiment"}
+        assert lib.is_exempt_subagent(p) is True
+
+    def test_non_copilot_subagent_not_exempt(self):
+        p = {"agent_id": "sa_02", "agent_type": "Explore"}
+        assert lib.is_exempt_subagent(p) is False
+
+    def test_main_session_not_exempt(self):
+        assert lib.is_exempt_subagent({"tool_name": "Bash"}) is False
