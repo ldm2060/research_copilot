@@ -30,10 +30,11 @@ RESEARCH_MCP_PREFIXES = (
 )
 # Conductor-owned artifacts: the main session MAY write these.
 CONDUCTOR_OWNED_ARTIFACTS = (".copilot/state.md", ".copilot/decisions.md")
-# Delegated artifacts: the main session must NOT write these.
-DELEGATED_ARTIFACTS = ("sections/", "references.bib",
-                       ".copilot/ideas.md", ".copilot/experiments.md",
-                       ".copilot/literature.md")
+# Delegated artifact files the main session must NOT write. Matched segment-anchored
+# (see _path_matches) so 'references.bib' does NOT match 'old_references.bib'. The
+# sections/*.tex case is handled separately by a path-segment check.
+DELEGATED_ARTIFACT_FILES = (".copilot/ideas.md", ".copilot/experiments.md",
+                            ".copilot/literature.md", "references.bib")
 READ_ONLY_TOOLS = ("Read", "Grep", "Glob", "TaskCreate", "TaskUpdate",
                    "TaskList", "TaskGet", "Skill", "AskUserQuestion")
 COPILOT_SUBAGENT_PREFIX = "copilot-"
@@ -67,6 +68,14 @@ def is_read_only(command: str) -> bool:
 
 def _norm(path: str) -> str:
     return str(path).replace("\\", "/")
+
+
+def _path_matches(path: str, target: str) -> bool:
+    """True iff `path` equals `target` or ends with `/target` (segment-anchored).
+    Prevents substring false-positives like 'references.bib' matching
+    'old_references.bib', or '.copilot/ideas.md' matching an unrelated path."""
+    p = _norm(path)
+    return p == target or p.endswith("/" + target)
 
 
 def _iter_transcript_tool_uses(transcript_path: str | None):
@@ -121,12 +130,14 @@ def check_m1_delegation(tool_name: str, tool_input: dict[str, Any]) -> str | Non
         return ("Blocked by research-copilot-guard (M1 delegation gate): the "
                 "conductor must not search papers inline. Delegate via "
                 "Agent(subagent_type='copilot-literature').")
-    # Writes to delegated research artifacts.
+    # Writes to delegated research artifacts (segment-anchored, not substring).
     if tool_name in ("Write", "Edit"):
         path = _norm((tool_input or {}).get("file_path", ""))
-        if any(_norm(owned) in path for owned in CONDUCTOR_OWNED_ARTIFACTS):
+        if any(_path_matches(path, owned) for owned in CONDUCTOR_OWNED_ARTIFACTS):
             return None  # conductor owns state.md / decisions.md
-        if any(seg in path for seg in DELEGATED_ARTIFACTS):
+        segments = path.split("/")
+        is_sections_tex = "sections" in segments and path.endswith(".tex")
+        if is_sections_tex or any(_path_matches(path, f) for f in DELEGATED_ARTIFACT_FILES):
             return ("Blocked by research-copilot-guard (M1 delegation gate): the "
                     "conductor must not write research artifacts (sections/*.tex, "
                     "references.bib, .copilot/{ideas,experiments,literature}.md) "

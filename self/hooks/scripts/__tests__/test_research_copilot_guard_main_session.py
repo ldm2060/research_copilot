@@ -52,6 +52,30 @@ def test_m1_allows_unrelated_write(tmp_path):
     assert check_m1_delegation("Write", {"file_path": "notes/scratch.md"}) is None
 
 
+def test_m1_allows_lookalike_sections_dir(tmp_path):
+    """A dir merely containing 'sections' as a substring is not delegated."""
+    from research_copilot_guard import check_m1_delegation
+    assert check_m1_delegation("Write", {"file_path": "my-sections/notes.md"}) is None
+    assert check_m1_delegation("Write", {"file_path": "docs/subsections/a.tex"}) is None
+
+
+def test_m1_allows_lookalike_references_bib(tmp_path):
+    """'references.bib' must match by segment, not substring."""
+    from research_copilot_guard import check_m1_delegation
+    assert check_m1_delegation("Write", {"file_path": "old_references.bib"}) is None
+
+
+def test_m1_blocks_powershell_experiment(tmp_path):
+    from research_copilot_guard import check_m1_delegation
+    msg = check_m1_delegation("PowerShell", {"command": "python train.py"})
+    assert msg is not None and "delegate" in msg.lower()
+
+
+def test_m1_allows_powershell_read_only(tmp_path):
+    from research_copilot_guard import check_m1_delegation
+    assert check_m1_delegation("PowerShell", {"command": "Get-Content results.txt"}) is None
+
+
 # ---- M2 task-list gate (main session) ----
 
 def test_m2_blocks_dispatch_without_taskcreate(tmp_path):
