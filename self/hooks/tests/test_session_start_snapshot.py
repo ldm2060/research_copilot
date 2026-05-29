@@ -91,3 +91,26 @@ class TestViolationsSummary:
         ])
         stdout, rc = _run_injector(workspace)
         assert "1 HARD" not in stdout
+
+
+def test_injects_conductor_protocol(tmp_path, monkeypatch, capsys):
+    import session_start_memory_injector as inj
+    (tmp_path / ".copilot").mkdir()
+    # Seed a real __HANDOFF__ block so `blocks` is non-empty and main() reaches
+    # the injection point (it does NOT inject on the early "no blocks" return).
+    (tmp_path / ".copilot" / "state.md").write_text(
+        "## __HANDOFF__\n- last_updated: 2026-05-24T10:00:00Z\n"
+        "- written_by: conductor\n- key_facts:\n  - S1 in progress\n"
+        "- next_owner: (none)\n",
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+    # Point the protocol lookup at a temp file. NOTE: this test runs the injector
+    # IN-PROCESS (not via subprocess like the other tests in this file) precisely
+    # so conductor_protocol_path can be monkeypatched — do not "fix" it to subprocess.
+    proto = tmp_path / "CONDUCTOR-PROTOCOL.md"
+    proto.write_text("# Conductor Protocol\nYou are the conductor.\n", encoding="utf-8")
+    monkeypatch.setattr(inj, "conductor_protocol_path", lambda: proto)
+    inj.main()
+    out = capsys.readouterr().out
+    assert "You are the conductor" in out

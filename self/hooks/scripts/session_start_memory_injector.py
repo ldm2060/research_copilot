@@ -13,6 +13,15 @@ PIPELINES_TAIL_LINES = 20
 RECENT_PIPELINES = 3
 
 
+def conductor_protocol_path() -> Path:
+    """Locate CONDUCTOR-PROTOCOL.md in both dev (self/) and installed
+    (${CLAUDE_PLUGIN_ROOT}/) layouts. The script lives at
+    <root>/hooks/scripts/session_start_memory_injector.py, so the protocol is
+    two levels up.
+    """
+    return Path(__file__).resolve().parent.parent.parent / "CONDUCTOR-PROTOCOL.md"
+
+
 def extract_handoff_block(text: str) -> str | None:
     """Return the body of the trailing ## __HANDOFF__ section, or None."""
     idx = text.rfind(HANDOFF_HEADER)
@@ -158,6 +167,18 @@ def main() -> int:
                     f"See .copilot/__violations.log.\n"
                 )
                 sys.stdout.flush()
+        except OSError:
+            pass
+
+    proto = conductor_protocol_path()
+    if proto.is_file():
+        try:
+            sys.stdout.write(
+                "\n\n[conductor] Active protocol (you ARE the conductor; "
+                "delegate execution to copilot-*, own the task list):\n\n"
+                + proto.read_text(encoding="utf-8", errors="replace") + "\n"
+            )
+            sys.stdout.flush()
         except OSError:
             pass
     return 0
