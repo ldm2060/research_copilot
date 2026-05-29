@@ -1,14 +1,12 @@
-"""Research Copilot Workflow Guard hook.
+"""Research Copilot Workflow Guard hook (PreToolUse).
 
-PreToolUse hook that enforces workflow discipline for the research-copilot agent.
-Reads tool call payload from stdin, detects if research-copilot is the active agent,
-applies blocking patterns, and outputs an allow/deny decision.
+Polices the MAIN SESSION acting as conductor. The main session must delegate
+domain work to copilot-* sub-agents and must publish a TaskCreate plan list
+before dispatching. copilot-* sub-agents run freely (exempt).
 
-Detection strategy:
-- Read transcript file (JSONL) to find the most recent agent context
-- If research-copilot is active, apply blocking patterns
-- If a copilot-* sub-agent is active, allow (they need to run their work)
-- If detection is uncertain, allow (fail-open for safety)
+Origin attribution uses the authoritative `agent_id` payload field: it is
+present ONLY inside a sub-agent call, so its absence => main session. Any
+ambiguity resolves to main (conservative — never silently exempt the conductor).
 """
 from __future__ import annotations
 
@@ -18,74 +16,48 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 READ_ONLY_PREFIXES = ("grep", "cat", "ls", "head", "tail", "find",
-                       "Get-Content", "Select-String", "Get-ChildItem")
+                      "Get-Content", "Select-String", "Get-ChildItem")
 EXPERIMENT_KEYWORDS = ("train.py", "run_experiment", "wandb", "mlflow",
                        "tensorboard", "torchrun", "deepspeed", "accelerate")
 EXPERIMENT_REGEX = re.compile(r"python[\w\s.-]*\b(train|experiment|run_exp)\b",
                               re.IGNORECASE)
-PLANNING_KEYWORDS = ("步骤", "plan:", "checklist", "tasks:")
-PLANNING_NUMBERED = re.compile(r"^\s*\d+\.\s+\S", re.MULTILINE)
-EXCEPTION_KEYWORDS = ("completed", "done", "已完成", "已经完成")
+RESEARCH_MCP_PREFIXES = (
+    "mcp__arxiv-search__",
+    "mcp__arxivsub-search__",
+    "mcp__google-scholar__",
+    "mcp__dblp-bib__",
+)
+# Conductor-owned artifacts: the main session MAY write these.
+CONDUCTOR_OWNED_ARTIFACTS = (".copilot/state.md", ".copilot/decisions.md")
+# Delegated artifacts: the main session must NOT write these.
+DELEGATED_ARTIFACTS = ("sections/", "references.bib",
+                       ".copilot/ideas.md", ".copilot/experiments.md",
+                       ".copilot/literature.md")
+READ_ONLY_TOOLS = ("Read", "Grep", "Glob", "TaskCreate", "TaskUpdate",
+                   "TaskList", "TaskGet", "Skill", "AskUserQuestion")
+COPILOT_SUBAGENT_PREFIX = "copilot-"
 
 
 def allow() -> dict[str, Any]:
-    return {
-        "hookSpecificOutput": {
-            "permissionDecision": "allow",
-        }
-    }
+    return {"hookSpecificOutput": {"permissionDecision": "allow"}}
 
 
 def deny(message: str) -> dict[str, Any]:
-    return {
-        "hookSpecificOutput": {
-            "permissionDecision": "deny",
-            "permissionDecisionReason": message,
-        },
-        "systemMessage": message,
-    }
+    return {"hookSpecificOutput": {"permissionDecision": "deny",
+                                   "permissionDecisionReason": message},
+            "systemMessage": message}
 
 
-def detect_active_agent(transcript_path: str) -> str | None:
-    """Inspect transcript JSONL to find the active sub-agent name.
-
-    Returns the most recent subagent_type seen, or None if uncertain.
-    """
-    if not transcript_path:
-        return None
-    path = Path(transcript_path)
-    if not path.exists():
-        return None
-    try:
-        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
-    except OSError:
-        return None
-    for line in reversed(lines[-200:]):
-        if not line.strip():
-            continue
-        try:
-            entry = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        meta = entry.get("metadata") or {}
-        candidate = (meta.get("subagent_type")
-                     or entry.get("subagent_type")
-                     or meta.get("agent")
-                     or entry.get("agent"))
-        if candidate:
-            return str(candidate)
-    return None
+def is_main_session(payload: dict[str, Any]) -> bool:
+    """Main session iff `agent_id` absent/empty (per Claude Code hooks docs)."""
+    return not payload.get("agent_id")
 
 
-def is_research_copilot_session(payload: dict[str, Any]) -> bool:
-    agent = detect_active_agent(payload.get("transcript_path", ""))
-    if agent == "research-copilot":
-        return True
-    if agent and agent.startswith("copilot-"):
+def is_exempt_subagent(payload: dict[str, Any]) -> bool:
+    if is_main_session(payload):
         return False
-    return False
+    return str(payload.get("agent_type") or "").startswith(COPILOT_SUBAGENT_PREFIX)
 
 
 def is_read_only(command: str) -> bool:
@@ -93,13 +65,11 @@ def is_read_only(command: str) -> bool:
     return any(stripped.startswith(prefix) for prefix in READ_ONLY_PREFIXES)
 
 
-def _iter_transcript_tool_uses(transcript_path: str | None):
-    """Yield {name, input} dicts for every prior tool_use in the JSONL transcript.
+def _norm(path: str) -> str:
+    return str(path).replace("\\", "/")
 
-    Handles two common formats:
-      1. Flat record: {"type": "tool_use", "name": ..., "input": ...}
-      2. Wrapped message: {"role": ..., "content": [{"type": "tool_use", ...}, ...]}
-    """
+
+def _iter_transcript_tool_uses(transcript_path: str | None):
     if not transcript_path:
         return
     p = Path(transcript_path)
@@ -130,174 +100,56 @@ def _iter_transcript_tool_uses(transcript_path: str | None):
         if isinstance(content, list):
             for item in content:
                 if isinstance(item, dict) and item.get("type") == "tool_use":
-                    yield {
-                        "name": item.get("name", ""),
-                        "input": item.get("input", {}) or {},
-                    }
+                    yield {"name": item.get("name", ""),
+                           "input": item.get("input", {}) or {}}
 
 
-COPILOT_ARTIFACT_NAMES = ("ideas.md", "experiments.md", "literature.md", "decisions.md")
-RESEARCH_MCP_PREFIXES = (
-    "mcp__arxiv-search__",
-    "mcp__arxivsub-search__",
-    "mcp__google-scholar__",
-    "mcp__dblp-bib__",
-)
-
-
-def check_pattern_5_no_memory_read(tool_name: str, tool_input: dict[str, Any],
-                                   transcript_path: str | None) -> str | None:
-    """Pattern 5 (memory-gate): block Write/Edit to .copilot/{ideas,experiments,
-    literature,decisions}.md when no prior Read of any .copilot/*.md exists in
-    the current session transcript."""
-    if tool_name not in ("Write", "Edit"):
-        return None
-    path = str((tool_input or {}).get("file_path", ""))
-    norm = path.replace("\\", "/")
-    if ".copilot" not in norm:
-        return None
-    if not any(name in path for name in COPILOT_ARTIFACT_NAMES):
-        return None
-    for entry in _iter_transcript_tool_uses(transcript_path):
-        if entry["name"] != "Read":
-            continue
-        prior_path = str((entry.get("input") or {}).get("file_path", "")).replace("\\", "/")
-        if ".copilot" in prior_path:
+def check_m1_delegation(tool_name: str, tool_input: dict[str, Any]) -> str | None:
+    """M1 delegation gate: deny main-session execution-class work."""
+    # Experiment scripts via shell.
+    if tool_name in ("Bash", "PowerShell"):
+        command = str((tool_input or {}).get("command", ""))
+        if not command or is_read_only(command):
             return None
-    return ("Blocked by research-copilot-guard (memory-gate): writing to "
-            ".copilot/* artifact without prior Read of any .copilot/*.md in "
-            "this session. Per PIPELINE-OS §3 memory-gate, Read the existing "
-            "artifact first to avoid re-proposing the same idea/experiment.")
-
-
-def check_pattern_6_no_research_mcp(tool_name: str, tool_input: dict[str, Any],
-                                    transcript_path: str | None) -> str | None:
-    """Pattern 6 (research-gate): block a new '## Idea' block being written to
-    .copilot/ideas.md when fewer than 2 distinct paper-retrieval MCP queries
-    appear in the current session transcript."""
-    if tool_name not in ("Write", "Edit"):
+        if any(kw in command for kw in EXPERIMENT_KEYWORDS) or EXPERIMENT_REGEX.search(command):
+            return ("Blocked by research-copilot-guard (M1 delegation gate): the "
+                    "conductor must not run experiments inline. Delegate via "
+                    "Agent(subagent_type='copilot-experiment').")
         return None
-    inp = tool_input or {}
-    path = str(inp.get("file_path", ""))
-    if "ideas.md" not in path:
-        return None
-    content = str(inp.get("content") or inp.get("new_string") or "")
-    if "## Idea" not in content:
-        return None
-
-    queries: set[str] = set()
-    for entry in _iter_transcript_tool_uses(transcript_path):
-        if not any(entry["name"].startswith(prefix) for prefix in RESEARCH_MCP_PREFIXES):
-            continue
-        inp_e = entry.get("input") or {}
-        q = inp_e.get("query") or inp_e.get("q") or ""
-        if q:
-            queries.add(str(q).strip().lower())
-
-    if len(queries) >= 2:
-        return None
-
-    return ("Blocked by research-copilot-guard (research-gate): "
-            "'## Idea' block being written to .copilot/ideas.md but only "
-            f"{len(queries)} distinct paper-retrieval MCP query(ies) recorded "
-            "in this session; need ≥2 distinct queries (different topical "
-            "keywords). Call arxiv-search / arxivsub-search / google-scholar "
-            "/ dblp-bib MCPs first.")
-
-
-def check_pattern_1_experiment(tool_name: str, tool_input: dict[str, Any]) -> str | None:
-    if tool_name not in ("Bash", "PowerShell"):
-        return None
-    command = str(tool_input.get("command", ""))
-    if not command:
-        return None
-    if is_read_only(command):
-        return None
-    keyword_hit = any(kw in command for kw in EXPERIMENT_KEYWORDS)
-    regex_hit = bool(EXPERIMENT_REGEX.search(command))
-    if keyword_hit or regex_hit:
-        return ("Blocked by research-copilot-guard: research-copilot cannot run "
-                "experiments directly. Delegate to copilot-experiment via Agent "
-                "tool with subagent_type='copilot-experiment'.")
+    # Paper-retrieval MCP tools.
+    if any(tool_name.startswith(p) for p in RESEARCH_MCP_PREFIXES):
+        return ("Blocked by research-copilot-guard (M1 delegation gate): the "
+                "conductor must not search papers inline. Delegate via "
+                "Agent(subagent_type='copilot-literature').")
+    # Writes to delegated research artifacts.
+    if tool_name in ("Write", "Edit"):
+        path = _norm((tool_input or {}).get("file_path", ""))
+        if any(_norm(owned) in path for owned in CONDUCTOR_OWNED_ARTIFACTS):
+            return None  # conductor owns state.md / decisions.md
+        if any(seg in path for seg in DELEGATED_ARTIFACTS):
+            return ("Blocked by research-copilot-guard (M1 delegation gate): the "
+                    "conductor must not write research artifacts (sections/*.tex, "
+                    "references.bib, .copilot/{ideas,experiments,literature}.md) "
+                    "inline. Delegate to the matching copilot-* sub-agent.")
     return None
 
 
-def check_pattern_3_delegation(tool_name: str, tool_input: dict[str, Any],
-                               state: dict[str, Any]) -> str | None:
-    current_state = state.get("current_state", "UNINITIALIZED")
-    if current_state not in ("S2_IDEATION", "S3_EXPERIMENT"):
-        return None
-    expected = ("copilot-ideation" if current_state == "S2_IDEATION"
-                else "copilot-experiment")
-    last_delegation = state.get("last_delegation")
-    if last_delegation == expected:
-        return None
-    if tool_name == "Agent":
-        sub_type = tool_input.get("subagent_type", "")
-        if sub_type == expected:
-            return None
-        return (f"Blocked by research-copilot-guard: state {current_state} "
-                f"requires delegation to {expected}. Use Agent tool with "
-                f"subagent_type='{expected}'.")
-    if tool_name in ("Bash", "PowerShell", "Write", "Edit"):
-        return (f"Blocked by research-copilot-guard: state {current_state} "
-                f"requires delegation to {expected}. Use Agent tool with "
-                f"subagent_type='{expected}'.")
-    return None
-
-
-def load_state() -> dict[str, Any]:
-    state_path = Path(".copilot/state.md")
-    state = {
-        "current_state": "UNINITIALIZED",
-        "last_delegation": None,
-        "skill_invoked": False,
-        "override_next": False,
-    }
-    if not state_path.exists():
-        return state
-    try:
-        text = state_path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return state
-    stage_match = re.search(r"^-\s*Stage:\s*(\S+)", text, re.MULTILINE)
-    if stage_match:
-        state["current_state"] = stage_match.group(1).strip()
-    owner_match = re.search(r"^-\s*Owner of last round:\s*@?(\S+)",
-                            text, re.MULTILINE)
-    if owner_match:
-        state["last_delegation"] = owner_match.group(1).strip()
-    if "OVERRIDE:" in text.splitlines()[-1:] and text.splitlines():
-        state["override_next"] = True
-    return state
-
-
-def check_pattern_7_no_plan_list(tool_name: str, tool_input: dict[str, Any],
-                                 state: dict[str, Any],
-                                 transcript_path: str | None) -> str | None:
-    """Pattern 7 (plan-list-gate): in Mode B pipeline, every Agent dispatch
-    must be preceded by a TaskCreate plan list in the current turn."""
+def check_m2_task_list(tool_name: str, tool_input: dict[str, Any],
+                       transcript_path: str | None) -> str | None:
+    """M2 task-list gate: deny copilot-* dispatch with no TaskCreate this turn."""
     if tool_name != "Agent":
         return None
-    current_state = state.get("current_state", "UNINITIALIZED")
-    if current_state not in {"MODE_B_PIPELINE", "PLAN_PUBLISHED",
-                             "AWAIT_SUBAGENT_END"}:
-        return None
     sub_type = str((tool_input or {}).get("subagent_type", ""))
-    if not sub_type.startswith("copilot-"):
+    if not sub_type.startswith(COPILOT_SUBAGENT_PREFIX):
         return None
     if not transcript_path:
-        return None
-    task_count = 0
+        return None  # fail-open: cannot inspect
     for entry in _iter_transcript_tool_uses(transcript_path):
         if entry["name"] == "TaskCreate":
-            task_count += 1
-    if task_count == 0:
-        return ("Blocked by research-copilot-guard (pattern 7): Mode B "
-                "pipeline dispatch requires a published TaskCreate plan "
-                "list (one task per planned dispatch). Call TaskCreate "
-                "for each stage in order before invoking Agent().")
-    return None
+            return None
+    return ("Blocked by research-copilot-guard (M2 task-list gate): dispatching "
+            "a copilot-* sub-agent requires a TaskCreate plan list (one task per "
+            "planned dispatch) in this turn. Call TaskCreate first, then Agent().")
 
 
 def main() -> int:
@@ -310,37 +162,35 @@ def main() -> int:
     except json.JSONDecodeError:
         print(json.dumps(allow()))
         return 0
-    if not is_research_copilot_session(payload):
-        print(json.dumps(allow()))
-        return 0
-    state = load_state()
-    if state.get("override_next"):
-        print(json.dumps(allow()))
-        return 0
+    try:
+        decision = _decide(payload)
+    except Exception:
+        # Fail-open: any unexpected error yields allow, never traps the user
+        # (mirrors _copilot_hook_lib.safe_main's contract).
+        import traceback
+        sys.stderr.write(traceback.format_exc())
+        decision = allow()
+    print(json.dumps(decision))
+    return 0
+
+
+def _decide(payload: dict[str, Any]) -> dict[str, Any]:
+    """Pure decision logic for a parsed payload. Raising is safe — main()
+    catches and fails open."""
+    # Exempt copilot-* sub-agents outright (they run experiments/searches/writes).
+    if is_exempt_subagent(payload):
+        return allow()
+    # Everything else (incl. ambiguous) is treated as MAIN SESSION -> police.
     tool_name = payload.get("tool_name", "")
     tool_input = payload.get("tool_input", {}) or {}
-    if tool_name in ("Read", "Grep", "Glob", "TaskCreate", "TaskUpdate",
-                     "TaskList", "TaskGet", "Skill", "AskUserQuestion"):
-        print(json.dumps(allow()))
-        return 0
-    if tool_name == "Agent":
-        sub_type = str(tool_input.get("subagent_type", ""))
-        if sub_type.startswith("copilot-"):
-            print(json.dumps(allow()))
-            return 0
+    if tool_name in READ_ONLY_TOOLS:
+        return allow()
     transcript_path = payload.get("transcript_path")
-    for check in (
-        check_pattern_1_experiment(tool_name, tool_input),
-        check_pattern_3_delegation(tool_name, tool_input, state),
-        check_pattern_5_no_memory_read(tool_name, tool_input, transcript_path),
-        check_pattern_6_no_research_mcp(tool_name, tool_input, transcript_path),
-        check_pattern_7_no_plan_list(tool_name, tool_input, state, transcript_path),
-    ):
+    for check in (check_m1_delegation(tool_name, tool_input),
+                  check_m2_task_list(tool_name, tool_input, transcript_path)):
         if check:
-            print(json.dumps(deny(check)))
-            return 0
-    print(json.dumps(allow()))
-    return 0
+            return deny(check)
+    return allow()
 
 
 if __name__ == "__main__":
