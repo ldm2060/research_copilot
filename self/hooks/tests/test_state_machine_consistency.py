@@ -11,7 +11,7 @@ import _copilot_hook_lib as lib
 AGENTS_DIR = Path(__file__).resolve().parent.parent.parent / "agents"
 
 AGENT_FILES = {
-    "research-copilot":    AGENTS_DIR / "research-copilot.agent.md",
+    "conductor":           AGENTS_DIR.parent / "CONDUCTOR-PROTOCOL.md",
     "copilot-literature":  AGENTS_DIR / "copilot-literature.agent.md",
     "copilot-ideation":    AGENTS_DIR / "copilot-ideation.agent.md",
     "copilot-experiment":  AGENTS_DIR / "copilot-experiment.agent.md",

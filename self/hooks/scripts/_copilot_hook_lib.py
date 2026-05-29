@@ -19,7 +19,6 @@ from typing import Any
 
 
 COPILOT_AGENTS = frozenset([
-    "research-copilot",
     "copilot-literature",
     "copilot-ideation",
     "copilot-experiment",
@@ -138,11 +137,6 @@ def glob_match(path: str, pattern: str) -> bool:
 # ---------------------------------------------------------------------------
 
 OWNED: dict[str, list[str]] = {
-    "research-copilot": [
-        ".copilot/state.md",
-        ".copilot/decisions.md",
-        ".copilot/pipelines/*.md",
-    ],
     "copilot-literature": [".copilot/literature.md"],
     "copilot-ideation": [
         ".copilot/ideas.md",
@@ -208,10 +202,10 @@ def is_known_research_artifact(path: str) -> bool:
 # ---------------------------------------------------------------------------
 
 STATE_MACHINE: dict[str, dict[str, list[str]]] = {
-    "research-copilot": {
+    "conductor": {
         "UNINITIALIZED":        ["DIAGNOSED"],
         "DIAGNOSED":            ["MODE_A_ROUTING", "MODE_B_PIPELINE", "PAUSED"],
-        "MODE_A_ROUTING":       ["AWAIT_SUBAGENT_END"],
+        "MODE_A_ROUTING":       ["PLAN_PUBLISHED"],
         "MODE_B_PIPELINE":      ["PLAN_PUBLISHED"],
         "PLAN_PUBLISHED":       ["AWAIT_SUBAGENT_END"],
         "AWAIT_SUBAGENT_END":   ["DIAGNOSED", "BACK_EDGE_TRIGGERED", "PAUSED", "PLAN_PUBLISHED", "END"],

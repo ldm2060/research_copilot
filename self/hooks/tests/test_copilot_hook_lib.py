@@ -30,8 +30,11 @@ class TestScopePredicates:
     def test_is_copilot_agent_positive(self):
         for n in ["copilot-literature", "copilot-ideation", "copilot-experiment",
                   "copilot-writer", "copilot-polisher", "copilot-reviewer",
-                  "copilot-rebuttal", "research-copilot"]:
+                  "copilot-rebuttal"]:
             assert lib.is_copilot_agent(n) is True
+
+    def test_research_copilot_is_not_a_subagent(self):
+        assert lib.is_copilot_agent("research-copilot") is False
 
     def test_is_copilot_agent_negative(self):
         for n in [None, "", "general-purpose", "Explore", "code-reviewer", "main"]:
@@ -111,10 +114,6 @@ class TestOwnedMatrix:
     def test_unknown_agent(self):
         assert lib.is_owned("unknown", ".copilot/state.md") is False
 
-    def test_research_copilot_state(self):
-        assert lib.is_owned("research-copilot", ".copilot/state.md") is True
-        assert lib.is_owned("research-copilot", ".copilot/decisions.md") is True
-
 
 class TestIsKnownArtifact:
     def test_dot_copilot(self):
@@ -143,7 +142,7 @@ class TestStateMachine:
         assert sm["UNINITIALIZED"] == ["CONTEXT_LOADED"]
         assert "END" in sm["JUDGED"]
 
-    def test_all_8_agents_have_machines(self):
+    def test_all_subagents_have_machines(self):
         for agent in lib.COPILOT_AGENTS:
             assert agent in lib.STATE_MACHINE, f"missing state machine for {agent}"
 
