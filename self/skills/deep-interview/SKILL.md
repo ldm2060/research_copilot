@@ -15,7 +15,7 @@ Fire automatically when the next action is one of:
 - Drafting the **Goal anchor** in `.copilot/experiments.md` (first experiment dispatch)
 - Picking a **research direction** in `.copilot/ideas.md` (ideation Step A)
 - Deciding the **rebuttal response-strategy** per reviewer comment
-- Choosing the **routing template** in `research-copilot` (full pipeline / submission sprint / custom sequence)
+- Choosing the **routing template** for the conductor (full pipeline / submission sprint / custom sequence)
 - Any other moment where a sub-agent is about to commit a plan to disk
 
 Skip if a `## Goal anchor` (or equivalent immutable plan block) already exists — do not re-interview about a settled commitment.
@@ -73,7 +73,7 @@ Write this block to the file the downstream planner will read:
 | `@copilot-experiment` Step 1 (Goal anchor) | `.copilot/experiments.md` (above the Goal anchor) |
 | `@copilot-ideation` Step B | `.copilot/ideas.md` `## User preferences` block |
 | `@copilot-rebuttal` Step 2 (per-comment strategy) | top of `rebuttal/round-N.md` |
-| `@research-copilot` pipeline routing | `.copilot/decisions.md` |
+| conductor pipeline routing | `.copilot/decisions.md` |
 
 Do not write the plan itself in this step — only the spec.
 

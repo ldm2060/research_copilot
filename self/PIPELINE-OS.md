@@ -2,7 +2,7 @@
 
 **Version**: 2.0
 **Date**: 2026-05-23
-**Loaded by**: research-copilot, copilot-literature, copilot-ideation, copilot-experiment, copilot-writer, copilot-polisher, copilot-reviewer, copilot-rebuttal, research-workflow skill.
+**Loaded by**: the main-session conductor (CONDUCTOR-PROTOCOL.md), copilot-literature, copilot-ideation, copilot-experiment, copilot-writer, copilot-polisher, copilot-reviewer, copilot-rebuttal, research-workflow skill.
 
 Every section below is referenced by sub-agent files using `§N`. Do not duplicate this content into any agent file.
 
@@ -65,7 +65,7 @@ Malformed or missing → conductor responds `[STATE_ERROR: malformed-output]` li
 
 ## §4. Delegation Template (7-field)
 
-Every `Task()` / `Agent()` call from research-copilot or any coordinator MUST include all seven fields:
+Every `Task()` / `Agent()` call from the conductor (main session) or any coordinator MUST include all seven fields:
 
 ```
 Context & stage: <user is at SN; last round did X; why now>
@@ -113,9 +113,9 @@ Main thread CAN do: routing, decisions, summary, light reads (≤ 5 tool calls),
 
 Main thread MUST `Agent(subagent_type=<copilot-*>)` for: any execution task that has its own state machine; any task expected to take > 5 tool calls; any task that writes to a `.copilot/*.md` owned by a sub-agent (per §8).
 
-Every `Task()` MUST carry §4's 7-field template (including `Model:`). Otherwise `user_prompt_dispatch_reminder.py` re-injects guidance on the next turn.
+Every `Task()` MUST carry §4's 7-field template (including `Model:`). `user_prompt_dispatch_reminder.py` re-asserts the conductor's standing orders every turn.
 
-**Mode B plan-list rule.** When `research-copilot` enters `MODE_B_PIPELINE`, it MUST publish a TaskCreate plan list (one task per planned sub-agent dispatch) before any `Agent()` call. The conductor transitions `MODE_B_PIPELINE → PLAN_PUBLISHED → AWAIT_SUBAGENT_END`; `research_copilot_guard.py` pattern 7 denies any `Agent(copilot-*)` call made from `MODE_B_PIPELINE` / `PLAN_PUBLISHED` / `AWAIT_SUBAGENT_END` with zero TaskCreate calls in the current turn. Mode A (single dispatch) is exempt.
+**Plan-list rule.** The main-session conductor MUST publish a `TaskCreate` plan list (one task per planned dispatch) before any `Agent(copilot-*)` dispatch — including a single Mode A routing dispatch (one-task list). `research_copilot_guard.py` M2 (task-list gate) denies any `Agent(copilot-*)` call made by the main session with zero `TaskCreate` calls in the current turn.
 
 ## §7. Back-edge Matrix
 
@@ -130,17 +130,17 @@ Every `Task()` MUST carry §4's 7-field template (including `Model:`). Otherwise
 | Reviewer requires new experiment | S7 | S3 | `back_edge_S7_to_S3` | same |
 | Reviewer undermines novelty | S7 | S2 | `back_edge_S7_to_S2` | same |
 
-All back-edges pass through `research-copilot`; sub-agents emit suggestions, never dispatch each other.
+All back-edges pass through the conductor (main session); sub-agents emit suggestions, never dispatch each other.
 
 ## §8. .copilot/ Write Permission Partition
 
 | File | Single writer | Content |
 |---|---|---|
-| `state.md` | research-copilot | Stage cursor + next-step recommendation + stage history + loop counters |
+| `state.md` | conductor | Stage cursor + next-step recommendation + stage history + loop counters |
 | `literature.md` | copilot-literature | Candidate papers + locked baseline + novelty-evidence subsection |
 | `ideas.md` | copilot-ideation | 6-dimension candidates + selected direction |
 | `experiments.md` | copilot-experiment | Goal anchor + Run N blocks + loop_id |
-| `decisions.md` | research-copilot | Decision records at every approval gate |
+| `decisions.md` | conductor | Decision records at every approval gate |
 | `handoff.md` | append-only multi-writer | Sub-agent fact handoff |
 | `reviews/round-N.md` | copilot-reviewer | Each independent review round |
 | `pipelines/*.md` | current stage coordinator | Per-round plan + worker dispatch + worker returns + coordinator review + stage output |

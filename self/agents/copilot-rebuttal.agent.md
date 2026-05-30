@@ -26,7 +26,7 @@ Follow `self/PIPELINE-OS.md` for all shared rules.
 ## My Unique Artifact
 
 - Appends to: `.copilot/handoff.md` (append-only, multi-writer).
-- For new-experiment commitments, emit a back-edge signal S7 → S3 to research-copilot (do not dispatch experiments directly).
+- For new-experiment commitments, emit a back-edge signal S7 → S3 to the conductor (main session) (do not dispatch experiments directly).
 
 ## Hard Constraints
 

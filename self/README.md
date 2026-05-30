@@ -44,12 +44,12 @@ The bash wrapper delegates to `self/scripts/generate-skill-json.py`, which works
 ```
 self/
 ├── README.md                       # this file
-├── AGENTS.md                       # the 8-agent overview
+├── AGENTS.md                       # the 7 sub-agent overview (conductor = main session)
 ├── SKILLS.md                       # skill overview
 ├── install.py                      # one-shot installer
 ├── VERSION
-├── agents/                         # 1 conductor + 7 sub-agents
-│   ├── research-copilot.agent.md       🧭 pipeline conductor (the recommended single entry point)
+├── agents/                         # 7 copilot-* sub-agents (conductor = main session)
+│   (conductor: main session — protocol in CONDUCTOR-PROTOCOL.md, injected at SessionStart)
 │   ├── copilot-literature.agent.md     📚 literature scan
 │   ├── copilot-ideation.agent.md       💡 interactive ideation
 │   ├── copilot-experiment.agent.md     🧪 experiment running & validation
@@ -75,16 +75,16 @@ self/
     └── generate-skill-json.py      # cross-platform skill.json generator
 ```
 
-Cross-session working memory lives in the repo-root `.copilot/`, owned by `@research-copilot`:
+Cross-session working memory lives in the repo-root `.copilot/`, owned by the conductor (main session):
 
 ```
 .copilot/                        ← default to .gitignore
-├── state.md                     current stage cursor + next-step recommendation       ← only research-copilot writes
+├── state.md                     current stage cursor + next-step recommendation       ← only the conductor writes
 ├── literature.md                literature bank                                       ← only copilot-literature writes
 ├── ideas.md                     candidate ideas                                       ← only copilot-ideation writes
 ├── experiments.md               experiment log                                        ← only copilot-experiment writes
 ├── handoff.md                   sub-agent fact handoff (append-only)                  ← writer / polisher / reviewer / rebuttal
-├── decisions.md                 approval-gate decision record                         ← only research-copilot writes
+├── decisions.md                 approval-gate decision record                         ← only the conductor writes
 ├── reviews/round-N.md           each independent review round                         ← only copilot-reviewer writes
 └── pipelines/YYYY-MM-DD-SN-agent-round-M.md  per-round plan + worker dispatch ledger  ← current stage coordinator writes
 ```
@@ -95,10 +95,10 @@ For complex rounds, each `copilot-*` sub-agent acts as a stage-local coordinator
 
 | What you want | Entry |
 |---|---|
-| Unsure what to do next / want a guided pipeline | `@research-copilot` |
-| Run the full pipeline (from research target to submission) | `@research-copilot` with "run the full pipeline" |
-| Pre-submission overall optimization | `@research-copilot` with "submission sprint" |
-| Rebuttal prep | `@research-copilot` with "rebuttal prep" |
+| Unsure what to do next / want a guided pipeline | just say so — the main session conducts |
+| Run the full pipeline (from research target to submission) | say "run the full pipeline" |
+| Pre-submission overall optimization | say "submission sprint" |
+| Rebuttal prep | say "rebuttal prep" |
 | You already know what to do — call a sub-agent | `@copilot-<sub>` (see AGENTS.md) |
 | First-time MCP setup | `python self/install.py` or `/init-mcp` |
 | Stuck after many rounds, want a stronger model | `/model-escalation` |
@@ -144,7 +144,7 @@ If you only want `self/`, run `install.py` and you are done; `third_party/` is n
 
 ## Workflow Enforcement
 
-research-copilot agent uses hook-based enforcement, registered automatically
+The main-session conductor uses hook-based enforcement, registered automatically
 by `self/install.py`:
 
 - `hooks/scripts/research_copilot_guard.py` — PreToolUse guard (cross-platform Python)
@@ -158,9 +158,8 @@ the appropriate combination into `.claude/settings.json`:
   LLM fallback (parallel, redundant for safety).
 - If Python is not available: only the prompt-based fallback.
 
-The guard reads the session transcript to detect whether `research-copilot` is
-the active sub-agent. It is a no-op for the main session and for other sub-agents
-(e.g. `copilot-experiment` runs experiments unblocked).
+The guard reads the PreToolUse payload's `agent_id` to detect whether the call is
+from the main session (policed) or a copilot-* sub-agent (exempt).
 
 To re-register after editing the script or prompt, run:
 

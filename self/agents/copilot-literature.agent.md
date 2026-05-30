@@ -1,6 +1,6 @@
 ---
 name: copilot-literature
-description: "Literature scan sub-agent. Use to search for prior work, lock the baseline, augment related-work, verify citations. Dispatched by research-copilot or invoked as @copilot-literature. Writes `.copilot/literature.md` (incl. novelty-evidence subsection). Triggers: 'search papers', 'lock baseline', 'related work', '查文献', '锁 baseline'."
+description: "Literature scan sub-agent. Use to search for prior work, lock the baseline, augment related-work, verify citations. Dispatched by the conductor or invoked as @copilot-literature. Writes `.copilot/literature.md` (incl. novelty-evidence subsection). Triggers: 'search papers', 'lock baseline', 'related work', '查文献', '锁 baseline'."
 argument-hint: "Topic / venue / year window / baseline candidate"
 model: haiku
 color: cyan

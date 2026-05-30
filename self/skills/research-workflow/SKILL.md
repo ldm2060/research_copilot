@@ -5,7 +5,7 @@ description: Research pipeline workflow enforcement. Use when coordinating any r
 
 # Research Workflow
 
-You are following the research-workflow skill for the research-copilot agent.
+You are following the research-workflow skill for the main-session conductor.
 
 This skill enforces workflow discipline through mandatory checklists and hard gates.
 

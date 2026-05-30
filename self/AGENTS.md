@@ -10,7 +10,7 @@ All shared workflow rules live in [`self/PIPELINE-OS.md`](PIPELINE-OS.md). Do no
               ┌─ user ─┐
               │         │
               ▼         ▼
-   research-copilot   @copilot-<sub>
+   main session (conductor)   @copilot-<sub>
    (conductor, default)   (direct shortcut)
               │
               └─ Task() delegate ─→ 7 copilot-* sub-agents
@@ -18,13 +18,14 @@ All shared workflow rules live in [`self/PIPELINE-OS.md`](PIPELINE-OS.md). Do no
                                   ├─ Skill / MCP / Bash / Edit / Write / Glob / Grep / Read
 ```
 
-Coordination: `research-copilot` owns cross-stage routing. `copilot-*` stage coordinators may dispatch narrow worker sub-agents only after writing a `pipelines/<round>.md` ledger.
+Coordination: the main-session conductor owns cross-stage routing. `copilot-*` stage coordinators may dispatch narrow worker sub-agents only after writing a `pipelines/<round>.md` ledger.
 
-## The 8 agents
+## The 7 sub-agents
+
+The conductor is the main session (protocol in `CONDUCTOR-PROTOCOL.md`); the 7 sub-agents below are dispatched by it.
 
 | Agent | File | Role | Model | Color |
 |---|---|---|---|---|
-| research-copilot | research-copilot.agent.md | 🧭 Pipeline conductor | sonnet | magenta |
 | copilot-literature | copilot-literature.agent.md | 📚 Literature scan | haiku | cyan |
 | copilot-ideation | copilot-ideation.agent.md | 💡 Interactive ideation | opus | magenta |
 | copilot-experiment | copilot-experiment.agent.md | 🧪 Experiment & validation | sonnet | green |
@@ -37,18 +38,18 @@ Models chosen per: `opus` for novelty judgment + critical review (ideation, revi
 
 ## Pipeline modes
 
-- **Mode A (routing)**: research-copilot scans state → one-sentence diagnosis → one-sentence recommendation → single Task() dispatch.
-- **Mode B (pipeline)**: research-copilot runs a sequence (full research / pre-submission optimization / rebuttal prep / ideation re-check / custom). Cross-stage transitions are approval gates per PIPELINE-OS §5 case ①.
+- **Mode A (routing)**: the conductor scans state → one-sentence diagnosis → one-sentence recommendation → single Task() dispatch.
+- **Mode B (pipeline)**: the conductor runs a sequence (full research / pre-submission optimization / rebuttal prep / ideation re-check / custom). Cross-stage transitions are approval gates per PIPELINE-OS §5 case ①.
 
 ## .copilot/ artifacts
 
 | File | Single writer | Trailer |
 |---|---|---|
-| state.md | research-copilot | `__HANDOFF__` |
+| state.md | conductor | `__HANDOFF__` |
 | literature.md | copilot-literature | `__HANDOFF__` (incl. novelty-evidence) |
 | ideas.md | copilot-ideation | `__HANDOFF__` |
 | experiments.md | copilot-experiment | `__HANDOFF__` (incl. loop_id) |
-| decisions.md | research-copilot | `__HANDOFF__` |
+| decisions.md | conductor | `__HANDOFF__` |
 | handoff.md | multi-writer, append-only | `__HANDOFF__` (collective) |
 | reviews/round-N.md | copilot-reviewer | `__HANDOFF__` |
 
