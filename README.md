@@ -4,6 +4,21 @@ Academic research workspace for Claude Code: paper writing, review, literature s
 
 ## Install
 
+### Prerequisite: add the dependency marketplaces
+
+This plugin depends on six third-party plugins. Add their marketplaces **before** installing, or the dependencies will stay unresolved:
+
+```bash
+claude plugin marketplace add Imbad0202/academic-research-skills
+claude plugin marketplace add Lylll9436/Paper-Polish-Workflow-skill
+claude plugin marketplace add forrestchang/andrej-karpathy-skills
+claude plugin marketplace add obra/superpowers
+claude plugin marketplace add anthropics/skills
+claude plugin marketplace add Orchestra-Research/AI-Research-SKILLs
+```
+
+Then install research-copilot as usual; Claude Code resolves and installs the dependencies automatically.
+
 ### From GitHub
 
 ```bash

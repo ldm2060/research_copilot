@@ -586,6 +586,17 @@ def main() -> int:
     print("     (e.g. 'where does this research stand?'); it will plan and delegate.")
     print("  3. Call a sub-agent directly: @copilot-literature / @copilot-ideation / @copilot-experiment / @copilot-writer / @copilot-polisher / @copilot-reviewer / @copilot-rebuttal")
     print("  4. Diagnose MCP latency: python self/scripts/diagnose-mcp.py")
+    print()
+    print("  Dependency marketplaces (add these so plugin deps resolve):")
+    for mp in (
+        "Imbad0202/academic-research-skills",
+        "Lylll9436/Paper-Polish-Workflow-skill",
+        "forrestchang/andrej-karpathy-skills",
+        "obra/superpowers",
+        "anthropics/skills",
+        "Orchestra-Research/AI-Research-SKILLs",
+    ):
+        print(f"    claude plugin marketplace add {mp}")
     return 0
 
 
