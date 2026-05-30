@@ -1344,7 +1344,7 @@ This plugin depends on six third-party plugins. Add their marketplaces **before*
 ```bash
 claude plugin marketplace add Imbad0202/academic-research-skills
 claude plugin marketplace add Lylll9436/Paper-Polish-Workflow-skill
-claude plugin marketplace add forrestchang/andrej-karpathy-skills
+claude plugin marketplace add multica-ai/andrej-karpathy-skills
 claude plugin marketplace add obra/superpowers
 claude plugin marketplace add anthropics/skills
 claude plugin marketplace add Orchestra-Research/AI-Research-SKILLs
@@ -1363,7 +1363,7 @@ In `self/install.py`, in the final "Next steps" print block, immediately after t
     for mp in (
         "Imbad0202/academic-research-skills",
         "Lylll9436/Paper-Polish-Workflow-skill",
-        "forrestchang/andrej-karpathy-skills",
+        "multica-ai/andrej-karpathy-skills",
         "obra/superpowers",
         "anthropics/skills",
         "Orchestra-Research/AI-Research-SKILLs",
@@ -1404,7 +1404,7 @@ To avoid mutating your real Claude Code marketplace config, run these against an
 export CLAUDE_CONFIG_DIR="$(mktemp -d)/cc-scratch"   # PowerShell: $env:CLAUDE_CONFIG_DIR = "$env:TEMP\cc-scratch"
 claude plugin marketplace add Imbad0202/academic-research-skills
 claude plugin marketplace add Lylll9436/Paper-Polish-Workflow-skill
-claude plugin marketplace add forrestchang/andrej-karpathy-skills
+claude plugin marketplace add multica-ai/andrej-karpathy-skills
 claude plugin marketplace add obra/superpowers
 claude plugin marketplace add anthropics/skills
 claude plugin marketplace add Orchestra-Research/AI-Research-SKILLs

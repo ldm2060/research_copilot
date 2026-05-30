@@ -4,12 +4,12 @@
     "name": "ldm2060"
   },
   "allowCrossMarketplaceDependenciesOn": [
-    "academic-research-skills",
-    "paper-polish-workflow",
-    "karpathy-skills",
-    "superpowers-dev",
-    "anthropic-agent-skills",
-    "ai-research-skills"
+    "Imbad0202/academic-research-skills",
+    "Lylll9436/Paper-Polish-Workflow-skill",
+    "multica-ai/andrej-karpathy-skills",
+    "obra/superpowers",
+    "anthropics/skills",
+    "Orchestra-Research/AI-Research-SKILLs"
   ],
   "plugins": [
     {

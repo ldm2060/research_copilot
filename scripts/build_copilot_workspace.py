@@ -1094,13 +1094,13 @@ def package_claude_code_workspace(
         "author": {"name": "ldm2060"},
         "repository": plugin_repository,
         "dependencies": [
-            {"name": "academic-research-skills", "marketplace": "academic-research-skills"},
-            {"name": "paper-polish-workflow", "marketplace": "paper-polish-workflow"},
-            {"name": "andrej-karpathy-skills", "marketplace": "karpathy-skills"},
-            {"name": "superpowers", "marketplace": "superpowers-dev"},
-            {"name": "example-skills", "marketplace": "anthropic-agent-skills"},
-            {"name": "ml-paper-writing", "marketplace": "ai-research-skills"},
-            {"name": "autoresearch", "marketplace": "ai-research-skills"},
+            {"name": "academic-research-skills", "marketplace": "Imbad0202/academic-research-skills"},
+            {"name": "paper-polish-workflow", "marketplace": "Lylll9436/Paper-Polish-Workflow-skill"},
+            {"name": "andrej-karpathy-skills", "marketplace": "multica-ai/andrej-karpathy-skills"},
+            {"name": "superpowers", "marketplace": "obra/superpowers"},
+            {"name": "example-skills", "marketplace": "anthropics/skills"},
+            {"name": "ml-paper-writing", "marketplace": "Orchestra-Research/AI-Research-SKILLs"},
+            {"name": "autoresearch", "marketplace": "Orchestra-Research/AI-Research-SKILLs"},
         ],
     }
     plugin_manifest_path = plugin_dir / "plugin.json"
@@ -1131,12 +1131,12 @@ def package_claude_code_workspace(
         "name": "research-copilot",
         "owner": {"name": "ldm2060"},
         "allowCrossMarketplaceDependenciesOn": [
-            "academic-research-skills",
-            "paper-polish-workflow",
-            "karpathy-skills",
-            "superpowers-dev",
-            "anthropic-agent-skills",
-            "ai-research-skills",
+            "Imbad0202/academic-research-skills",
+            "Lylll9436/Paper-Polish-Workflow-skill",
+            "multica-ai/andrej-karpathy-skills",
+            "obra/superpowers",
+            "anthropics/skills",
+            "Orchestra-Research/AI-Research-SKILLs",
         ],
         "plugins": [
             {

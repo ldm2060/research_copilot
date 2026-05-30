@@ -65,8 +65,8 @@ test -f dist/claude-workspace/.claude-plugin/marketplace.json || echo "MISSING m
 Assert the generated manifests declare the plugin dependencies (added when the 6 third-party sources moved from vendoring to dependencies):
 
 ```bash
-python -c "import json,sys; m=json.load(open('dist/claude-workspace/.claude-plugin/plugin.json',encoding='utf-8')); names={x['name'] for x in m.get('dependencies',[])}; expect={'academic-research-skills','paper-polish-workflow','andrej-karpathy-skills','superpowers','example-skills','ml-paper-writing','autoresearch'}; sys.exit(0 if names==expect else f'dependencies mismatch: {sorted(names)}')"
-python -c "import json,sys; m=json.load(open('dist/claude-workspace/.claude-plugin/marketplace.json',encoding='utf-8')); a=set(m.get('allowCrossMarketplaceDependenciesOn',[])); expect={'academic-research-skills','paper-polish-workflow','karpathy-skills','superpowers-dev','anthropic-agent-skills','ai-research-skills'}; sys.exit(0 if a==expect else f'allowlist mismatch: {sorted(a)}')"
+python -c "import json,sys; m=json.load(open('dist/claude-workspace/.claude-plugin/plugin.json',encoding='utf-8')); deps=m.get('dependencies',[]); mp={d['marketplace'] for d in deps if 'marketplace' in d}; expect={'Imbad0202/academic-research-skills','Lylll9436/Paper-Polish-Workflow-skill','multica-ai/andrej-karpathy-skills','obra/superpowers','anthropics/skills','Orchestra-Research/AI-Research-SKILLs'}; sys.exit(0 if mp==expect else f'dep marketplace mismatch: {sorted(mp)}')"
+python -c "import json,sys; m=json.load(open('dist/claude-workspace/.claude-plugin/marketplace.json',encoding='utf-8')); a=set(m.get('allowCrossMarketplaceDependenciesOn',[])); expect={'Imbad0202/academic-research-skills','Lylll9436/Paper-Polish-Workflow-skill','multica-ai/andrej-karpathy-skills','obra/superpowers','anthropics/skills','Orchestra-Research/AI-Research-SKILLs'}; sys.exit(0 if a==expect else f'allowlist mismatch: {sorted(a)}')"
 ```
 
 Both must exit 0. Also assert the un-vendored skills no longer ship (catches an accidental skill.txt revert):
