@@ -11,7 +11,7 @@ All shared workflow rules live in [`self/PIPELINE-OS.md`](PIPELINE-OS.md). Do no
               │         │
               ▼         ▼
    main session (conductor)   @copilot-<sub>
-   (conductor, default)   (direct shortcut)
+   (default entry)        (direct shortcut)
               │
               └─ Task() delegate ─→ 7 copilot-* sub-agents
                                   │
