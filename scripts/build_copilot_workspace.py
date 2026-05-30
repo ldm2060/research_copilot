@@ -1093,6 +1093,15 @@ def package_claude_code_workspace(
         "version": plugin_version,
         "author": {"name": "ldm2060"},
         "repository": plugin_repository,
+        "dependencies": [
+            {"name": "academic-research-skills", "marketplace": "academic-research-skills"},
+            {"name": "paper-polish-workflow", "marketplace": "paper-polish-workflow"},
+            {"name": "andrej-karpathy-skills", "marketplace": "karpathy-skills"},
+            {"name": "superpowers", "marketplace": "superpowers-dev"},
+            {"name": "example-skills", "marketplace": "anthropic-agent-skills"},
+            {"name": "ml-paper-writing", "marketplace": "ai-research-skills"},
+            {"name": "autoresearch", "marketplace": "ai-research-skills"},
+        ],
     }
     plugin_manifest_path = plugin_dir / "plugin.json"
     write_text(plugin_manifest_path, json.dumps(plugin_manifest, indent=2, ensure_ascii=False))
@@ -1121,6 +1130,14 @@ def package_claude_code_workspace(
     marketplace_manifest = {
         "name": "research-copilot",
         "owner": {"name": "ldm2060"},
+        "allowCrossMarketplaceDependenciesOn": [
+            "academic-research-skills",
+            "paper-polish-workflow",
+            "karpathy-skills",
+            "superpowers-dev",
+            "anthropic-agent-skills",
+            "ai-research-skills",
+        ],
         "plugins": [
             {
                 "name": "research-copilot",
