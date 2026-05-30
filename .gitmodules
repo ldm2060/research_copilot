@@ -1,48 +1,27 @@
-[submodule "third_party/anthropics"]
-	path = third_party/anthropics
-	url = https://github.com/anthropics/skills
 [submodule "third_party/humanizer"]
 	path = third_party/humanizer
 	url = https://github.com/blader/humanizer
-[submodule "third_party/orchestra"]
-	path = third_party/orchestra
-	url = https://github.com/Orchestra-Research/AI-Research-SKILLs
 [submodule "third_party/k-dense-ai"]
 	path = third_party/k-dense-ai
 	url = https://github.com/K-Dense-AI/claude-scientific-skills
-[submodule "third_party/oh-my-paper"]
-	path = third_party/oh-my-paper
-	url = https://github.com/LigphiDonk/Oh-my--paper
 [submodule "third_party/auto-research"]
 	path = third_party/auto-research
 	url = https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep
-[submodule "third_party/imbad0202-research"]
-	path = third_party/imbad0202-research
-	url = https://github.com/Imbad0202/academic-research-skills
 [submodule "third_party/llm-wiki"]
 	path = third_party/llm-wiki
 	url = https://github.com/sdyckjq-lab/llm-wiki-skill
 [submodule "third_party/mean-reviewer"]
 	path = third_party/mean-reviewer
 	url = https://github.com/xz-liu/mean-reviewer-skill
-[submodule "third_party/lylll9436"]
-	path = third_party/lylll9436
-	url = https://github.com/Lylll9436/Paper-Polish-Workflow-skill
 [submodule "third_party/master-cai"]
 	path = third_party/master-cai
 	url = https://github.com/Master-cai/Research-Paper-Writing-Skills
-[submodule "third_party/superpowers"]
-	path = third_party/superpowers
-	url = https://github.com/obra/superpowers
 [submodule "third_party/luwill"]
 	path = third_party/luwill
 	url = https://github.com/luwill/research-skills
 [submodule "third_party/lishix520"]
 	path = third_party/lishix520
 	url = https://github.com/lishix520/academic-paper-skills
-[submodule "third_party/andrej-karpathy-skills"]
-	path = third_party/andrej-karpathy-skills
-	url = https://github.com/multica-ai/andrej-karpathy-skills
 [submodule "third_party/hkust-supervisor"]
 	path = third_party/hkust-supervisor
 	url = https://github.com/HKUSTDial/Supervisor-Skills
