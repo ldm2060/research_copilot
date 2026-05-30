@@ -62,6 +62,19 @@ ls dist/claude-workspace/agents/*.md | wc -l   # should match self/agents/*.agen
 test -f dist/claude-workspace/.claude-plugin/marketplace.json || echo "MISSING marketplace.json"
 ```
 
+Assert the generated manifests declare the plugin dependencies (added when the 6 third-party sources moved from vendoring to dependencies):
+
+```bash
+python -c "import json,sys; m=json.load(open('dist/claude-workspace/.claude-plugin/plugin.json',encoding='utf-8')); names={x['name'] for x in m.get('dependencies',[])}; expect={'academic-research-skills','paper-polish-workflow','andrej-karpathy-skills','superpowers','example-skills','ml-paper-writing','autoresearch'}; sys.exit(0 if names==expect else f'dependencies mismatch: {sorted(names)}')"
+python -c "import json,sys; m=json.load(open('dist/claude-workspace/.claude-plugin/marketplace.json',encoding='utf-8')); a=set(m.get('allowCrossMarketplaceDependenciesOn',[])); expect={'academic-research-skills','paper-polish-workflow','karpathy-skills','superpowers-dev','anthropic-agent-skills','ai-research-skills'}; sys.exit(0 if a==expect else f'allowlist mismatch: {sorted(a)}')"
+```
+
+Both must exit 0. Also assert the un-vendored skills no longer ship (catches an accidental skill.txt revert):
+
+```bash
+test ! -d dist/claude-workspace/skills/academic-paper && test ! -d dist/claude-workspace/skills/canvas-design && echo "un-vendored skills correctly absent"
+```
+
 ### 6. Verify dual-source parity
 
 GitHub and Gitee builds should differ **only** in remote URLs / mirror-specific paths:
@@ -78,6 +91,8 @@ Output should be empty (or only mirror-related differences).
 - `generate-skill-json.py --check` exits 0 for both source and dist
 - All MCP servers report `OK` in handshake
 - Agent count in dist matches source
+- Generated `plugin.json` declares the 7 dependencies and `marketplace.json` the 6-entry `allowCrossMarketplaceDependenciesOn` (Step 5 assertions exit 0)
+- Un-vendored dependency skills (e.g. `academic-paper`, `canvas-design`) are absent from `dist/.../skills/`
 - Dual-source diff contains only mirror URL differences
 
 ## Failure recovery
