@@ -3,6 +3,14 @@
   "owner": {
     "name": "ldm2060"
   },
+  "allowCrossMarketplaceDependenciesOn": [
+    "academic-research-skills",
+    "paper-polish-workflow",
+    "karpathy-skills",
+    "superpowers-dev",
+    "anthropic-agent-skills",
+    "ai-research-skills"
+  ],
   "plugins": [
     {
       "name": "research-copilot",
