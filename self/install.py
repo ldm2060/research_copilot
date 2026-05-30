@@ -448,6 +448,21 @@ def register_loop_armer(target: Path, dry_run: bool) -> None:
     )
 
 
+def register_conductor_agent(target: Path, dry_run: bool) -> None:
+    """Set 'agent': 'copilot-conductor' in .claude/settings.json so the main
+    session loads the conductor's system prompt at highest priority."""
+    step("Step 3f/5: register copilot-conductor as main-session agent")
+    settings_path, settings = _load_settings(target)
+    if settings.get("agent") == "copilot-conductor":
+        info("agent key already set to copilot-conductor; skipping.")
+        return
+    info("Setting agent key to 'copilot-conductor'")
+    settings["agent"] = "copilot-conductor"
+    if dry_run:
+        return
+    _save_settings(settings_path, settings)
+
+
 # -------- Step 4: regenerate skill.json metadata --------
 
 def regenerate_skill_jsons(dry_run: bool) -> bool:
@@ -571,6 +586,7 @@ def main() -> int:
     register_session_memory_injector(target, args.dry_run)
     register_dispatch_reminder(target, args.dry_run)
     register_loop_armer(target, args.dry_run)
+    register_conductor_agent(target, args.dry_run)
     regenerate_skill_jsons(args.dry_run)
 
     if not args.skip_verify and not args.dry_run:

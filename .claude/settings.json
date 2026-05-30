@@ -32,7 +32,7 @@
         ]
       },
       {
-        "matcher": "Bash|PowerShell|Agent|Write|Edit",
+        "matcher": "Bash|PowerShell|Agent|Write|Edit|mcp__arxiv-search__.*|mcp__arxivsub-search__.*|mcp__google-scholar__.*|mcp__dblp-bib__.*",
         "hooks": [
           {
             "type": "command",
