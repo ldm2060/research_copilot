@@ -537,6 +537,30 @@ def verify_mcp_servers(config: dict[str, Any]) -> dict[str, str]:
     return results
 
 
+# -------- Step 0: dependency marketplaces --------
+
+DEPENDENCY_MARKETPLACES = [
+    ("academic-research-skills", "Imbad0202/academic-research-skills"),
+    ("paper-polish-workflow", "Lylll9436/Paper-Polish-Workflow-skill"),
+    ("andrej-karpathy-skills", "multica-ai/andrej-karpathy-skills"),
+    ("superpowers", "obra/superpowers"),
+    ("example-skills", "anthropics/skills"),
+    ("ml-paper-writing / autoresearch", "Orchestra-Research/AI-Research-SKILLs"),
+]
+
+
+def report_dependency_marketplaces() -> None:
+    step("Prerequisite: add dependency marketplaces")
+    warn("This plugin depends on skills from 6 third-party marketplaces.")
+    warn("If you haven't added them, plugin dependencies will stay unresolved.")
+    print()
+    print("  Run these commands in Claude Code before installing the plugin:")
+    print()
+    for _label, repo in DEPENDENCY_MARKETPLACES:
+        print(f"    /plugin marketplace add {repo}")
+    print()
+
+
 # -------- Step 5: optional secrets --------
 
 def report_optional_secrets() -> None:
@@ -575,6 +599,8 @@ def main() -> int:
     print(f"  self dir : {SELF_DIR}")
     print(f"  target   : {target}")
     print(f"  dry-run  : {args.dry_run}")
+
+    report_dependency_marketplaces()
 
     if not args.skip_deps:
         if not install_python_deps(args.dry_run):

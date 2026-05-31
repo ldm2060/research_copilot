@@ -1,5 +1,5 @@
 {
   "name": "init-mcp",
-  "description": "Use when configuring MCP servers for the first time, installing MCP dependencies, checking MCP status, or when the user says '初始化 MCP', 'init mcp', 'setup mcp', '装环境', '配置 MCP', 'install MCP', 'configure MCP'. Delegates to self/install.py for cross-platform one-shot setup.",
+  "description": "Use when setting up the plugin for the first time, installing dependencies, configuring MCP servers, or when the user says '初始化', 'init', 'setup', '装环境', '配置', 'install', 'configure', 'first time', '首次使用'. Handles both dependency marketplace installation and MCP server setup.",
   "entry": "SKILL.md"
 }

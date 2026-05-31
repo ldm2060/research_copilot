@@ -4,7 +4,22 @@ Academic research workspace for Claude Code: paper writing, review, literature s
 
 ## Install
 
-### From GitHub
+### Step 1: Add dependency marketplaces
+
+This plugin depends on skills from 6 third-party marketplaces. You must add them before installing, or the dependencies will stay unresolved:
+
+```
+/plugin marketplace add Imbad0202/academic-research-skills
+/plugin marketplace add Lylll9436/Paper-Polish-Workflow-skill
+/plugin marketplace add multica-ai/andrej-karpathy-skills
+/plugin marketplace add obra/superpowers
+/plugin marketplace add anthropics/skills
+/plugin marketplace add Orchestra-Research/AI-Research-SKILLs
+```
+
+### Step 2: Install the plugin
+
+From GitHub:
 
 ```bash
 /plugin marketplace add https://github.com/ldm2060/research_copilot.git
@@ -12,7 +27,7 @@ Academic research workspace for Claude Code: paper writing, review, literature s
 /reload-plugins
 ```
 
-### From Gitee (China mirror)
+From Gitee (China mirror):
 
 ```bash
 /plugin marketplace add https://gitee.com/ldm2060/research_copilot.git
@@ -36,13 +51,11 @@ Academic research workspace for Claude Code: paper writing, review, literature s
 
 ## Post-install
 
-After installing, run this once to set up MCP dependencies:
+After installing, run this once to set up MCP server dependencies:
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/requirements.txt
+pip install -r ${CLAUDE_PLUGIN_ROOT}/requirements.txt
 ```
-
-Or let the plugin handle it automatically on first use.
 
 ## Quick start
 

@@ -1,16 +1,35 @@
 ---
 name: init-mcp
-description: "Use when configuring MCP servers for the first time, installing MCP dependencies, checking MCP status, or when the user says '初始化 MCP', 'init mcp', 'setup mcp', '装环境', '配置 MCP', 'install MCP', 'configure MCP'. Delegates to self/install.py for cross-platform one-shot setup."
-version: 0.2.0
+description: "Use when setting up the plugin for the first time, installing dependencies, configuring MCP servers, or when the user says '初始化', 'init', 'setup', '装环境', '配置', 'install', 'configure', 'first time', '首次使用'. Handles both dependency marketplace installation and MCP server setup."
+version: 0.3.0
 ---
 
 # Init MCP
 
-One-shot MCP environment setup: install Python deps → write `.mcp.json` → register hook → regenerate skill.json metadata → verify each server → report optional secrets.
+One-shot plugin setup: install dependency marketplaces → install Python deps → write `.mcp.json` → register hooks → regenerate skill.json metadata → verify each server → report optional secrets.
 
-## Single entry point
+## Step 1: Install dependency marketplaces
 
-`self/install.py` is a cross-platform Python script that replaces the old PowerShell flow.
+This plugin depends on skills from 6 third-party marketplaces. If they are not added, plugin dependencies will stay unresolved (skills from those sources will be missing).
+
+Check whether each marketplace is already added by looking at the user's installed plugins. For each missing marketplace, instruct the user to run:
+
+```
+/plugin marketplace add Imbad0202/academic-research-skills
+/plugin marketplace add Lylll9436/Paper-Polish-Workflow-skill
+/plugin marketplace add multica-ai/andrej-karpathy-skills
+/plugin marketplace add obra/superpowers
+/plugin marketplace add anthropics/skills
+/plugin marketplace add Orchestra-Research/AI-Research-SKILLs
+```
+
+These are `/plugin` commands that must be typed by the user in the Claude Code prompt — they cannot be run via Bash. After the user adds all marketplaces, proceed to Step 2.
+
+If all marketplaces are already present, skip this step.
+
+## Step 2: Run the installer script
+
+`self/install.py` is a cross-platform Python script that handles MCP and hook setup.
 
 ```bash
 python self/install.py
@@ -24,18 +43,20 @@ Supported flags:
 
 ## What the script does
 
-1. **Install Python deps** — read `self/mcp/requirements.txt`, run `pip install` (default: `pdfplumber`).
-2. **Write `.mcp.json`** — scan `self/mcp/servers/` for every `server.py`, generate a Claude-Code-style `.mcp.json` with **absolute paths** to avoid `${workspaceFolder}`-expansion failures.
-3. **Register the SessionStart hook** — inject `self/hooks/scripts/scientist_guardrails.py` into `.claude/settings.json`. Idempotent; no duplicates.
-4. **Regenerate skill.json metadata** — required by Claude Code 2.1.142+. Calls `self/scripts/generate-skill-json.py` to walk every skill and write a sibling `skill.json` from its SKILL.md frontmatter.
-5. **Verify MCP startup** — send `initialize` JSON-RPC to each server and confirm a response.
-6. **Report optional secrets** — check `ARXIVSUB_SKILL_KEY`; if unset, warn but do not block install.
+1. **Report dependency marketplaces** — print the prerequisite `plugin marketplace add` commands.
+2. **Install Python deps** — read `self/mcp/requirements.txt`, run `pip install` (default: `pdfplumber`).
+3. **Write `.mcp.json`** — scan `self/mcp/servers/` for every `server.py`, generate a Claude-Code-style `.mcp.json` with **absolute paths** to avoid `${workspaceFolder}`-expansion failures.
+4. **Register hooks** — inject SessionStart, PreToolUse, UserPromptSubmit, and PostToolUse hooks into `.claude/settings.json`. Idempotent; no duplicates.
+5. **Register conductor agent** — set `agent: copilot-conductor` in `.claude/settings.json`.
+6. **Regenerate skill.json metadata** — required by Claude Code 2.1.142+. Calls `self/scripts/generate-skill-json.py` to walk every skill and write a sibling `skill.json` from its SKILL.md frontmatter.
+7. **Verify MCP startup** — send `initialize` JSON-RPC to each server and confirm a response.
+8. **Report optional secrets** — check `ARXIVSUB_SKILL_KEY`; if unset, warn but do not block install.
 
 ## Trigger scenarios
 
-- First-time use after a fresh clone → `python self/install.py`
-- An MCP server is unresponsive → `python self/install.py --skip-deps` to rewrite config and re-verify
-- Verify whether a server is startable → `python self/install.py --skip-deps --dry-run` to see the plan, then `--skip-deps` to actually verify
+- First-time use after a fresh clone → `/init-mcp`
+- An MCP server is unresponsive → `/init-mcp` (the script rewrites config and re-verifies)
+- After adding a new dependency marketplace → `/init-mcp` to re-verify everything
 
 ## Servers currently under `self/mcp/servers/`
 
