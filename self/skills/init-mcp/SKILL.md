@@ -10,7 +10,7 @@ One-shot plugin setup: install dependency marketplaces â†’ install Python deps â
 
 ## Step 1: Install dependency marketplaces
 
-This plugin depends on skills from 6 third-party marketplaces. If they are not added, plugin dependencies will stay unresolved (skills from those sources will be missing).
+This plugin depends on skills from 5 third-party marketplaces. If they are not added, plugin dependencies will stay unresolved (skills from those sources will be missing). The `superpowers` dependency uses Claude Code's built-in `claude-plugins-official` marketplace.
 
 Check whether each marketplace is already added by looking at the user's installed plugins. For each missing marketplace, instruct the user to run:
 
@@ -18,7 +18,6 @@ Check whether each marketplace is already added by looking at the user's install
 /plugin marketplace add Imbad0202/academic-research-skills
 /plugin marketplace add Lylll9436/Paper-Polish-Workflow-skill
 /plugin marketplace add multica-ai/andrej-karpathy-skills
-/plugin marketplace add obra/superpowers
 /plugin marketplace add anthropics/skills
 /plugin marketplace add Orchestra-Research/AI-Research-SKILLs
 ```

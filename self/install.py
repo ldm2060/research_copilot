@@ -543,7 +543,6 @@ DEPENDENCY_MARKETPLACES = [
     ("academic-research-skills", "Imbad0202/academic-research-skills"),
     ("paper-polish-workflow", "Lylll9436/Paper-Polish-Workflow-skill"),
     ("andrej-karpathy-skills", "multica-ai/andrej-karpathy-skills"),
-    ("superpowers", "obra/superpowers"),
     ("example-skills", "anthropics/skills"),
     ("ml-paper-writing / autoresearch", "Orchestra-Research/AI-Research-SKILLs"),
 ]
@@ -551,7 +550,8 @@ DEPENDENCY_MARKETPLACES = [
 
 def report_dependency_marketplaces() -> None:
     step("Prerequisite: add dependency marketplaces")
-    warn("This plugin depends on skills from 6 third-party marketplaces.")
+    warn("This plugin depends on skills from 5 third-party marketplaces.")
+    warn("The superpowers dependency uses Claude Code's built-in claude-plugins-official marketplace.")
     warn("If you haven't added them, plugin dependencies will stay unresolved.")
     print()
     print("  Run these commands in Claude Code before installing the plugin:")
