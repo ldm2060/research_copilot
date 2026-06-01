@@ -6,7 +6,7 @@ Academic research workspace for Claude Code: paper writing, review, literature s
 
 ### Step 1: Add dependency marketplaces
 
-This plugin depends on skills from 5 third-party marketplaces. You must add them before installing, or the dependencies will stay unresolved. The `superpowers` dependency uses Claude Code's built-in `claude-plugins-official` marketplace.
+This plugin depends on skills from 5 third-party marketplaces. You must add them before installing, or dependency plugins may stay unresolved. The `superpowers` dependency uses Claude Code's built-in `claude-plugins-official` marketplace.
 
 ```
 /plugin marketplace add Imbad0202/academic-research-skills
@@ -14,6 +14,13 @@ This plugin depends on skills from 5 third-party marketplaces. You must add them
 /plugin marketplace add multica-ai/andrej-karpathy-skills
 /plugin marketplace add anthropics/skills
 /plugin marketplace add Orchestra-Research/AI-Research-SKILLs
+/plugin install academic-research-skills@academic-research-skills
+/plugin install paper-polish-workflow@paper-polish-workflow
+/plugin install andrej-karpathy-skills@karpathy-skills
+/plugin install superpowers@claude-plugins-official
+/plugin install example-skills@anthropic-agent-skills
+/plugin install ml-paper-writing@ai-research-skills
+/plugin install autoresearch@ai-research-skills
 ```
 
 ### Step 2: Install the plugin
