@@ -16,7 +16,7 @@ export function citationCompliance(tex: string, bibtex: string): CheckResult {
   const keys = new Set<string>();
   for (const m of bibtex.matchAll(/@\w+\s*\{\s*([^,\s}]+)/g)) keys.add(m[1]);
   const missing: string[] = [];
-  for (const m of tex.matchAll(/\\cite[a-zA-Z]*\{([^}]*)\}/g)) {
+  for (const m of tex.matchAll(/\\cite[a-zA-Z]*(?:\[[^\]]*\])*\{([^}]*)\}/g)) {
     for (const key of m[1].split(",").map(k => k.trim()).filter(Boolean)) {
       if (!keys.has(key) && !missing.includes(key)) missing.push(key);
     }

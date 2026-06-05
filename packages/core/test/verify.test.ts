@@ -17,4 +17,9 @@ describe("verify checks (§16.2)", () => {
     const bib = "@article{smith2020, title={x}}";
     expect(citationCompliance(tex, bib)).toEqual({ ok: false, missing: ["ghost2099"] });
   });
+  it("citation-compliance checks keys even with optional \\cite arguments", () => {
+    const tex = "See \\cite[p.5]{smith2020} and \\citep[see][]{ghost2099}.";
+    const bib = "@article{smith2020, title={x}}";
+    expect(citationCompliance(tex, bib)).toEqual({ ok: false, missing: ["ghost2099"] });
+  });
 });
