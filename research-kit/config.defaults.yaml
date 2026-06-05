@@ -1,0 +1,9 @@
+session_commit_message: "chore(research): update journal/index"
+max_journal_lines: 2000
+default_venue: null
+lifecycle_hooks:
+  after_create: []
+  after_start: []
+  after_verify: []
+  after_complete: []
+  after_archive: []
