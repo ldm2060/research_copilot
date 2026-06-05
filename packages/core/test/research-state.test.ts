@@ -67,4 +67,30 @@ describe("computeResearchState (§16.1)", () => {
       mk({ id: `t${i}`, status: "in_progress", priority: "P1" }));
     expect(computeResearchState(tasks, NOW).recommendations.length).toBeLessThanOrEqual(3);
   });
+
+  it("ranks create vs resume on one score scale (create can outrank a resume)", () => {
+    const tasks = [
+      mk({ id: "hi", status: "in_progress", priority: "P0",
+        gaps: [{ desc: "g", suggest_kind: "experiment", status: "open" }] }),
+      mk({ id: "dep", depends_on: ["hi"] }),        // blocked → not a resume candidate
+      mk({ id: "lo", status: "in_progress", priority: "P3" }),
+    ];
+    const rs = computeResearchState(tasks, NOW);
+    // create from hi's gap: 3*3 + 2*1(dep) + 1*2 = 13  (hi has 1 dependent: dep)
+    // resume hi: 3*3 + 1*2 ≈ 11 ; resume lo: 3*0 + 1*2 = 2
+    expect(rs.recommendations[0]).toMatchObject({ action: "create", sourceGap: "g" });
+    expect(rs.recommendations[1]).toMatchObject({ action: "resume", taskId: "hi" });
+    expect(rs.recommendations[2]).toMatchObject({ action: "resume", taskId: "lo" });
+  });
+
+  it("breaks equal-score ties alphabetically by id", () => {
+    const tasks = [
+      mk({ id: "zebra", status: "in_progress", priority: "P1" }),
+      mk({ id: "alpha", status: "in_progress", priority: "P1" }),
+    ];
+    // identical score → tie-break by localeCompare on taskId → alpha before zebra
+    const resumes = computeResearchState(tasks, NOW).recommendations
+      .filter(r => r.action === "resume").map(r => r.taskId);
+    expect(resumes).toEqual(["alpha", "zebra"]);
+  });
 });
