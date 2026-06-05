@@ -383,7 +383,7 @@ CC 的 `dependencies` + `allowCrossMarketplaceDependenciesOn` 是**Claude Code �
 
 ### 9.3 逐包留删清单（待用户勾选）
 
-> 标注 **EVALUATE** 的包内容当前未在工作树中暴露（已 de-vendor 或为外部市场），建议需先 `rc sync` 拉取核对后再定；下列为基于用途与重叠的初步建议。
+> 标注 **EVALUATE** 的包内容当前未在工作树中暴露（已 de-vendor 或为外部市场）；**在 v1 Phase 4 内由 `rc sync` 拉取 + license-audit 后逐包定夺并纳入**；下列为基于用途与重叠的初步建议（拉取后核对修订）。
 
 **第二层 vendored 合集（skill.txt）**
 
@@ -483,9 +483,9 @@ M1 不是单一计划——它含 4–5 个独立子系统（core / cli / 6 平�
 - **Phase 1 — 其余 3 个 class-1 平台**（Codex / OpenCode / Gemini）经注册表接入；OpenCode 插件以子进程调 `rc context`（§16.6）。验收：注入矩阵断言三者出逐回合块；golden 快照；能力探测不过则降级面包屑。
 - **Phase 2 — 2 个 class-2 平台**（Cursor / Windsurf）面包屑协议（§16.5）；**先为 1 个执行器（rc-writer）做 Windsurf inline-workflow 渲染 spike**，证明 neutral→native 降级可行再铺全部。验收：注入矩阵断言面包屑 + 新鲜度时间戳可检测陈旧。
 - **Phase 3 — 2 个 TS MCP server**（scholar 门面 + pdf）。先做 PDF 阅读序 spike（§16.9 / 风险 6）与 scholar 各后端健康/降级矩阵再定稿。验收：录制 fixtures 集成测试 + 限流退避 + spawn round-trip 冒烟。
-- **Phase 4 — skillpacks + 迁移**：`rc sync` + license-audit 子命令先行；**v1 只迁移 28 个自有 skill（许可自有）；所有 ②③ 外部包推迟里程碑 2，待 license 审计**。验收：6 平台 skills 路径渲染一致；无许可/不可再分发的包被 `rc sync` 拒绝并报告。
+- **Phase 4 — skillpacks + 迁移**：`rc sync` + license-audit 子命令**在本阶段早期先行**；v1 迁移 28 自有 skill **+ ②③ 外部包**——rc sync 拉取后逐包按 §9.3 curate，无许可/不可再分发者被拒并报告（**审计后即纳入 v1，不整体推迟**）。验收：6 平台 skills 路径渲染一致；外部包经 license-audit 后纳入或明确拒绝附原因。
 
-- **里程碑 2**：其余 8 平台 adapter；②③ 外部包逐包 license 审计后入 skillpacks；可选 CC 插件包装；可选"只告警不拦截"守卫。
+- **里程碑 2**：其余 8 平台 adapter；可选 CC 插件包装；可选"只告警不拦截"守卫。
 
 > 阶段间存在硬依赖（core→cli→adapters→dogfood）；任一平台 schema 漂移不应阻塞整个 v1 验收——故验收按平台/能力分项（见 §13、§16.9），而非单一 e2e。
 
@@ -500,8 +500,8 @@ M1 不是单一计划——它含 4–5 个独立子系统（core / cli / 6 平�
 4. **agent 格式 / 能力分歧**：Windsurf 无 subagent——10 个 rc-* 须重表达为 inline workflow/rule（无隔离上下文、无 per-agent model/tool）。"写一份中立 agent 渲染各平台"对 agent-less 平台未必成立。对策：Phase 2 先 spike 1 个执行器的 Windsurf 降级；§5 明确 agent-less 平台丢失哪些能力、verify 质量如何在无隔离 verify subagent 下保持。
 
 **工程**
-5. **scholar 4 后端异构（major）**：arXiv Atom XML / arxivsub（第三方 Supabase 网关，有每日配额、可被对方关停）/ Google Scholar HTML 爬虫（已自限 1–3 条、有 CAPTCHA 封禁）/ DBLP——失败模式互不兼容、结果 schema 各异。对策：mcp-scholar 做**薄门面**，每后端独立限流/退避/熔断 + 来源标注的归一结果；v1 可剔除 Google Scholar 爬虫后端（唯一无稳定契约者），降级 best-effort；spec 增每后端能力/健康/降级矩阵。
-6. **TS PDF 阅读序回归（major）**：`unpdf`/`pdfjs-dist` 的 `getTextContent` 按内容流序返回，对**双栏会议论文**会交错两栏、毁公式/表结构——而这正是 rc-writer/rc-verify"数字溯源"依赖的语料。对策：Phase 3 前在真实双栏 ICLR/CVPR PDF 上做阅读序 spike；备选 (a) 纯 TS 的 x/y 聚类分栏启发式 / (b) 保留 Python pdfplumber sidecar（与"TS 全栈"冲突，诚实标注）/ (c) mcp-pdf 只做粗文本、抽取数字视为 advisory。spec 明确选哪条。
+5. **scholar 4 后端异构（major）**：arXiv Atom XML / arxivsub（第三方 Supabase 网关，有每日配额、可被对方关停）/ Google Scholar HTML 爬虫（已自限 1–3 条、有 CAPTCHA 封禁）/ DBLP——失败模式互不兼容、结果 schema 各异。对策：mcp-scholar 做**薄门面**，每后端独立限流/退避/熔断/cookie 管理 + 来源标注的归一结果；**v1 保留全部 4 后端（含 Google Scholar）**——CAPTCHA/封禁时仅该后端降级、其余不受影响；标注 Google Scholar 为 best-effort（Google markup 变更需维护）；spec 增每后端能力/健康/降级矩阵。
+6. **TS PDF 阅读序回归（major）**：`unpdf`/`pdfjs-dist` 的 `getTextContent` 按内容流序返回，对**双栏会议论文**会交错两栏、毁公式/表结构——而这正是 rc-writer/rc-verify"数字溯源"依赖的语料。对策：Phase 3 前在真实双栏 ICLR/CVPR PDF 上做阅读序 spike；备选 (a) 纯 TS 的 x/y 聚类分栏启发式 / (b) 保留 Python pdfplumber sidecar（与"TS 全栈"冲突，诚实标注）/ (c) mcp-pdf 只做粗文本、抽取数字视为 advisory。**已定：Phase 3 先 spike (a)；达标用 (a) 守住 TS 全栈，不达标退 (b) Python sidecar。**
 7. **OpenCode 版本耦合**：进程内 import core 会冻结版本 + 给用户仓库引入 node_modules（违背"干净仓库"）。对策（§16.6）：插件以**子进程**调 `rc context`，全平台单一注入路径；`rc doctor` 校验版本。
 8. **configure() 幂等/合并**：用户仓库可能已有自带配置，整文件覆盖会毁之。对策（§16.6）：按文件类型定义合并策略；增"对已含外来配置的仓库重跑 configure() 不破坏"测试。
 9. **Windows rc-on-PATH**：npm 全局 bin 在 Windows 是 `rc.cmd`/`rc.ps1` shim，hook 非 shell spawn `rc` 可能失败。对策：`rc doctor` 实测从非 shell spawn 执行 shim，文档给 `npx` 兜底；MCP server 调用用 `npx -y @research-copilot/mcp-*` 或绝对路径。
@@ -509,7 +509,7 @@ M1 不是单一计划——它含 4–5 个独立子系统（core / cli / 6 平�
 11. **MCP 打包**：`pdfjs-dist` 是 ESM + worker（部分含 wasm/canvas），naive bundling 易坏 worker 解析。对策：固定 Node engines floor、选定 server 调用形式、增 spawn round-trip 冒烟、标准化前验证 pdfjs worker/legacy 构建。
 
 **供应链 / 流程**
-12. **license 合规为硬前置（major）**：`third_party/` 工作树现为空（已 de-vendor），②③ 包许可在 `rc sync` 拉取前未知，而 `rc sync` 本身是交付物——"要先造工具才能评估许可"的时序陷阱。对策：`rc sync` 内置 license-audit，拒绝无许可/不可再分发的包并报告；v1 只迁自有 28 skill，②③ 包延后里程碑 2、先审后入。
+12. **license 合规为硬前置（major）**：`third_party/` 工作树现为空（已 de-vendor），②③ 包许可在 `rc sync` 拉取前未知。对策：把 `rc sync` + license-audit 排到 Phase 4 早期先行，**审计后即在 v1 纳入 ②③ 包**（不整体推迟）；无许可/不可再分发者被拒并报告。
 13. **dogfood 自举循环**：仓库要先造出 rc 才能在自身 `.research/` dogfood，而仓库又是被造对象；同时 §11 上来就退役旧 Python 工具链，留迁移期工具真空。对策：旧 `.copilot/` + Python 插件并行可用至 Phase 0 落地，定明确 cutover 检查点；首个 dogfood 目标设为一个极小任务，Phase 0 落地即可观测。
 14. **EVALUATE 类外部包**：内容未核实，留待 `rc sync` + license-audit 后逐包定夺（§9.3），与 §14 Phase 4 绑定。
 
