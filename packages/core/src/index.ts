@@ -14,3 +14,4 @@ export * from "./context.js";
 export * from "./skillpacks.js";
 export * from "./parse-skillpacks.js";
 export * from "./resolve-skillpacks.js";
+export * from "./sync-skillpacks.js";
