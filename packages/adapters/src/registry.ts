@@ -17,4 +17,9 @@ export const AI_TOOLS: Record<string, ToolEntry> = {
     agentCapable: true, hasHooks: true, injectionClass: 1,
     agentFormat: "toml", skillsPaths: [".agents/skills"],
   },
+  opencode: {
+    id: "opencode", configDir: ".opencode", cliFlag: "opencode",
+    agentCapable: true, hasHooks: true, injectionClass: 1,
+    agentFormat: "md", skillsPaths: [".opencode/skills"],
+  },
 };
