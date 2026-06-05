@@ -1,8 +1,21 @@
 {
   "name": "@research-copilot/mcp-scholar",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "MCP server for scholarly paper search",
   "type": "module",
   "bin": { "mcp-scholar": "./dist/mcp-scholar.js" },
+  "files": ["dist", "README.md"],
+  "keywords": ["mcp", "scholar", "arxiv", "dblp", "research"],
+  "author": "ldm2060",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ldm2060/research_copilot.git",
+    "directory": "packages/mcp-scholar"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": { "build": "tsup bin/mcp-scholar.ts --format esm" },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

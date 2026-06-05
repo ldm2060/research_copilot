@@ -1,8 +1,20 @@
 {
   "name": "research-copilot",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Multi-platform AI research assistant with MCP integration and skillpacks",
   "type": "module",
   "bin": { "rc": "./dist/rc.js" },
+  "files": ["dist", "README.md"],
+  "keywords": ["ai", "research", "mcp", "claude", "gemini", "cursor"],
+  "author": "ldm2060",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ldm2060/research_copilot.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": { "build": "tsup bin/rc.ts --format esm" },
   "dependencies": {
     "@research-copilot/core": "workspace:*",

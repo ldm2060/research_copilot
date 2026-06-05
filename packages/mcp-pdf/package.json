@@ -1,8 +1,21 @@
 {
   "name": "@research-copilot/mcp-pdf",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "MCP server for PDF extraction",
   "type": "module",
   "bin": { "mcp-pdf": "./dist/mcp-pdf.js" },
+  "files": ["dist", "README.md"],
+  "keywords": ["mcp", "pdf", "extraction"],
+  "author": "ldm2060",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ldm2060/research_copilot.git",
+    "directory": "packages/mcp-pdf"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": { "build": "tsup bin/mcp-pdf.ts --format esm" },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

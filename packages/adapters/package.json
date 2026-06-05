@@ -1,9 +1,22 @@
 {
   "name": "@research-copilot/adapters",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Platform adapters for research-copilot",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "keywords": ["research", "adapters", "multi-platform"],
+  "author": "ldm2060",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ldm2060/research_copilot.git",
+    "directory": "packages/adapters"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "exports": { ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" } },
   "scripts": { "build": "tsup src/index.ts --format esm --dts" },
   "dependencies": { "@research-copilot/core": "workspace:*", "smol-toml": "^1.3.0" }

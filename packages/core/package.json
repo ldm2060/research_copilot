@@ -1,9 +1,22 @@
 {
   "name": "@research-copilot/core",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Core library for research-copilot",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "keywords": ["research", "copilot", "ai"],
+  "author": "ldm2060",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ldm2060/research_copilot.git",
+    "directory": "packages/core"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "exports": { ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" } },
   "scripts": { "build": "tsup src/index.ts --format esm --dts" },
   "dependencies": { "yaml": "^2.6.0", "zod": "^3.23.0" }
