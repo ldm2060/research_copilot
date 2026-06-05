@@ -28,4 +28,8 @@ describe("buildContext (§16.6)", () => {
     const parsed = JSON.parse(out);
     expect(parsed.hookSpecificOutput.additionalContext).toContain("[research-state]");
   });
+  it("json format honors a custom eventName", () => {
+    const out = buildContext(repo, { format: "json", now: "2026-06-05T02:00:00Z", eventName: "BeforeAgent" });
+    expect(JSON.parse(out).hookSpecificOutput.hookEventName).toBe("BeforeAgent");
+  });
 });

@@ -1,0 +1,12 @@
+{
+  "name": "@research-copilot/mcp-scholar",
+  "version": "0.0.0",
+  "type": "module",
+  "bin": { "mcp-scholar": "./dist/mcp-scholar.js" },
+  "scripts": { "build": "tsup bin/mcp-scholar.ts --format esm" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "fast-xml-parser": "^4.5.0",
+    "zod": "^3.25.0"
+  }
+}

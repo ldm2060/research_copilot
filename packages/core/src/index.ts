@@ -9,3 +9,9 @@ export * from "./artifacts.js";
 export * from "./verify.js";
 export * from "./active.js";
 export * from "./context.js";
+
+// Skillpacks
+export * from "./skillpacks.js";
+export * from "./parse-skillpacks.js";
+export * from "./resolve-skillpacks.js";
+export * from "./sync-skillpacks.js";

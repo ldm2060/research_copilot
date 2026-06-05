@@ -12,4 +12,29 @@ export const AI_TOOLS: Record<string, ToolEntry> = {
     agentCapable: true, hasHooks: true, injectionClass: 1,
     agentFormat: "md", skillsPaths: [".claude/skills"],
   },
+  codex: {
+    id: "codex", configDir: ".codex", cliFlag: "codex",
+    agentCapable: true, hasHooks: true, injectionClass: 1,
+    agentFormat: "toml", skillsPaths: [".agents/skills"],
+  },
+  opencode: {
+    id: "opencode", configDir: ".opencode", cliFlag: "opencode",
+    agentCapable: true, hasHooks: true, injectionClass: 1,
+    agentFormat: "md", skillsPaths: [".opencode/skills"],
+  },
+  gemini: {
+    id: "gemini", configDir: ".gemini", cliFlag: "gemini",
+    agentCapable: true, hasHooks: true, injectionClass: 1,
+    agentFormat: "md", skillsPaths: [".gemini/skills", ".agents/skills"],
+  },
+  cursor: {
+    id: "cursor", configDir: ".cursor", cliFlag: "cursor",
+    agentCapable: true, hasHooks: false, injectionClass: 2,
+    agentFormat: "md", skillsPaths: [".cursor/skills"],
+  },
+  windsurf: {
+    id: "windsurf", configDir: ".windsurf", cliFlag: "windsurf",
+    agentCapable: false, hasHooks: false, injectionClass: 2,
+    agentFormat: "none", skillsPaths: [".windsurf/workflows"],
+  },
 };

@@ -1,0 +1,5 @@
+packs:
+  - name: research-kit
+    description: Core research agents
+    source: ./research-kit
+    enabled: true

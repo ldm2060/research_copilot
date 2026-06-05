@@ -5,7 +5,7 @@ import { getActive } from "./active.js";
 import { computeResearchState, type ResearchState } from "./research-state.js";
 import { extractWorkflowState } from "./workflow.js";
 
-export interface BuildOptions { format: "text" | "json"; now: string; }
+export interface BuildOptions { format: "text" | "json"; now: string; eventName?: string; }
 
 export function renderResearchState(rs: ResearchState): string {
   const lines: string[] = ["[research-state]"];
@@ -39,7 +39,7 @@ export function buildContext(repo: string, opts: BuildOptions): string {
 
   if (opts.format === "json") {
     return JSON.stringify({
-      hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: text },
+      hookSpecificOutput: { hookEventName: opts.eventName ?? "UserPromptSubmit", additionalContext: text },
     });
   }
   return text;

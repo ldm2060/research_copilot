@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deepMergeJson, kitRoot } from "../render.js";
+import { MCP_SERVERS } from "../mcp.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -40,4 +41,10 @@ export function configureClaudeCode(repo: string): void {
     "[workflow-state]+[research-state] block tells you the next step. Dispatch rc-* executors; do not do domain work inline.\n";
   const cur = fs.existsSync(claudeMd) ? fs.readFileSync(claudeMd, "utf8") : "";
   if (!cur.includes("Research workflow is governed by .research/")) fs.appendFileSync(claudeMd, note, "utf8");
+
+  // .mcp.json — register our two MCP servers (merge-safe + idempotent; overwrite only our keys)
+  const mcpPath = path.join(repo, ".mcp.json");
+  const mcp = fs.existsSync(mcpPath) ? JSON.parse(fs.readFileSync(mcpPath, "utf8")) : {};
+  mcp.mcpServers = { ...(mcp.mcpServers ?? {}), ...MCP_SERVERS };
+  fs.writeFileSync(mcpPath, JSON.stringify(mcp, null, 2) + "\n", "utf8");
 }
