@@ -1,87 +1,80 @@
 # Research Copilot
 
-Academic research workspace for Claude Code: paper writing, review, literature search, experiment management, and AI Scientist workflow.
+Research Copilot is a Trellis-style, research-native, multi-platform CLI (`rc`) for running academic research as a controlled, stateful workflow. It models each piece of work as a task with a generic lifecycle (`planning -> in_progress -> verify -> completed`) crossed with a research activity `kind` (literature, ideation, experiment, writing, polish, review, rebuttal). Steering is **injection-driven**: each turn a coding-agent hook runs `rc context`, injecting the current workflow state plus a deterministic next-step recommendation computed from the task graph — you decide what to do next, nothing is auto-created.
 
-## Install
+This rebuild **supersedes the previous Claude Code plugin architecture** (320+ skills / MCP servers shipped as a plugin). See [the redesign spec](docs/superpowers/specs/2026-06-05-research-copilot-trellis-redesign-design.md) for the locked decisions and rationale.
 
-### Step 1: Add dependency marketplaces
+- Author: ldm2060
+- Repo: https://github.com/ldm2060/research_copilot
 
-This plugin depends on skills from 5 third-party marketplaces. You must add them before installing, or dependency plugins may stay unresolved. The `superpowers` dependency uses Claude Code's built-in `claude-plugins-official` marketplace.
+## Status
 
-```
-/plugin marketplace add Imbad0202/academic-research-skills
-/plugin marketplace add Lylll9436/Paper-Polish-Workflow-skill
-/plugin marketplace add multica-ai/andrej-karpathy-skills
-/plugin marketplace add anthropics/skills
-/plugin marketplace add Orchestra-Research/AI-Research-SKILLs
-/plugin install academic-research-skills@academic-research-skills
-/plugin install paper-polish-workflow@paper-polish-workflow
-/plugin install andrej-karpathy-skills@karpathy-skills
-/plugin install superpowers@claude-plugins-official
-/plugin install example-skills@anthropic-agent-skills
-/plugin install ml-paper-writing@ai-research-skills
-/plugin install autoresearch@ai-research-skills
-```
+**Phase 0 — shipped:**
 
-### Step 2: Install the plugin
+- `packages/core` — the pure engine: task model, lifecycle FSM, research-state recommender, verify checks, workflow parser, context builder.
+- `packages/cli` — the `rc` command-line tool.
+- `packages/adapters` — the platform registry plus the Claude Code configurator.
+- `research-kit/` — workflow.md, 10 neutral `rc-*` agent templates, config defaults, spec templates.
+- **Claude Code is the one fully shipped platform** (class-1 push injection via a `UserPromptSubmit` hook).
 
-From GitHub:
+Other platforms are designed in the adapter registry; their adapters land in later phases (see the matrix below).
+
+## Install & run
+
+### Phase 0 (from source)
+
+There is no published package yet. Build the workspace and run the CLI directly:
 
 ```bash
-/plugin marketplace add https://github.com/ldm2060/research_copilot.git
-/plugin install research-copilot@research-copilot
-/reload-plugins
+pnpm install
+pnpm -r build
+node packages/cli/dist/rc.js --help
 ```
 
-From Gitee (China mirror):
+On Windows, invoke the CLI the same way — it is a Node program, so it avoids the Python-on-Windows hook pitfalls of the old plugin. See [docs/usage/claude-code.md](docs/usage/claude-code.md#windows-notes).
 
-```bash
-/plugin marketplace add https://gitee.com/ldm2060/research_copilot.git
-/plugin install research-copilot@research-copilot
-/reload-plugins
-```
+To get a short alias while developing, you can `pnpm --filter research-copilot link --global` (provides an `rc` binary on your PATH), or define a shell alias to `node .../packages/cli/dist/rc.js`.
 
-## Update
+### Future
 
-```bash
-/plugin marketplace update research-copilot
-/reload-plugins
-```
+Once published, the CLI will be runnable as `npx research-copilot ...` (npm package name: `research-copilot`, binary: `rc`).
 
-## Components
+## The `rc` commands
 
-- **320+ skills**: paper writing, review, literature search, experiment design, plotting, LaTeX, and more
-- **10 agents**: research-pilot (full lifecycle), paper (routing + optimization), paper-writer, paper-reviewer, scientist (AI-Scientist-v2), and more
-- **6 MCP servers**: arxiv-search, dblp-bib, google-scholar, pdf-text, ai-scientist, arxivsub-search
-- **1 hook**: SessionStart guardrails
-
-## Post-install
-
-After installing, run this once to set up MCP server dependencies:
-
-```bash
-pip install -r ${CLAUDE_PLUGIN_ROOT}/requirements.txt
-```
-
-## Quick start
-
-| I want to... | Use |
+| Command | What it does |
 |---|---|
-| Start from scratch (find direction / baseline / innovation) | `@research-pilot` |
-| Work on an existing draft (revise / review / optimize) | `@paper` |
-| Write or polish a section | `@paper-writer` |
-| Pre-submission quality gate / rebuttal | `@paper-reviewer` |
-| AI Scientist automated workflow | `@scientist` |
-| Search papers | `arxiv-search` or `dblp-bib` MCP |
-| Extract text from PDF | `pdf-text` MCP |
+| `rc init -u <name> [--claude]` | Scaffold `.research/` and (with `--claude`) wire Claude Code config. |
+| `rc task create --kind <k> --title <t> [--venue <v>] [--parent <p>]` | Create a research task; prints its id and sets it active. |
+| `rc task start <id>` | Move a task `planning -> in_progress`. |
+| `rc task set-status <id> <state>` | Apply a lifecycle transition explicitly. |
+| `rc task verify <id>` | Run the verify gate; failure rolls the task back to `in_progress`. |
+| `rc task complete <id>` | Move a task `verify -> completed`. |
+| `rc task add-gap <id> --desc <d> --suggest <kind>` | Record an open gap that drives next-step recommendations. |
+| `rc task current` | Print the active task id. |
+| `rc context [--platform <p>] [--inject] [--format text\|json]` | Emit the per-turn injection block; called by the Claude Code hook each turn. |
+| `rc doctor` | Check `.research/`, `workflow.md`, and `.claude/settings.json` exist; exit 1 on failure. |
 
-## For developers
+`kind` is one of: `literature`, `ideation`, `experiment`, `writing`, `polish`, `review`, `rebuttal`. Full flag reference and examples: [docs/usage/commands.md](docs/usage/commands.md).
 
-If you want to build from source or contribute:
+## Platform support matrix
 
-```bash
-git clone --recurse-submodules https://github.com/ldm2060/research_copilot.git
-python scripts/build_copilot_workspace.py --repo-root . --output dist/claude-workspace --target github
-```
+| Platform | Status | Injection |
+|---|---|---|
+| Claude Code | Shipped (Phase 0) | Class-1 push — `UserPromptSubmit` hook -> `rc context` |
+| Codex | Designed (Phase 1-2) | Class-1 push — `UserPromptSubmit` hook (version-gated) |
+| OpenCode | Designed (Phase 1-2) | Class-1 push — in-process `chat.system.transform` plugin |
+| Gemini CLI | Designed (Phase 1-2) | Class-1 push — `BeforeAgent` hook |
+| Cursor | Designed (Phase 1-2) | Class-2 breadcrumb — sessionStart once + always-on `Active task:` rule |
+| Windsurf | Designed (Phase 1-2) | Class-2 breadcrumb — always-on rule (agent-less) |
+| Kiro / Qoder / CodeBuddy / Droid / Pi / Copilot / Kilo / Antigravity | Milestone 2 | Registry + template increment |
 
-Build targets: `--target github` or `--target gitee`.
+**Class-1** platforms support per-turn push injection; **class-2** platforms cannot, so the agent re-echoes an `Active task:` breadcrumb each turn and re-resolves state. See [docs/dev/architecture.md](docs/dev/architecture.md) and [docs/dev/adding-a-platform.md](docs/dev/adding-a-platform.md).
+
+## Relationship to the old plugin
+
+Research Copilot was previously a Claude Code plugin (a marketplace bundle of 320+ skills, 10 agents, 6 Python MCP servers, and a SessionStart guard hook). That architecture is **superseded** by this TypeScript-full-stack, multi-platform rebuild. The decision log (D1–D8) and migration path are recorded in [the redesign spec](docs/superpowers/specs/2026-06-05-research-copilot-trellis-redesign-design.md) and [docs/dev/adr/0001-trellis-emulation.md](docs/dev/adr/0001-trellis-emulation.md).
+
+## Documentation
+
+- **Usage (researchers):** [docs/usage/](docs/usage/README.md) — command reference, Claude Code setup, a full workflow walkthrough.
+- **Development (contributors):** [docs/dev/architecture.md](docs/dev/architecture.md), [docs/dev/core-api.md](docs/dev/core-api.md), [docs/dev/adding-a-platform.md](docs/dev/adding-a-platform.md), [docs/dev/testing.md](docs/dev/testing.md), [docs/dev/adr/0001-trellis-emulation.md](docs/dev/adr/0001-trellis-emulation.md).
