@@ -31,7 +31,7 @@ describe("skillpacks integration - research-kit", () => {
 
     // Copy real research-kit to temp location and make it a git repo
     const realResearchKitPath = join(process.cwd(), "research-kit");
-    cpSync(realResearchKitPath, packDir, { recursive: true });
+    cpSync(realResearchKitPath, packDir, { recursive: true, filter: (src) => !src.includes(".git") });
 
     // Initialize as git repo
     execSync("git init -b main", { cwd: packDir, stdio: "pipe" });
