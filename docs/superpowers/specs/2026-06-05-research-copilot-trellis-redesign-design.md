@@ -632,6 +632,16 @@ packs:
 
 ---
 
+## 17. 文档交付物（随每个 Phase 增量，是各 Phase 验收的一部分）
+
+每个阶段的实现计划都必须含对应的文档任务；**缺对应文档的 Phase 不算验收通过**，文档与代码同 PR 增量。
+
+- **README（根，每阶段更新）**：项目简介、安装（`npx research-copilot` / 全局安装）、`rc` 命令速览、平台支持矩阵（已落地 / 已接线 / 计划中）、与旧架构的关系、链到使用与开发文档。
+- **使用文档 `docs/usage/`（面向研究者）**：`rc init`/`task`/`context`/`sync`/`doctor` 逐命令用法与示例；研究工作流走查（建任务→执行→verify→完成→推荐下一步，含实例）；6 平台各一节的接入指南（注入/面包屑差异、如何配 hook/规则）；spec（venue/baselines/writing/methodology/novelty）怎么写；`skillpacks.yaml` 怎么配。
+- **接续开发文档 `docs/dev/`（面向后续开发者）**：架构总览（对照本 spec §3–§6）；`core` API 参考；**如何新增一个平台 adapter**（注册表项 + 模板 + configurator，直接服务里程碑 2 的 8 平台）；如何新增/改 MCP server；如何新增研究 `kind` / 执行器 / verify 检查 / research-state 规则；测试怎么跑（vitest / golden 快照 / e2e / 注入矩阵）；本地 dogfood 指南；决策记录（ADR，链接本 spec）。
+
+---
+
 ## 附录 A：已验证的各平台机制（2026-06-05 核实）
 
 > 来源：6 平台官方文档 + Trellis 源码逆向（见各平台 sources）。下列为适配设计的事实依据；标注的 caveat 已并入 §15 风险。
