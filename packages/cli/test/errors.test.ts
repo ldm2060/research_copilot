@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { classifyCliError } from "../src/errors.js";
+import { buildProgram } from "../src/program.js";
+import { applyExitOverride } from "../src/errors.js";
 
 describe("classifyCliError (§16.9)", () => {
   it("maps an illegal FSM transition to exit 2 with a clean message", () => {
@@ -27,5 +29,24 @@ describe("classifyCliError (§16.9)", () => {
   });
   it("maps an unknown runtime error to exit 1 with its message", () => {
     expect(classifyCliError(new Error("boom"))).toEqual({ exitCode: 1, message: "boom" });
+  });
+});
+
+describe("applyExitOverride (subcommand usage → exit 2)", () => {
+  it("makes a missing-required-option subcommand error throw a commander error → exit 2", () => {
+    const program = buildProgram("/tmp/whatever");
+    applyExitOverride(program);
+    let caught: unknown;
+    try { program.parse(["init"], { from: "user" }); } catch (e) { caught = e; }
+    expect(caught).toBeTruthy();
+    expect(classifyCliError(caught).exitCode).toBe(2);
+  });
+  it("makes an unknown subcommand throw → exit 2", () => {
+    const program = buildProgram("/tmp/whatever");
+    applyExitOverride(program);
+    let caught: unknown;
+    try { program.parse(["task", "bogus"], { from: "user" }); } catch (e) { caught = e; }
+    expect(caught).toBeTruthy();
+    expect(classifyCliError(caught).exitCode).toBe(2);
   });
 });

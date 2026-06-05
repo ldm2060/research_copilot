@@ -1,3 +1,5 @@
+import type { Command } from "commander";
+
 export interface CliErrorResult { exitCode: number; message: string | null; }
 
 export function classifyCliError(err: unknown): CliErrorResult {
@@ -15,4 +17,10 @@ export function classifyCliError(err: unknown): CliErrorResult {
     return { exitCode: 1, message: "not found: the requested task or a required file does not exist" };
   }
   return { exitCode: 1, message: raw };
+}
+
+/** Apply exitOverride to a command and all nested subcommands so usage errors throw (handled centrally). */
+export function applyExitOverride(cmd: Command): void {
+  cmd.exitOverride();
+  for (const sub of cmd.commands) applyExitOverride(sub);
 }
