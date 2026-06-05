@@ -1,0 +1,31 @@
+import { describe, it, expect, beforeEach } from "vitest";
+import * as fs from "node:fs"; import * as os from "node:os"; import * as path from "node:path";
+import { configureClaudeCode } from "../src/configurators/claude-code.js";
+
+let repo: string;
+beforeEach(() => { repo = fs.mkdtempSync(path.join(os.tmpdir(), "rc-")); });
+
+describe("claude-code configurator", () => {
+  it("writes a UserPromptSubmit hook that calls rc context", () => {
+    configureClaudeCode(repo);
+    const settings = JSON.parse(fs.readFileSync(path.join(repo, ".claude/settings.json"), "utf8"));
+    const cmd = settings.hooks.UserPromptSubmit[0].hooks[0].command;
+    expect(cmd).toContain("rc context");
+    expect(cmd).toContain("--format text");
+  });
+  it("renders the 10 agents into .claude/agents", () => {
+    configureClaudeCode(repo);
+    const agents = fs.readdirSync(path.join(repo, ".claude/agents")).filter(f => f.endsWith(".md"));
+    expect(agents.length).toBe(10);
+  });
+  it("merges into an existing settings.json without clobbering foreign keys", () => {
+    fs.mkdirSync(path.join(repo, ".claude"), { recursive: true });
+    fs.writeFileSync(path.join(repo, ".claude/settings.json"),
+      JSON.stringify({ model: "opus", hooks: { SessionStart: [{ matcher: "*", hooks: [] }] } }));
+    configureClaudeCode(repo);
+    const s = JSON.parse(fs.readFileSync(path.join(repo, ".claude/settings.json"), "utf8"));
+    expect(s.model).toBe("opus");                 // foreign key preserved
+    expect(s.hooks.SessionStart).toBeDefined();   // foreign hook preserved
+    expect(s.hooks.UserPromptSubmit).toBeDefined(); // ours added
+  });
+});
