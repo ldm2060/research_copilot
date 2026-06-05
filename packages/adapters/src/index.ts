@@ -4,3 +4,4 @@ export { configureClaudeCode } from "./configurators/claude-code.js";
 export { configureCodex } from "./configurators/codex.js";
 export { configureOpenCode } from "./configurators/opencode.js";
 export { configureGemini } from "./configurators/gemini.js";
+export * from "./configure.js";
