@@ -32,4 +32,9 @@ export const AI_TOOLS: Record<string, ToolEntry> = {
     agentCapable: true, hasHooks: false, injectionClass: 2,
     agentFormat: "md", skillsPaths: [".cursor/skills"],
   },
+  windsurf: {
+    id: "windsurf", configDir: ".windsurf", cliFlag: "windsurf",
+    agentCapable: false, hasHooks: false, injectionClass: 2,
+    agentFormat: "none", skillsPaths: [".windsurf/workflows"],
+  },
 };

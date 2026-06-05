@@ -5,4 +5,5 @@ export { configureCodex } from "./configurators/codex.js";
 export { configureOpenCode } from "./configurators/opencode.js";
 export { configureGemini } from "./configurators/gemini.js";
 export { configureCursor } from "./configurators/cursor.js";
+export { configureWindsurf } from "./configurators/windsurf.js";
 export * from "./configure.js";

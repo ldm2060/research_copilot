@@ -27,6 +27,7 @@ export function registerInit(program: Command, repo: string): void {
     .option("--opencode", "OpenCode", false)
     .option("--gemini", "Gemini CLI", false)
     .option("--cursor", "Cursor", false)
+    .option("--windsurf", "Windsurf", false)
     .requiredOption("-u, --user <name>", "developer identity")
     .action((opts) => {
       const platforms: string[] = [];
@@ -35,6 +36,7 @@ export function registerInit(program: Command, repo: string): void {
       if (opts.opencode) platforms.push("opencode");
       if (opts.gemini) platforms.push("gemini");
       if (opts.cursor) platforms.push("cursor");
+      if (opts.windsurf) platforms.push("windsurf");
       if (platforms.length === 0) platforms.push("claude-code"); // default
       runInit({ repo, platforms, user: opts.user });
       process.stdout.write(`Initialized .research/ for: ${platforms.join(", ")}\n`);
