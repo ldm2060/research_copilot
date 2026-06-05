@@ -376,14 +376,15 @@ CC 的 `dependencies` + `allowCrossMarketplaceDependenciesOn` 是**Claude Code �
 
 ### 9.2 机制
 
-- `research-kit/skillpacks.yaml` 清单：每个外部来源（git URL / npm / 本地）+ 许可证 + 取哪些 skill。
+- `research-kit/skillpacks.yaml` 清单：每个外部来源（git URL / npm / 本地）+ 取哪些 skill（schema 见 §16.10）。
 - `rc init` / `rc sync` 拉取每个包，渲染其 SKILL.md 到每个选中平台的 skills 路径（`.claude/skills/`、`.cursor/skills/`、共享 `.agents/skills/` 等）。
-- 全 6 平台一致，版本锁定；许可敏感包用 **fetch-not-rehost**（拉取使用、不再托管）。
+- 全 6 平台一致，版本锁定（`.runtime/skillpacks.lock`）；拉取产物默认在 `.runtime/`（gitignored）。
 - **抛弃** CC 的 `plugin.json dependencies` / `marketplace.json` 依赖声明。
+- **license-audit 不做（用户决定）**：包按原样拉取使用，不设许可门；如将本工具公开再分发，第三方包的许可合规由用户自行负责（本设计范围外）。
 
 ### 9.3 逐包留删清单（待用户勾选）
 
-> 标注 **EVALUATE** 的包内容当前未在工作树中暴露（已 de-vendor 或为外部市场）；**在 v1 Phase 4 内由 `rc sync` 拉取 + license-audit 后逐包定夺并纳入**；下列为基于用途与重叠的初步建议（拉取后核对修订）。
+> 标注 **EVALUATE** 的包内容当前未在工作树中暴露（已 de-vendor 或为外部市场）；**在 v1 Phase 4 内由 `rc sync` 拉取后逐包定夺并纳入**；下列为基于用途与重叠的初步建议（拉取后核对修订）。
 
 **第二层 vendored 合集（skill.txt）**
 
@@ -483,7 +484,7 @@ M1 不是单一计划——它含 4–5 个独立子系统（core / cli / 6 平�
 - **Phase 1 — 其余 3 个 class-1 平台**（Codex / OpenCode / Gemini）经注册表接入；OpenCode 插件以子进程调 `rc context`（§16.6）。验收：注入矩阵断言三者出逐回合块；golden 快照；能力探测不过则降级面包屑。
 - **Phase 2 — 2 个 class-2 平台**（Cursor / Windsurf）面包屑协议（§16.5）；**先为 1 个执行器（rc-writer）做 Windsurf inline-workflow 渲染 spike**，证明 neutral→native 降级可行再铺全部。验收：注入矩阵断言面包屑 + 新鲜度时间戳可检测陈旧。
 - **Phase 3 — 2 个 TS MCP server**（scholar 门面 + pdf）。先做 PDF 阅读序 spike（§16.9 / 风险 6）与 scholar 各后端健康/降级矩阵再定稿。验收：录制 fixtures 集成测试 + 限流退避 + spawn round-trip 冒烟。
-- **Phase 4 — skillpacks + 迁移**：`rc sync` + license-audit 子命令**在本阶段早期先行**；v1 迁移 28 自有 skill **+ ②③ 外部包**——rc sync 拉取后逐包按 §9.3 curate，无许可/不可再分发者被拒并报告（**审计后即纳入 v1，不整体推迟**）。验收：6 平台 skills 路径渲染一致；外部包经 license-audit 后纳入或明确拒绝附原因。
+- **Phase 4 — skillpacks + 迁移**：`rc sync` 子命令**在本阶段早期先行**；v1 迁移 28 自有 skill **+ ②③ 外部包**——rc sync 拉取后逐包按 §9.3 curate 并纳入。验收：6 平台 skills 路径渲染一致（schema/流程见 §16.10）。
 
 - **里程碑 2**：其余 8 平台 adapter；可选 CC 插件包装；可选"只告警不拦截"守卫。
 
@@ -509,7 +510,7 @@ M1 不是单一计划——它含 4–5 个独立子系统（core / cli / 6 平�
 11. **MCP 打包**：`pdfjs-dist` 是 ESM + worker（部分含 wasm/canvas），naive bundling 易坏 worker 解析。对策：固定 Node engines floor、选定 server 调用形式、增 spawn round-trip 冒烟、标准化前验证 pdfjs worker/legacy 构建。
 
 **供应链 / 流程**
-12. **license 合规为硬前置（major）**：`third_party/` 工作树现为空（已 de-vendor），②③ 包许可在 `rc sync` 拉取前未知。对策：把 `rc sync` + license-audit 排到 Phase 4 早期先行，**审计后即在 v1 纳入 ②③ 包**（不整体推迟）；无许可/不可再分发者被拒并报告。
+12. **license（用户决定忽略 audit）**：按用户决定，v1 **不做 license-audit**，②③ 包按原样拉取使用。残留风险（记录在案，已接受）：若将本工具公开再分发，第三方包的许可合规由用户负责；本设计不设许可门。
 13. **dogfood 自举循环**：仓库要先造出 rc 才能在自身 `.research/` dogfood，而仓库又是被造对象；同时 §11 上来就退役旧 Python 工具链，留迁移期工具真空。对策：旧 `.copilot/` + Python 插件并行可用至 Phase 0 落地，定明确 cutover 检查点；首个 dogfood 目标设为一个极小任务，Phase 0 落地即可观测。
 14. **EVALUATE 类外部包**：内容未核实，留待 `rc sync` + license-audit 后逐包定夺（§9.3），与 §14 Phase 4 绑定。
 
@@ -605,8 +606,29 @@ lifecycle_hooks:
 
 - 所有 `rc` 命令：成功 exit 0，用法错 2，运行错 1；人读输出 → stdout，诊断 → stderr。
 - `rc context --inject --format <text|json>`：见 16.6。
-- `rc doctor`：逐平台探测（agent 文件可写、hook 事件可用、MCP 配置就位、`rc` shim 可执行、skillpack license 完整、Phase 3 起 MCP server spawn round-trip）；任一关键项失败 exit 1 并列修复建议。
+- `rc doctor`：逐平台探测（agent 文件可写、hook 事件可用、MCP 配置就位、`rc` shim 可执行、Phase 3 起 MCP server spawn round-trip）；任一关键项失败 exit 1 并列修复建议。
 - `rc task set-status <id> <state>`：校验目标 state 是 §4.1 FSM 合法后继，否则拒绝（exit 2）。
+
+### 16.10 skillpacks.yaml schema 与 rc sync 渲染
+
+```yaml
+packs:
+  - name: humanizer
+    source: { type: git, url: "https://github.com/.../humanizer", ref: "<commit|tag>" }
+    # 或 source: { type: npm, name: "<pkg>", version: "x.y.z" } / { type: local, path: "../foo" }
+    include: ["skills/**"]            # 选取 glob（默认全选）
+    exclude: ["**/skills-codex/**"]   # 可选排除
+    map_to_agent: rc-polisher         # 可选：归属某执行器（影响渲染分类）
+    notes: "..."
+```
+
+`rc sync` 流程（幂等）：
+1. 解析 `packs`；逐包按 `source` 拉取到 `.runtime/skillpacks/<name>/`（git `clone --depth 1` / npm pack / 本地拷贝）。
+2. 按 `include`/`exclude` 选出 SKILL.md 目录。
+3. 渲染：把每个 SKILL.md 目录复制到每个选中平台的 skills 路径（§6.1 注册表 `skillsPath`；Windsurf 无原生 skills → 降级为 `.windsurf/workflows/`）。
+4. 版本锁：把每包 resolved ref/version 写 `.runtime/skillpacks.lock`。
+5. `--check` 只报告差异不写盘；重跑覆盖渲染产物（不污染用户已有 skills，按命名空间子目录隔离）。
+6. 拉取与渲染产物默认在 `.runtime/`（gitignored，不提交）。
 
 ---
 
