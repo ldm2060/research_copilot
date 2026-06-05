@@ -27,4 +27,25 @@ describe("windsurf configurator (class-2, agent-less)", () => {
     expect(fs.readdirSync(path.join(repo, ".windsurf/workflows")).filter(f=>f.endsWith(".md")).length).toBe(10);
     expect(fs.existsSync(path.join(repo, ".windsurf/rules/research-copilot.md"))).toBe(true);
   });
+  it("does NOT write a repo-local MCP file (Windsurf MCP is user-global only)", () => {
+    configureWindsurf(repo);
+    expect(fs.existsSync(path.join(repo, ".windsurf/mcp.json"))).toBe(false);
+    expect(fs.existsSync(path.join(repo, ".windsurf/mcp_config.json"))).toBe(false);
+    expect(fs.existsSync(path.join(repo, ".mcp.json"))).toBe(false);
+  });
+  it("documents the two MCP servers + global mcp_config.json path in a note", () => {
+    configureWindsurf(repo);
+    const rule = fs.readFileSync(path.join(repo, ".windsurf/rules/research-copilot.md"), "utf8");
+    expect(rule).toContain("mcp_config.json");      // global config path
+    expect(rule).toContain("research-scholar");
+    expect(rule).toContain("research-pdf");
+    expect(rule).toContain("@research-copilot/mcp-scholar");
+  });
+  it("MCP note is idempotent (single note on re-run)", () => {
+    configureWindsurf(repo); configureWindsurf(repo);
+    const rule = fs.readFileSync(path.join(repo, ".windsurf/rules/research-copilot.md"), "utf8");
+    expect(rule.split("mcp_config.json").length - 1).toBeGreaterThanOrEqual(1);
+    // the heading anchoring the note must appear exactly once
+    expect(rule.split("## MCP servers").length - 1).toBe(1);
+  });
 });

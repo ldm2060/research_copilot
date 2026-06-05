@@ -31,4 +31,23 @@ describe("gemini configurator", () => {
     const rc = (s.hooks.BeforeAgent as any[]).flatMap(g => g.hooks ?? []).filter((h:any)=>/rc context/.test(h.command));
     expect(rc.length).toBe(1);
   });
+  it("registers both MCP servers (top-level mcpServers) while preserving the BeforeAgent hook", () => {
+    configureGemini(repo);
+    const s = JSON.parse(fs.readFileSync(path.join(repo, ".gemini/settings.json"), "utf8"));
+    expect(s.mcpServers["research-scholar"].command).toBe("npx");
+    expect(s.mcpServers["research-scholar"].args).toContain("@research-copilot/mcp-scholar");
+    expect(s.mcpServers["research-pdf"].args).toContain("@research-copilot/mcp-pdf");
+    expect(s.hooks.BeforeAgent).toBeDefined(); // merge-safe with hooks block
+    // hyphenated names only (Gemini rejects underscores)
+    expect(Object.keys(s.mcpServers).every(k => !k.includes("_"))).toBe(true);
+  });
+  it("MCP write is merge-safe + idempotent (foreign mcpServers preserved; no dup args on re-run)", () => {
+    fs.mkdirSync(path.join(repo, ".gemini"), { recursive: true });
+    fs.writeFileSync(path.join(repo, ".gemini/settings.json"),
+      JSON.stringify({ mcpServers: { other: { command: "node", args: ["x.js"] } } }));
+    configureGemini(repo); configureGemini(repo);
+    const s = JSON.parse(fs.readFileSync(path.join(repo, ".gemini/settings.json"), "utf8"));
+    expect(s.mcpServers.other).toBeDefined();
+    expect(s.mcpServers["research-scholar"].args).toEqual(["-y", "@research-copilot/mcp-scholar"]);
+  });
 });

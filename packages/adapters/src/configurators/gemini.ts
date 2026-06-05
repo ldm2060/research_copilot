@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { kitRoot, deepMergeJson } from "../render.js";
 import { parseAgent } from "../agent-frontmatter.js";
+import { MCP_SERVERS } from "../mcp.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HOOK_CMD = "rc context --inject --format json --event BeforeAgent";
@@ -27,5 +28,7 @@ export function configureGemini(repo: string): void {
   const already = Array.isArray(ups) && ups.some(g => (g?.hooks ?? []).some((h: any) => typeof h?.command === "string" && h.command.includes("rc context")));
   const ours = { hooks: { BeforeAgent: [{ matcher: "*", hooks: [{ type: "command", command: HOOK_CMD, timeout: 20 }] }] } };
   const merged = already ? existing : deepMergeJson(existing, ours);
+  // top-level mcpServers — register our two servers (merge-safe + idempotent; overwrite only our keys)
+  merged.mcpServers = { ...(merged.mcpServers ?? {}), ...MCP_SERVERS };
   fs.writeFileSync(settingsPath, JSON.stringify(merged, null, 2) + "\n", "utf8");
 }

@@ -22,4 +22,20 @@ describe("cursor configurator (class-2 breadcrumb)", () => {
     expect(fs.readdirSync(path.join(repo, ".cursor/agents")).filter(f=>f.endsWith(".md")).length).toBe(10);
     expect(fs.existsSync(path.join(repo, ".cursor/rules/research-copilot.mdc"))).toBe(true);
   });
+  it("registers both MCP servers in .cursor/mcp.json", () => {
+    configureCursor(repo);
+    const mcp = JSON.parse(fs.readFileSync(path.join(repo, ".cursor/mcp.json"), "utf8"));
+    expect(mcp.mcpServers["research-scholar"].command).toBe("npx");
+    expect(mcp.mcpServers["research-scholar"].args).toContain("@research-copilot/mcp-scholar");
+    expect(mcp.mcpServers["research-pdf"].args).toContain("@research-copilot/mcp-pdf");
+  });
+  it("MCP write is merge-safe + idempotent (foreign server preserved; no dup args on re-run)", () => {
+    fs.mkdirSync(path.join(repo, ".cursor"), { recursive: true });
+    fs.writeFileSync(path.join(repo, ".cursor/mcp.json"),
+      JSON.stringify({ mcpServers: { other: { command: "node", args: ["x.js"] } } }));
+    configureCursor(repo); configureCursor(repo);
+    const mcp = JSON.parse(fs.readFileSync(path.join(repo, ".cursor/mcp.json"), "utf8"));
+    expect(mcp.mcpServers.other).toBeDefined();
+    expect(mcp.mcpServers["research-scholar"].args).toEqual(["-y", "@research-copilot/mcp-scholar"]);
+  });
 });

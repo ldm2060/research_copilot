@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { kitRoot } from "../render.js";
 import { parseAgent } from "../agent-frontmatter.js";
+import { MCP_SERVERS } from "../mcp.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -52,4 +53,10 @@ export function configureCursor(repo: string): void {
     ss.push({ command: "rc context --platform cursor" });
   }
   fs.writeFileSync(hooksPath, JSON.stringify(hooks, null, 2) + "\n", "utf8");
+
+  // .cursor/mcp.json — register our two MCP servers (merge-safe + idempotent)
+  const mcpPath = path.join(base, "mcp.json");
+  const mcp = fs.existsSync(mcpPath) ? JSON.parse(fs.readFileSync(mcpPath, "utf8")) : {};
+  mcp.mcpServers = { ...(mcp.mcpServers ?? {}), ...MCP_SERVERS };
+  fs.writeFileSync(mcpPath, JSON.stringify(mcp, null, 2) + "\n", "utf8");
 }

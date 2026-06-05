@@ -39,4 +39,27 @@ describe("claude-code configurator", () => {
     const md = fs.readFileSync(path.join(repo, "CLAUDE.md"), "utf8");
     expect(md.split("Research workflow is governed by").length - 1).toBe(1);
   });
+  it("writes both research MCP servers into .mcp.json", () => {
+    configureClaudeCode(repo);
+    const mcp = JSON.parse(fs.readFileSync(path.join(repo, ".mcp.json"), "utf8"));
+    expect(mcp.mcpServers["research-scholar"].args).toContain("@research-copilot/mcp-scholar");
+    expect(mcp.mcpServers["research-pdf"].args).toContain("@research-copilot/mcp-pdf");
+    expect(mcp.mcpServers["research-scholar"].command).toBe("npx");
+  });
+  it("merges MCP servers into an existing .mcp.json without clobbering foreign servers", () => {
+    fs.writeFileSync(path.join(repo, ".mcp.json"),
+      JSON.stringify({ mcpServers: { "other-tool": { command: "node", args: ["x.js"] } } }));
+    configureClaudeCode(repo);
+    const mcp = JSON.parse(fs.readFileSync(path.join(repo, ".mcp.json"), "utf8"));
+    expect(mcp.mcpServers["other-tool"]).toBeDefined();        // foreign preserved
+    expect(mcp.mcpServers["research-scholar"]).toBeDefined();   // ours added
+    expect(mcp.mcpServers["research-pdf"]).toBeDefined();
+  });
+  it("MCP write is idempotent (re-run: single entry per server)", () => {
+    configureClaudeCode(repo);
+    configureClaudeCode(repo);
+    const mcp = JSON.parse(fs.readFileSync(path.join(repo, ".mcp.json"), "utf8"));
+    expect(Object.keys(mcp.mcpServers).filter(k => k === "research-scholar").length).toBe(1);
+    expect(mcp.mcpServers["research-scholar"].args).toEqual(["-y", "@research-copilot/mcp-scholar"]);
+  });
 });

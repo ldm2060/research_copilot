@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { parse as parseToml, stringify as toToml } from "smol-toml";
 import { kitRoot } from "../render.js";
 import { parseAgent } from "../agent-frontmatter.js";
+import { MCP_SERVERS } from "../mcp.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HOOK_CMD = "rc context --inject --format text";
@@ -30,9 +31,14 @@ export function configureCodex(repo: string): void {
   if (!already) ups.push({ matcher: "*", hooks: [{ type: "command", command: HOOK_CMD, timeout: 20 }] });
   fs.writeFileSync(hooksPath, JSON.stringify(hooks, null, 2) + "\n", "utf8");
 
-  // config.toml — ensure [features] hooks = true (merge-safe)
+  // config.toml — ensure [features] hooks = true + register MCP servers (merge-safe)
   const cfgPath = path.join(base, "config.toml");
   const cfg = fs.existsSync(cfgPath) ? (parseToml(fs.readFileSync(cfgPath, "utf8")) as any) : {};
   cfg.features = { ...(cfg.features ?? {}), hooks: true };
+  // [mcp_servers.<name>] tables — overwrite only our keys, preserve foreign servers
+  cfg.mcp_servers = { ...(cfg.mcp_servers ?? {}) };
+  for (const [name, def] of Object.entries(MCP_SERVERS)) {
+    cfg.mcp_servers[name] = { command: def.command, args: [...def.args] };
+  }
   fs.writeFileSync(cfgPath, toToml(cfg) + "\n", "utf8");
 }

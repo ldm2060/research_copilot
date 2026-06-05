@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { kitRoot } from "../render.js";
 import { parseAgent } from "../agent-frontmatter.js";
+import { MCP_SERVERS } from "../mcp.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -39,4 +40,27 @@ export function configureWindsurf(repo: string): void {
   }
 
   fs.writeFileSync(path.join(base, "rules", "research-copilot.md"), RULE, "utf8");
+
+  // MCP is USER-GLOBAL only in Windsurf (~/.codeium/windsurf/mcp_config.json) — no repo-local MCP
+  // file is supported. Append a one-time setup note to the rule (idempotent: keyed on the heading).
+  const rulePath = path.join(base, "rules", "research-copilot.md");
+  const cur = fs.readFileSync(rulePath, "utf8");
+  if (!cur.includes("## MCP servers")) {
+    const snippet = JSON.stringify({ mcpServers: MCP_SERVERS }, null, 2);
+    const note = [
+      "",
+      "## MCP servers (manual, user-global)",
+      "",
+      "Windsurf reads MCP servers ONLY from the user-global config",
+      "`~/.codeium/windsurf/mcp_config.json` (Windsurf does not support a repo-local MCP file).",
+      "Add the two research-copilot servers (`research-scholar`, `research-pdf`) there manually,",
+      "merging into any existing `mcpServers`:",
+      "",
+      "```json",
+      snippet,
+      "```",
+      "",
+    ].join("\n");
+    fs.appendFileSync(rulePath, note, "utf8");
+  }
 }

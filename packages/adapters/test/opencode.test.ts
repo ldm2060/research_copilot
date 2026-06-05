@@ -31,4 +31,20 @@ describe("opencode configurator", () => {
     expect(fs.readdirSync(path.join(repo, ".opencode/agent")).filter(f=>f.endsWith(".md")).length).toBe(10);
     expect(fs.existsSync(path.join(repo, ".opencode/plugin/research-copilot.ts"))).toBe(true);
   });
+  it("registers both MCP servers in opencode.json with local shape (command is an array)", () => {
+    configureOpenCode(repo);
+    const oc = JSON.parse(fs.readFileSync(path.join(repo, "opencode.json"), "utf8"));
+    expect(oc.mcp["research-scholar"].type).toBe("local");
+    expect(Array.isArray(oc.mcp["research-scholar"].command)).toBe(true);
+    expect(oc.mcp["research-scholar"].command).toContain("@research-copilot/mcp-scholar");
+    expect(oc.mcp["research-pdf"].command).toContain("@research-copilot/mcp-pdf");
+  });
+  it("MCP write is merge-safe + idempotent (foreign mcp preserved; no dup command on re-run)", () => {
+    fs.writeFileSync(path.join(repo, "opencode.json"),
+      JSON.stringify({ mcp: { other: { type: "local", command: ["node", "x.js"] } } }));
+    configureOpenCode(repo); configureOpenCode(repo);
+    const oc = JSON.parse(fs.readFileSync(path.join(repo, "opencode.json"), "utf8"));
+    expect(oc.mcp.other).toBeDefined();
+    expect(oc.mcp["research-scholar"].command).toEqual(["npx", "-y", "@research-copilot/mcp-scholar"]);
+  });
 });

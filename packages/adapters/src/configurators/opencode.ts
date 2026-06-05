@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { kitRoot } from "../render.js";
 import { parseAgent } from "../agent-frontmatter.js";
+import { MCP_SERVERS } from "../mcp.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -40,4 +41,14 @@ export function configureOpenCode(repo: string): void {
   }
 
   fs.writeFileSync(path.join(base, "plugin", "research-copilot.ts"), PLUGIN, "utf8");
+
+  // opencode.json — register MCP servers in OpenCode local shape (command is an array).
+  // Merge-safe (preserve foreign mcp entries) + idempotent (overwrite only our keys).
+  const ocPath = path.join(repo, "opencode.json");
+  const oc = fs.existsSync(ocPath) ? JSON.parse(fs.readFileSync(ocPath, "utf8")) : {};
+  oc.mcp = { ...(oc.mcp ?? {}) };
+  for (const [name, def] of Object.entries(MCP_SERVERS)) {
+    oc.mcp[name] = { type: "local", command: [def.command, ...def.args] };
+  }
+  fs.writeFileSync(ocPath, JSON.stringify(oc, null, 2) + "\n", "utf8");
 }

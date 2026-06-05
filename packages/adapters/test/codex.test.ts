@@ -36,4 +36,23 @@ describe("codex configurator", () => {
     const cmds = (ups as any[]).flatMap(g => g.hooks ?? []).filter((h:any)=>String(h.command).includes("rc context"));
     expect(cmds.length).toBe(1);
   });
+  it("writes both MCP servers as [mcp_servers.*] tables without clobbering [features]", () => {
+    configureCodex(repo);
+    const cfg = parseToml(fs.readFileSync(path.join(repo, ".codex/config.toml"), "utf8")) as any;
+    expect(cfg.mcp_servers["research-scholar"].command).toBe("npx");
+    expect(cfg.mcp_servers["research-scholar"].args).toContain("@research-copilot/mcp-scholar");
+    expect(cfg.mcp_servers["research-pdf"].args).toContain("@research-copilot/mcp-pdf");
+    expect(cfg.features.hooks).toBe(true); // not clobbered
+  });
+  it("MCP write preserves foreign mcp_servers + foreign tables, idempotent on re-run", () => {
+    const cfgPath = path.join(repo, ".codex/config.toml");
+    fs.mkdirSync(path.join(repo, ".codex"), { recursive: true });
+    fs.writeFileSync(cfgPath, "[features]\nfoo = true\n\n[mcp_servers.other]\ncommand = \"node\"\nargs = [\"x.js\"]\n");
+    configureCodex(repo); configureCodex(repo);
+    const cfg = parseToml(fs.readFileSync(cfgPath, "utf8")) as any;
+    expect(cfg.features.foo).toBe(true);                 // foreign feature preserved
+    expect(cfg.features.hooks).toBe(true);               // ours added
+    expect(cfg.mcp_servers.other.command).toBe("node");  // foreign server preserved
+    expect(cfg.mcp_servers["research-scholar"].args).toEqual(["-y", "@research-copilot/mcp-scholar"]); // no dup args
+  });
 });
