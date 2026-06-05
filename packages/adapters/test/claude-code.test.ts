@@ -28,4 +28,15 @@ describe("claude-code configurator", () => {
     expect(s.hooks.SessionStart).toBeDefined();   // foreign hook preserved
     expect(s.hooks.UserPromptSubmit).toBeDefined(); // ours added
   });
+  it("is idempotent — re-running does not stack duplicate hooks or notes", () => {
+    configureClaudeCode(repo);
+    configureClaudeCode(repo);
+    const s = JSON.parse(fs.readFileSync(path.join(repo, ".claude/settings.json"), "utf8"));
+    const rcHooks = (s.hooks.UserPromptSubmit as any[])
+      .flatMap(g => g.hooks)
+      .filter((h: any) => typeof h.command === "string" && h.command.includes("rc context"));
+    expect(rcHooks.length).toBe(1);
+    const md = fs.readFileSync(path.join(repo, "CLAUDE.md"), "utf8");
+    expect(md.split("Research workflow is governed by").length - 1).toBe(1);
+  });
 });
