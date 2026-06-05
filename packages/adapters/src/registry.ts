@@ -22,4 +22,9 @@ export const AI_TOOLS: Record<string, ToolEntry> = {
     agentCapable: true, hasHooks: true, injectionClass: 1,
     agentFormat: "md", skillsPaths: [".opencode/skills"],
   },
+  gemini: {
+    id: "gemini", configDir: ".gemini", cliFlag: "gemini",
+    agentCapable: true, hasHooks: true, injectionClass: 1,
+    agentFormat: "md", skillsPaths: [".gemini/skills", ".agents/skills"],
+  },
 };

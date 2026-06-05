@@ -10,8 +10,9 @@ export function buildProgram(repo = process.cwd()): Command {
     .option("--platform <p>", "platform", "claude-code")
     .option("--inject", "inject mode", false)
     .option("--format <f>", "text|json", "text")
+    .option("--event <name>", "hook event name for json envelope")
     .action((opts) => {
-      process.stdout.write(runContext({ repo, format: opts.format, now: new Date().toISOString() }));
+      process.stdout.write(runContext({ repo, format: opts.format, now: new Date().toISOString(), eventName: opts.event }));
     });
   program.command("doctor").action(() => {
     const { ok, report } = runDoctor(repo);
