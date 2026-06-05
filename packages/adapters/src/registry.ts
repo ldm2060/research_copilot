@@ -27,4 +27,9 @@ export const AI_TOOLS: Record<string, ToolEntry> = {
     agentCapable: true, hasHooks: true, injectionClass: 1,
     agentFormat: "md", skillsPaths: [".gemini/skills", ".agents/skills"],
   },
+  cursor: {
+    id: "cursor", configDir: ".cursor", cliFlag: "cursor",
+    agentCapable: true, hasHooks: false, injectionClass: 2,
+    agentFormat: "md", skillsPaths: [".cursor/skills"],
+  },
 };
