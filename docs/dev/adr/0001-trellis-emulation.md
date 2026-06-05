@@ -9,7 +9,7 @@
 
 Research Copilot started as a Claude Code plugin: a marketplace bundle of 320+ skills, ~10 agents, 6 Python MCP servers, and a SessionStart guard hook. That architecture had three structural problems: it was single-platform (Claude Code only), its "guidance" was enforced by brittle hard-reject guard hooks (which can't be unit-tested and don't generalize across platforms), and it depended on five third-party skill marketplaces that frequently failed to resolve.
 
-[Trellis](https://github.com/) — a generic, multi-platform CLI for driving coding agents through a controlled task lifecycle via per-turn context injection — solves the same orchestration problem in a cleaner, testable, multi-platform way. The decision was to **emulate Trellis's architecture wholesale and layer the research domain on top**, rather than patch the plugin.
+[Trellis](https://github.com/mindfold-ai/Trellis) — a generic, multi-platform CLI for driving coding agents through a controlled task lifecycle via per-turn context injection — solves the same orchestration problem in a cleaner, testable, multi-platform way. The decision was to **emulate Trellis's architecture wholesale and layer the research domain on top**, rather than patch the plugin.
 
 The eight directional decisions below were confirmed item-by-item in brainstorming and are treated as locked (spec §2).
 
