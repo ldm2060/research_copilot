@@ -19,25 +19,28 @@ This rebuild **supersedes the previous Claude Code plugin architecture** (320+ s
 
 Other platforms are designed in the adapter registry; their adapters land in later phases (see the matrix below).
 
-## Install & run
+## Installation
 
-### Phase 0 (from source)
-
-There is no published package yet. Build the workspace and run the CLI directly:
+### Quick Start (npx - no installation)
 
 ```bash
-pnpm install
-pnpm -r build
-node packages/cli/dist/rc.js --help
+npx research-copilot init --user your-name --claude
 ```
 
-On Windows, invoke the CLI the same way — it is a Node program, so it avoids the Python-on-Windows hook pitfalls of the old plugin. See [docs/usage/claude-code.md](docs/usage/claude-code.md#windows-notes).
+### NPM (Recommended)
 
-To get a short alias while developing, you can `pnpm --filter research-copilot link --global` (provides an `rc` binary on your PATH), or define a shell alias to `node .../packages/cli/dist/rc.js`.
+```bash
+npm install -g research-copilot
+```
 
-### Future
+### Alternative Methods
 
-Once published, the CLI will be runnable as `npx research-copilot ...` (npm package name: `research-copilot`, binary: `rc`).
+- **pnpm**: `pnpm add -g research-copilot`
+- **Yarn**: `yarn global add research-copilot`
+- **From Source**: Clone and build (see [INSTALLATION.md](./INSTALLATION.md))
+- **GitHub Releases**: Download pre-built archives (see [Releases](https://github.com/ldm2060/research_copilot/releases))
+
+See [INSTALLATION.md](./INSTALLATION.md) for detailed installation instructions, platform-specific notes, and troubleshooting.
 
 ## The `rc` commands
 

@@ -1,0 +1,115 @@
+name: Create Release Archives
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create-archives:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install and build
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      - name: Create release archives
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+
+          # Create distribution directory
+          mkdir -p dist/release/research-copilot
+
+          # Copy built packages
+          cp -r packages/cli/dist dist/release/research-copilot/
+          cp -r packages/core/dist dist/release/research-copilot/core
+          cp -r packages/adapters/dist dist/release/research-copilot/adapters
+          cp -r packages/mcp-pdf/dist dist/release/research-copilot/mcp-pdf
+          cp -r packages/mcp-scholar/dist dist/release/research-copilot/mcp-scholar
+
+          # Copy package.json files
+          cp packages/cli/package.json dist/release/research-copilot/
+          cp packages/core/package.json dist/release/research-copilot/core/
+          cp packages/adapters/package.json dist/release/research-copilot/adapters/
+          cp packages/mcp-pdf/package.json dist/release/research-copilot/mcp-pdf/
+          cp packages/mcp-scholar/package.json dist/release/research-copilot/mcp-scholar/
+
+          # Copy node_modules (production only)
+          cd dist/release/research-copilot
+          npm install --production --no-optional
+          cd ../../..
+
+          # Copy documentation
+          cp README.md INSTALLATION.md LICENSE dist/release/research-copilot/
+
+          # Create wrapper scripts
+          cat > dist/release/research-copilot/bin/rc << 'EOF'
+          #!/usr/bin/env node
+          import('../dist/rc.js');
+          EOF
+          chmod +x dist/release/research-copilot/bin/rc
+
+          cat > dist/release/research-copilot/bin/rc.cmd << 'EOF'
+          @echo off
+          node "%~dp0\..\dist\rc.js" %*
+          EOF
+
+          # Create archives
+          cd dist/release
+          tar -czf research-copilot-v${VERSION}-linux.tar.gz research-copilot
+          tar -czf research-copilot-v${VERSION}-macos.tar.gz research-copilot
+          zip -r research-copilot-v${VERSION}-win.zip research-copilot
+
+          # Move archives to release root
+          mv *.tar.gz *.zip ../
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/*.zip
+          body: |
+            ## Installation
+
+            ### From Archive (No npm required)
+
+            Download the appropriate archive for your platform:
+            - **Linux**: `research-copilot-v${{ github.ref_name }}-linux.tar.gz`
+            - **macOS**: `research-copilot-v${{ github.ref_name }}-macos.tar.gz`
+            - **Windows**: `research-copilot-v${{ github.ref_name }}-win.zip`
+
+            Extract and add to PATH:
+            ```bash
+            # Linux/macOS
+            tar -xzf research-copilot-*.tar.gz
+            export PATH=$PATH:$(pwd)/research-copilot/bin
+
+            # Windows
+            # Extract zip, then add research-copilot\bin to PATH
+            ```
+
+            ### From npm
+            ```bash
+            npm install -g research-copilot@${{ github.ref_name }}
+            ```
+
+            ### From npx (no install)
+            ```bash
+            npx research-copilot@${{ github.ref_name }} init --user your-name --claude
+            ```
+
+            See [INSTALLATION.md](./INSTALLATION.md) for more options.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2,6 +2,10 @@
   "name": "research-copilot-monorepo",
   "private": true,
   "engines": { "node": ">=20" },
+  "homepage": "https://github.com/ldm2060/research_copilot#readme",
+  "bugs": {
+    "url": "https://github.com/ldm2060/research_copilot/issues"
+  },
   "scripts": {
     "build": "pnpm -r build",
     "test": "vitest run",
