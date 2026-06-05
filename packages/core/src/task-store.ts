@@ -1,7 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { researchPaths } from "./paths.js";
-import type { TaskRecord, Kind, Priority } from "./types.js";
+import { assertTransition } from "./lifecycle.js";
+import type { TaskRecord, Kind, Priority, Status } from "./types.js";
 
 export function slugify(title: string): string {
   return title.toLowerCase().trim()
@@ -47,4 +48,11 @@ export function listTasks(repo: string): TaskRecord[] {
   return fs.readdirSync(dir)
     .filter(id => fs.existsSync(taskJsonPath(repo, id)))
     .map(id => readTask(repo, id));
+}
+
+export function setStatus(repo: string, id: string, to: Status, now: string): void {
+  const t = readTask(repo, id);
+  assertTransition(t.status, to);
+  t.status = to;
+  writeTask(repo, t, now);
 }
