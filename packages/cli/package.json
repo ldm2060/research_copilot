@@ -1,0 +1,12 @@
+{
+  "name": "research-copilot",
+  "version": "0.0.0",
+  "type": "module",
+  "bin": { "rc": "./dist/rc.js" },
+  "scripts": { "build": "tsup bin/rc.ts --format esm" },
+  "dependencies": {
+    "@research-copilot/core": "workspace:*",
+    "@research-copilot/adapters": "workspace:*",
+    "commander": "^12.1.0"
+  }
+}
