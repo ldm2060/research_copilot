@@ -12,4 +12,9 @@ export const AI_TOOLS: Record<string, ToolEntry> = {
     agentCapable: true, hasHooks: true, injectionClass: 1,
     agentFormat: "md", skillsPaths: [".claude/skills"],
   },
+  codex: {
+    id: "codex", configDir: ".codex", cliFlag: "codex",
+    agentCapable: true, hasHooks: true, injectionClass: 1,
+    agentFormat: "toml", skillsPaths: [".agents/skills"],
+  },
 };
