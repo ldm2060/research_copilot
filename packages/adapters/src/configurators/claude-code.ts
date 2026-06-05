@@ -1,23 +1,12 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { deepMergeJson } from "../render.js";
+import { deepMergeJson, kitRoot } from "../render.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-function findKit(start: string): string {
-  let dir = start;
-  for (;;) {
-    const cand = path.join(dir, "research-kit");
-    if (fs.existsSync(cand)) return cand;
-    const parent = path.dirname(dir);
-    if (parent === dir) throw new Error("research-kit not found above " + start);
-    dir = parent;
-  }
-}
-
 export function configureClaudeCode(repo: string): void {
-  const KIT = findKit(__dirname);
+  const KIT = kitRoot(__dirname);
   const cc = path.join(repo, ".claude");
   fs.mkdirSync(path.join(cc, "agents"), { recursive: true });
 
