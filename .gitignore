@@ -1,4 +1,8 @@
 dist
+dist/
+node_modules/
+.research/.runtime/
+*.tsbuildinfo
 *.pyc
 AI-Scientist-v2-main
 .claude/worktrees/
