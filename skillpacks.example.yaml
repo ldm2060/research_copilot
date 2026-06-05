@@ -1,0 +1,16 @@
+# Example skillpacks configuration
+# Copy to skillpacks.yaml and customize
+
+packs:
+  # Local development pack (point to your local research-kit checkout)
+  - name: research-kit
+    description: Core research agents and task specifications
+    source: ./research-kit
+    enabled: true
+
+  # Example: Remote pack from git repository
+  # - name: review-pack
+  #   description: Paper review agents
+  #   source: https://github.com/research-copilot/review-pack.git
+  #   version: v1.0.0
+  #   enabled: false
