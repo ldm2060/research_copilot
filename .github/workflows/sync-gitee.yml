@@ -43,12 +43,15 @@ jobs:
           # Keep only the latest 3 tags
           KEEP_TAGS=$(echo "$TAGS" | head -n 3)
 
-          # Delete all tags on Gitee first
-          git ls-remote --tags gitee | awk '{print $2}' | sed 's|refs/tags/||' | while read tag; do
-            git push gitee :refs/tags/$tag 2>/dev/null || true
-          done
-
-          # Push only the latest 3 tags
+          # Push the latest 3 tags first
           for tag in $KEEP_TAGS; do
             git push gitee $tag --force
+          done
+
+          # Then delete old tags on Gitee
+          git ls-remote --tags gitee | awk '{print $2}' | sed 's|refs/tags/||' | while read tag; do
+            # Only delete if not in KEEP_TAGS
+            if ! echo "$KEEP_TAGS" | grep -q "^$tag$"; then
+              git push gitee :refs/tags/$tag 2>/dev/null || true
+            fi
           done
