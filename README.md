@@ -24,19 +24,19 @@ Other platforms are designed in the adapter registry; their adapters land in lat
 ### Quick Start (npx - no installation)
 
 ```bash
-npx research-copilot init --user your-name --claude
+npx @research-copilot/cli init --user your-name --claude
 ```
 
 ### NPM (Recommended)
 
 ```bash
-npm install -g research-copilot
+npm install -g @research-copilot/cli
 ```
 
 ### Alternative Methods
 
-- **pnpm**: `pnpm add -g research-copilot`
-- **Yarn**: `yarn global add research-copilot`
+- **pnpm**: `pnpm add -g @research-copilot/cli`
+- **Yarn**: `yarn global add @research-copilot/cli`
 - **From Source**: Clone and build (see [INSTALLATION.md](./INSTALLATION.md))
 - **GitHub Releases**: Download pre-built archives (see [Releases](https://github.com/ldm2060/research_copilot/releases))
 
