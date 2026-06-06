@@ -5,16 +5,29 @@ on:
     branches:
       - main
       - deploy
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Sync to Gitee
-        uses: wearerequired/git-mirror-action@v1
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          source-repo: git@github.com:${{ github.repository }}.git
-          destination-repo: git@gitee.com:ldm2060/research_copilot.git
+          fetch-depth: 0
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITEE_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+
+      - name: Sync branches and tags to Gitee
+        run: |
+          git remote add gitee git@gitee.com:ldm2060/research_copilot.git || true
+          git push gitee main:main --force
+          git push gitee deploy:deploy --force
+          git push gitee --tags --force
