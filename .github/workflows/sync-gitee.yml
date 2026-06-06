@@ -30,4 +30,19 @@ jobs:
           git remote add gitee git@gitee.com:ldm2060/research_copilot.git || true
           git push gitee main:main --force
           git push gitee deploy:deploy --force
-          git push gitee --tags --force
+
+          # Get all tags sorted by version
+          TAGS=$(git tag -l 'v*' --sort=-version:refname)
+
+          # Keep only the latest 3 tags
+          KEEP_TAGS=$(echo "$TAGS" | head -n 3)
+
+          # Delete all tags on Gitee first
+          git ls-remote --tags gitee | awk '{print $2}' | sed 's|refs/tags/||' | while read tag; do
+            git push gitee :refs/tags/$tag 2>/dev/null || true
+          done
+
+          # Push only the latest 3 tags
+          for tag in $KEEP_TAGS; do
+            git push gitee $tag --force
+          done
