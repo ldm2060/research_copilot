@@ -1,12 +1,22 @@
 import { Command } from "commander";
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { runContext } from "./commands/context.js";
 import { runDoctor } from "./commands/doctor.js";
 import { registerInit } from "./commands/init.js";
 import { registerTask } from "./commands/task.js";
 import { sync } from "./commands/sync.js";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 export function buildProgram(repo = process.cwd()): Command {
+  // Read version from package.json
+  const pkgPath = join(__dirname, "..", "package.json");
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+
   const program = new Command("rc");
+  program.version(pkg.version, "-v, --version", "output the current version");
   program.command("context")
     .option("--platform <p>", "platform", "claude-code")
     .option("--inject", "inject mode", false)
