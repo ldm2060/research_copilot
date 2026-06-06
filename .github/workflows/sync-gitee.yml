@@ -28,8 +28,14 @@ jobs:
       - name: Sync branches and tags to Gitee
         run: |
           git remote add gitee git@gitee.com:ldm2060/research_copilot.git || true
+
+          # Sync main branch
           git push gitee main:main --force
-          git push gitee deploy:deploy --force
+
+          # Sync deploy branch if it exists locally
+          if git show-ref --verify --quiet refs/heads/deploy; then
+            git push gitee deploy:deploy --force
+          fi
 
           # Get all tags sorted by version
           TAGS=$(git tag -l 'v*' --sort=-version:refname)
