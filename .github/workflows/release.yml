@@ -112,3 +112,33 @@ jobs:
             See [INSTALLATION.md](./INSTALLATION.md) for more options.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Gitee Release
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITEE_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+
+          # Clone Gitee repo
+          git clone git@gitee.com:ldm2060/research_copilot.git gitee-repo
+          cd gitee-repo
+
+          # Create release tag and push
+          git tag -a "v${VERSION}" -m "Release v${VERSION}"
+          git push origin "v${VERSION}"
+
+          cd ..
+
+          # Upload release files using Gitee API
+          curl -X POST "https://gitee.com/api/v5/repos/ldm2060/research_copilot/releases" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"access_token\": \"${{ secrets.GITEE_ACCESS_TOKEN }}\",
+              \"tag_name\": \"v${VERSION}\",
+              \"name\": \"v${VERSION}\",
+              \"body\": \"Release v${VERSION}\n\nSee GitHub release for details: https://github.com/ldm2060/research_copilot/releases/tag/v${VERSION}\"
+            }"
