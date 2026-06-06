@@ -72,13 +72,13 @@ npm install -g @research-copilot/cli
 
 | 平台 | 状态 | 注入方式 |
 |---|---|---|
-| Claude Code | 已发布（Phase 0） | Class-1 推送 — `UserPromptSubmit` 钩子 -> `rc context` |
-| Codex | 已设计（Phase 1-2） | Class-1 推送 — `UserPromptSubmit` 钩子（版本门控） |
-| OpenCode | 已设计（Phase 1-2） | Class-1 推送 — 进程内 `chat.system.transform` 插件 |
-| Gemini CLI | 已设计（Phase 1-2） | Class-1 推送 — `BeforeAgent` 钩子 |
-| Cursor | 已设计（Phase 1-2） | Class-2 面包屑 — sessionStart 一次 + 始终启用的 `Active task:` 规则 |
-| Windsurf | 已设计（Phase 1-2） | Class-2 面包屑 — 始终启用的规则（无助手） |
-| Kiro / Qoder / CodeBuddy / Droid / Pi / Copilot / Kilo / Antigravity | Milestone 2 | 注册表 + 模板增量 |
+| Claude Code | ✅ 已完成 | Class-1 推送 — `UserPromptSubmit` 钩子 -> `rc context` |
+| Codex | ✅ 已完成 | Class-1 推送 — `UserPromptSubmit` 钩子（版本门控） |
+| OpenCode | ✅ 已完成 | Class-1 推送 — 进程内 `chat.system.transform` 插件 |
+| Gemini CLI | ✅ 已完成 | Class-1 推送 — `BeforeAgent` 钩子 |
+| Cursor | ✅ 已完成 | Class-2 面包屑 — sessionStart 一次 + 始终启用的 `Active task:` 规则 |
+| Windsurf | ✅ 已完成 | Class-2 面包屑 — 始终启用的规则（无助手） |
+| Kiro / Qoder / CodeBuddy / Droid / Pi / Copilot / Kilo / Antigravity | 🔄 规划中 | 注册表 + 模板增量 |
 
 **Class-1** 平台支持每次对话的推送注入；**Class-2** 平台不支持，因此助手每次对话重新回显 `Active task:` 面包屑并重新解析状态。参见 [docs/dev/architecture.md](docs/dev/architecture.md) 和 [docs/dev/adding-a-platform.md](docs/dev/adding-a-platform.md)。
 

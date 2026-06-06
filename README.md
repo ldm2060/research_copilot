@@ -72,13 +72,13 @@ New to Research Copilot? Start here:
 
 | Platform | Status | Injection |
 |---|---|---|
-| Claude Code | Shipped (Phase 0) | Class-1 push — `UserPromptSubmit` hook -> `rc context` |
-| Codex | Designed (Phase 1-2) | Class-1 push — `UserPromptSubmit` hook (version-gated) |
-| OpenCode | Designed (Phase 1-2) | Class-1 push — in-process `chat.system.transform` plugin |
-| Gemini CLI | Designed (Phase 1-2) | Class-1 push — `BeforeAgent` hook |
-| Cursor | Designed (Phase 1-2) | Class-2 breadcrumb — sessionStart once + always-on `Active task:` rule |
-| Windsurf | Designed (Phase 1-2) | Class-2 breadcrumb — always-on rule (agent-less) |
-| Kiro / Qoder / CodeBuddy / Droid / Pi / Copilot / Kilo / Antigravity | Milestone 2 | Registry + template increment |
+| Claude Code | ✅ Complete | Class-1 push — `UserPromptSubmit` hook -> `rc context` |
+| Codex | ✅ Complete | Class-1 push — `UserPromptSubmit` hook (version-gated) |
+| OpenCode | ✅ Complete | Class-1 push — in-process `chat.system.transform` plugin |
+| Gemini CLI | ✅ Complete | Class-1 push — `BeforeAgent` hook |
+| Cursor | ✅ Complete | Class-2 breadcrumb — sessionStart once + always-on `Active task:` rule |
+| Windsurf | ✅ Complete | Class-2 breadcrumb — always-on rule (agent-less) |
+| Kiro / Qoder / CodeBuddy / Droid / Pi / Copilot / Kilo / Antigravity | 🔄 Planned | Registry + template increment |
 
 **Class-1** platforms support per-turn push injection; **class-2** platforms cannot, so the agent re-echoes an `Active task:` breadcrumb each turn and re-resolves state. See [docs/dev/architecture.md](docs/dev/architecture.md) and [docs/dev/adding-a-platform.md](docs/dev/adding-a-platform.md).
 
