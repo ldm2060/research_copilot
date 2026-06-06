@@ -68,6 +68,21 @@ New to Research Copilot? Start here:
 
 `kind` is one of: `literature`, `ideation`, `experiment`, `writing`, `polish`, `review`, `rebuttal`. Full flag reference and examples: [docs/usage/commands.md](docs/usage/commands.md).
 
+## Skills
+
+Research Copilot provides 6 high-level skills for orchestrating research workflows:
+
+| Skill | Description | When to Use |
+|---|---|---|
+| `/full-research-workflow` | Complete pipeline (literature → submission) | Starting new research project |
+| `/literature-search` | Focused paper search + baseline locking | Finding baselines for topic |
+| `/experiment-design` | Design and launch experiments | Running validation experiments |
+| `/paper-polish` | De-AI and style refinement | After writing first draft |
+| `/submission-sprint` | Iterative review-fix loop | Pre-submission optimization |
+| `/sanity-check` | 6-dimension final audit | Before final submission |
+
+See [docs/skills.md](docs/skills.md) for detailed usage.
+
 ## Platform support matrix
 
 | Platform | Status | Injection |
