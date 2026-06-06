@@ -1,6 +1,6 @@
 {
   "name": "@research-copilot/core",
-  "version": "1.0.0",
+  "version": "0.0.0-dev",
   "description": "Core library for research-copilot",
   "type": "module",
   "main": "./dist/index.js",

@@ -30,6 +30,20 @@ jobs:
       - name: Build packages
         run: pnpm build
 
+      - name: Sync package.json versions with git tag
+        run: |
+          # Get version from latest git tag (strip 'v' prefix)
+          VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
+          echo "Syncing all packages to version: $VERSION"
+
+          # Update version in all package.json files
+          pnpm -r exec -- node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json'));
+            pkg.version = '$VERSION';
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
       - name: Run tests
         run: pnpm test
 
@@ -42,11 +56,11 @@ jobs:
             if (pkg.dependencies) {
               for (let dep in pkg.dependencies) {
                 if (pkg.dependencies[dep] === 'workspace:*') {
-                  pkg.dependencies[dep] = '^1.0.0';
+                  pkg.dependencies[dep] = '^' + pkg.version;
                 }
               }
             }
-            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
           "
 
           # Publish each package
