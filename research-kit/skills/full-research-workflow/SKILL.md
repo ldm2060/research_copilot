@@ -34,12 +34,12 @@ If `prd.md` exists and has clear goals, proceed directly to Stage 1. Only ask qu
 
 **Step 0**: Before asking clarifying questions, read the context files that might contain answers:
 
-```bash
+```powershell
 # Check for PRD and existing state
-cat prd.md 2>/dev/null || echo "No PRD found"
-rc task list --json 2>/dev/null || echo "No tasks yet"
-ls -la execute.jsonl 2>/dev/null || echo "No execution log"
-ls -d baselines/ venue/ 2>/dev/null || echo "No support dirs"
+if (Test-Path prd.md) { Get-Content prd.md } else { "No PRD found" }
+rc task list --json 2>$null || "No tasks yet"
+if (Test-Path execute.jsonl) { "Execution log exists" } else { "No execution log" }
+if ((Test-Path baselines/) -and (Test-Path venue/)) { "Support dirs ready" } else { "No support dirs" }
 ```
 
 **What to look for**:
@@ -59,160 +59,210 @@ Only ask clarifying questions if critical information is genuinely missing from 
 
 ### Stage 1: Literature Review
 
-```bash
-# Create literature review task
-rc task create \
-  --kind literature \
-  --title "Literature Review" \
+```powershell
+# Create literature review task and capture ID
+$output = rc task create `
+  --kind literature `
+  --title "Literature Review" `
   --goal "Survey state-of-the-art in [research area from prd.md]"
+$LIT_TASK_ID = ($output | Select-String 'Task (\d+)').Matches.Groups[1].Value
 
 # Dispatch agent to execute
-rc agent dispatch --task-id <task-id> --agent literature-agent
+rc agent dispatch --task-id $LIT_TASK_ID --agent literature-agent
 
 # Verify deliverables exist
-test -f lit_review.md || echo "ERROR: lit_review.md missing"
-test -d references/ || echo "ERROR: references/ missing"
+if (-not (Test-Path lit_review.md)) { "ERROR: lit_review.md missing" }
+if (-not (Test-Path references/)) { "ERROR: references/ missing" }
 
 # Mark complete
-rc task complete --task-id <task-id>
+rc task complete --task-id $LIT_TASK_ID
 ```
 
 Quality gate: `lit_review.md` must exist with 15+ references, clear gaps identified.
 
 ### Stage 2: Ideation
 
-```bash
+```powershell
+# Verify literature task is complete
+$status = rc task status $LIT_TASK_ID
+if ($status -notmatch "completed") {
+  "ERROR: Literature task not completed yet"
+  exit 1
+}
+
 # Create ideation task (depends on literature)
-rc task create \
-  --kind ideation \
-  --title "Ideation" \
-  --goal "Generate research ideas addressing gaps from literature" \
-  --depends-on <literature-task-id>
+$output = rc task create `
+  --kind ideation `
+  --title "Ideation" `
+  --goal "Generate research ideas addressing gaps from literature" `
+  --depends-on $LIT_TASK_ID
+$IDEA_TASK_ID = ($output | Select-String 'Task (\d+)').Matches.Groups[1].Value
 
 # Dispatch agent
-rc agent dispatch --task-id <task-id> --agent ideation-agent
+rc agent dispatch --task-id $IDEA_TASK_ID --agent ideation-agent
 
 # Verify deliverables
-test -f ideas.md || echo "ERROR: ideas.md missing"
-grep -q "idea_" ideas.md || echo "ERROR: No structured ideas found"
+if (-not (Test-Path ideas.md)) { "ERROR: ideas.md missing" }
+if (-not (Select-String -Path ideas.md -Pattern "idea_" -Quiet)) { "ERROR: No structured ideas found" }
 
 # Mark complete
-rc task complete --task-id <task-id>
+rc task complete --task-id $IDEA_TASK_ID
 ```
 
 Quality gate: `ideas.md` must contain 3+ structured ideas with novelty scores.
 
 ### Stage 3: Experiment
 
-```bash
+```powershell
+# Verify ideation task is complete
+$status = rc task status $IDEA_TASK_ID
+if ($status -notmatch "completed") {
+  "ERROR: Ideation task not completed yet"
+  exit 1
+}
+
 # Create experiment task (depends on ideation)
-rc task create \
-  --kind experiment \
-  --title "Experiment Execution" \
-  --goal "Implement and run experiments for selected idea" \
-  --depends-on <ideation-task-id>
+$output = rc task create `
+  --kind experiment `
+  --title "Experiment Execution" `
+  --goal "Implement and run experiments for selected idea" `
+  --depends-on $IDEA_TASK_ID
+$EXP_TASK_ID = ($output | Select-String 'Task (\d+)').Matches.Groups[1].Value
 
 # Dispatch agent
-rc agent dispatch --task-id <task-id> --agent experiment-agent
+rc agent dispatch --task-id $EXP_TASK_ID --agent experiment-agent
 
 # Verify deliverables
-test -f results.json || echo "ERROR: results.json missing"
-test -d figures/ || echo "ERROR: figures/ missing"
-test -f experiment_log.md || echo "ERROR: experiment_log.md missing"
+if (-not (Test-Path results.json)) { "ERROR: results.json missing" }
+if (-not (Test-Path figures/)) { "ERROR: figures/ missing" }
+if (-not (Test-Path experiment_log.md)) { "ERROR: experiment_log.md missing" }
 
 # Mark complete
-rc task complete --task-id <task-id>
+rc task complete --task-id $EXP_TASK_ID
 ```
 
 Quality gate: `results.json` must have baseline comparisons, `figures/` must contain plots.
 
 ### Stage 4: Writing
 
-```bash
+```powershell
+# Verify experiment task is complete
+$status = rc task status $EXP_TASK_ID
+if ($status -notmatch "completed") {
+  "ERROR: Experiment task not completed yet"
+  exit 1
+}
+
 # Create writing task (depends on experiment)
-rc task create \
-  --kind writing \
-  --title "Draft Paper" \
-  --goal "Write paper draft following venue template" \
-  --depends-on <experiment-task-id>
+$output = rc task create `
+  --kind writing `
+  --title "Draft Paper" `
+  --goal "Write paper draft following venue template" `
+  --depends-on $EXP_TASK_ID
+$WRITE_TASK_ID = ($output | Select-String 'Task (\d+)').Matches.Groups[1].Value
 
 # Dispatch agent
-rc agent dispatch --task-id <task-id> --agent writing-agent
+rc agent dispatch --task-id $WRITE_TASK_ID --agent writing-agent
 
 # Verify deliverables
-test -f paper_draft.tex || echo "ERROR: paper_draft.tex missing"
-pdflatex paper_draft.tex >/dev/null 2>&1 || echo "WARN: LaTeX compilation failed"
+if (-not (Test-Path paper_draft.tex)) { "ERROR: paper_draft.tex missing" }
+pdflatex paper_draft.tex >$null 2>&1
+if ($LASTEXITCODE -ne 0) { "WARN: LaTeX compilation failed" }
 
 # Mark complete
-rc task complete --task-id <task-id>
+rc task complete --task-id $WRITE_TASK_ID
 ```
 
 Quality gate: `paper_draft.tex` must compile, all sections present, references formatted.
 
 ### Stage 5: Polish
 
-```bash
+```powershell
+# Verify writing task is complete
+$status = rc task status $WRITE_TASK_ID
+if ($status -notmatch "completed") {
+  "ERROR: Writing task not completed yet"
+  exit 1
+}
+
 # Create polish task (depends on writing)
-rc task create \
-  --kind polish \
-  --title "Polish Paper" \
-  --goal "Refine writing, check formatting, validate claims" \
-  --depends-on <writing-task-id>
+$output = rc task create `
+  --kind polish `
+  --title "Polish Paper" `
+  --goal "Refine writing, check formatting, validate claims" `
+  --depends-on $WRITE_TASK_ID
+$POLISH_TASK_ID = ($output | Select-String 'Task (\d+)').Matches.Groups[1].Value
 
 # Dispatch agent
-rc agent dispatch --task-id <task-id> --agent polish-agent
+rc agent dispatch --task-id $POLISH_TASK_ID --agent polish-agent
 
 # Verify deliverables
-test -f paper_polished.tex || echo "ERROR: paper_polished.tex missing"
-grep -q "\\cite{" paper_polished.tex || echo "WARN: No citations found"
+if (-not (Test-Path paper_polished.tex)) { "ERROR: paper_polished.tex missing" }
+if (-not (Select-String -Path paper_polished.tex -Pattern "\\cite{" -Quiet)) { "WARN: No citations found" }
 
 # Mark complete
-rc task complete --task-id <task-id>
+rc task complete --task-id $POLISH_TASK_ID
 ```
 
 Quality gate: Paper length within venue limits, all claims cited, figures captioned.
 
 ### Stage 6: Review
 
-```bash
+```powershell
+# Verify polish task is complete
+$status = rc task status $POLISH_TASK_ID
+if ($status -notmatch "completed") {
+  "ERROR: Polish task not completed yet"
+  exit 1
+}
+
 # Create review task (depends on polish)
-rc task create \
-  --kind review \
-  --title "Internal Review" \
-  --goal "Simulate peer review, identify weaknesses" \
-  --depends-on <polish-task-id>
+$output = rc task create `
+  --kind review `
+  --title "Internal Review" `
+  --goal "Simulate peer review, identify weaknesses" `
+  --depends-on $POLISH_TASK_ID
+$REVIEW_TASK_ID = ($output | Select-String 'Task (\d+)').Matches.Groups[1].Value
 
 # Dispatch agent
-rc agent dispatch --task-id <task-id> --agent review-agent
+rc agent dispatch --task-id $REVIEW_TASK_ID --agent review-agent
 
 # Verify deliverables
-test -f review_report.md || echo "ERROR: review_report.md missing"
-grep -q "weakness_" review_report.md || echo "ERROR: No structured weaknesses"
+if (-not (Test-Path review_report.md)) { "ERROR: review_report.md missing" }
+if (-not (Select-String -Path review_report.md -Pattern "weakness_" -Quiet)) { "ERROR: No structured weaknesses" }
 
 # Mark complete
-rc task complete --task-id <task-id>
+rc task complete --task-id $REVIEW_TASK_ID
 ```
 
 Quality gate: `review_report.md` must identify 3+ weaknesses with severity scores.
 
 ### Stage 7: Rebuttal (Optional)
 
-```bash
+```powershell
 # Only run if review found critical issues
-if grep -q "severity: critical" review_report.md; then
-  rc task create \
-    --kind rebuttal \
-    --title "Address Review Comments" \
-    --goal "Revise paper based on review feedback" \
-    --depends-on <review-task-id>
+if (Select-String -Path review_report.md -Pattern "severity: critical" -Quiet) {
+  # Verify review task is complete
+  $status = rc task status $REVIEW_TASK_ID
+  if ($status -notmatch "completed") {
+    "ERROR: Review task not completed yet"
+    exit 1
+  }
   
-  rc agent dispatch --task-id <task-id> --agent rebuttal-agent
+  $output = rc task create `
+    --kind rebuttal `
+    --title "Address Review Comments" `
+    --goal "Revise paper based on review feedback" `
+    --depends-on $REVIEW_TASK_ID
+  $REBUTTAL_TASK_ID = ($output | Select-String 'Task (\d+)').Matches.Groups[1].Value
   
-  test -f paper_revised.tex || echo "ERROR: paper_revised.tex missing"
-  test -f rebuttal_response.md || echo "ERROR: rebuttal_response.md missing"
+  rc agent dispatch --task-id $REBUTTAL_TASK_ID --agent rebuttal-agent
   
-  rc task complete --task-id <task-id>
-fi
+  if (-not (Test-Path paper_revised.tex)) { "ERROR: paper_revised.tex missing" }
+  if (-not (Test-Path rebuttal_response.md)) { "ERROR: rebuttal_response.md missing" }
+  
+  rc task complete --task-id $REBUTTAL_TASK_ID
+}
 ```
 
 Quality gate: All critical weaknesses addressed, rebuttal response provided.
@@ -226,8 +276,8 @@ If `rc agent dispatch` fails or agent reports errors:
 1. Check `execute.jsonl` for the failure record
 2. Read the error message and context
 3. Record a gap in the task notes:
-   ```bash
-   rc task update --task-id <task-id> \
+   ```powershell
+   rc task update --task-id $TASK_ID `
      --add-note "Agent failed: [error]. Manual intervention needed."
    ```
 4. Ask user: "The [stage] agent failed with error: [error]. Would you like me to retry with different parameters, or handle this manually?"
@@ -237,13 +287,13 @@ If `rc agent dispatch` fails or agent reports errors:
 If deliverables are missing or malformed:
 
 1. Set task status back to `in_progress`:
-   ```bash
-   rc task update --task-id <task-id> --status in_progress
+   ```powershell
+   rc task update --task-id $TASK_ID --status in_progress
    ```
 2. Re-dispatch agent with explicit instructions:
-   ```bash
-   rc agent dispatch --task-id <task-id> \
-     --agent <agent-name> \
+   ```powershell
+   rc agent dispatch --task-id $TASK_ID `
+     --agent <agent-name> `
      --instruction "Previous run failed quality gate: [details]. Focus on [missing deliverable]."
    ```
 3. If fails twice, ask user for guidance
@@ -254,16 +304,16 @@ If `rc` CLI commands fail because MCP server is not running:
 
 1. Record the gap: "MCP server unavailable, cannot create tasks programmatically"
 2. Provide manual fallback:
-   ```bash
+   ```powershell
    # Manual task creation
-   mkdir -p .research/tasks/
-   cat > .research/tasks/literature.json <<EOF
+   New-Item -ItemType Directory -Force -Path .research/tasks/
+   @"
    {
      "kind": "literature",
      "title": "Literature Review",
      "status": "pending"
    }
-   EOF
+   "@ | Out-File -FilePath .research/tasks/literature.json -Encoding utf8
    ```
 3. Ask user: "The `rc` CLI is unavailable. Should I proceed with manual task tracking?"
 
