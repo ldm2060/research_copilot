@@ -1,5 +1,5 @@
 {
-  "name": "research-copilot",
+  "name": "@research-copilot/cli",
   "version": "1.0.0",
   "description": "Multi-platform AI research assistant with MCP integration and skillpacks",
   "type": "module",
