@@ -131,6 +131,13 @@ jobs:
           git tag -a "v${VERSION}" -m "Release v${VERSION}"
           git push origin "v${VERSION}"
 
+          # Clean old Gitee tags (keep latest 3)
+          TAGS=$(git tag -l 'v*' --sort=-version:refname)
+          DELETE_TAGS=$(echo "$TAGS" | tail -n +4)
+          for tag in $DELETE_TAGS; do
+            git push origin ":refs/tags/$tag" || true
+          done
+
           cd ..
 
           # Upload release files using Gitee API
