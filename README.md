@@ -1,5 +1,7 @@
 # Research Copilot
 
+English | [简体中文](README.zh-CN.md)
+
 Research Copilot is a Trellis-style, research-native, multi-platform CLI (`rc`) for running academic research as a controlled, stateful workflow. It models each piece of work as a task with a generic lifecycle (`planning -> in_progress -> verify -> completed`) crossed with a research activity `kind` (literature, ideation, experiment, writing, polish, review, rebuttal). Steering is **injection-driven**: each turn a coding-agent hook runs `rc context`, injecting the current workflow state plus a deterministic next-step recommendation computed from the task graph — you decide what to do next, nothing is auto-created.
 
 This rebuild **supersedes the previous Claude Code plugin architecture** (320+ skills / MCP servers shipped as a plugin). See [the redesign spec](docs/superpowers/specs/2026-06-05-research-copilot-trellis-redesign-design.md) for the locked decisions and rationale.
@@ -41,6 +43,13 @@ npm install -g @research-copilot/cli
 - **GitHub Releases**: Download pre-built archives (see [Releases](https://github.com/ldm2060/research_copilot/releases))
 
 See [INSTALLATION.md](./INSTALLATION.md) for detailed installation instructions, platform-specific notes, and troubleshooting.
+
+## Quick Start Guide
+
+New to Research Copilot? Start here:
+
+- **[Getting Started Guide](docs/usage/getting-started.md)** — Step-by-step tutorial from installation to your first task
+- **[快速入门指南（中文）](docs/usage/getting-started.zh-CN.md)** — 中文版快速入门教程
 
 ## The `rc` commands
 
