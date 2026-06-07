@@ -28,3 +28,18 @@
 [submodule "third_party/chenliu"]
 	path = third_party/chenliu
 	url = https://github.com/ChenLiu-1996/figures4papers
+[submodule "research-kit/skills/third_party/anthropics-skills"]
+	path = research-kit/skills/third_party/anthropics-skills
+	url = https://github.com/anthropics/skills.git
+[submodule "research-kit/skills/third_party/imbad0202-research"]
+	path = research-kit/skills/third_party/imbad0202-research
+	url = https://github.com/Imbad0202/academic-research-skills.git
+[submodule "research-kit/skills/third_party/lylll9436-paper-polish"]
+	path = research-kit/skills/third_party/lylll9436-paper-polish
+	url = https://github.com/Lylll9436/Paper-Polish-Workflow-skill.git
+[submodule "research-kit/skills/third_party/andrej-karpathy-skills"]
+	path = research-kit/skills/third_party/andrej-karpathy-skills
+	url = https://github.com/multica-ai/andrej-karpathy-skills.git
+[submodule "research-kit/skills/third_party/orchestra-research"]
+	path = research-kit/skills/third_party/orchestra-research
+	url = https://github.com/Orchestra-Research/AI-Research-SKILLs.git
