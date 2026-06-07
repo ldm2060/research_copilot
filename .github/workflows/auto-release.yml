@@ -14,24 +14,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get current version
+      - name: Calculate version from run number
         id: version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          # Read current major.minor from package.json
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          MAJOR_MINOR=$(echo $CURRENT_VERSION | cut -d. -f1,2)
 
-      - name: Check if tag exists
-        id: tag_check
+          # Use GitHub run number as patch version
+          # Format: v{major}.{minor}.{run_number}
+          NEW_VERSION="$MAJOR_MINOR.${{ github.run_number }}"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Next version: v$NEW_VERSION (based on package.json $CURRENT_VERSION)"
+
+      - name: Update package.json version
         run: |
-          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version --allow-same-version
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Commit package.json changes
+          git add package.json packages/*/package.json
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}" || echo "No changes to commit"
+          git push || echo "No changes to push"
 
       - name: Create and push tag
-        if: steps.tag_check.outputs.exists == 'false'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
