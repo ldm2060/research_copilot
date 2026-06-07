@@ -1,9 +1,6 @@
 name: Publish to npm
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_run:
     workflows: ["Auto Release"]
     types:
@@ -12,9 +9,12 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
@@ -32,9 +32,15 @@ jobs:
 
       - name: Sync package.json versions with git tag
         run: |
-          # Get version from latest git tag (strip 'v' prefix)
-          VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
-          echo "Syncing all packages to version: $VERSION"
+          # workflow_run starts after Auto Release creates the tag; fetch tags explicitly.
+          git fetch --tags --force
+          TAG=$(git tag -l 'v*' --sort=-version:refname | head -n 1)
+          if [ -z "$TAG" ]; then
+            echo "No release tag found"
+            exit 1
+          fi
+          VERSION=${TAG#v}
+          echo "Syncing all packages to version: $VERSION from $TAG"
 
           # Update version in all package.json files
           pnpm -r exec -- node -e "
