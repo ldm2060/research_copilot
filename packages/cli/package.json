@@ -1,11 +1,24 @@
 {
   "name": "@research-copilot/cli",
-  "version": "0.0.0-dev",
+  "version": "1.1.11",
   "description": "Multi-platform AI research assistant with MCP integration and skillpacks",
   "type": "module",
-  "bin": { "rc": "./dist/rc.js" },
-  "files": ["dist", "README.md", "research-kit"],
-  "keywords": ["ai", "research", "mcp", "claude", "gemini", "cursor"],
+  "bin": {
+    "rc": "./dist/rc.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "research-kit"
+  ],
+  "keywords": [
+    "ai",
+    "research",
+    "mcp",
+    "claude",
+    "gemini",
+    "cursor"
+  ],
   "author": "ldm2060",
   "license": "MIT",
   "repository": {
