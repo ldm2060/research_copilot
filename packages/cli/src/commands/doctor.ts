@@ -1,5 +1,4 @@
 import * as fs from "node:fs";
-import * as path from "node:path";
 import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -14,12 +13,20 @@ function checkPluginVersion(): { ok: boolean; message: string } {
     const cliPackageJson = JSON.parse(fs.readFileSync(cliPackageJsonPath, "utf-8"));
     const cliVersion = cliPackageJson.version;
 
+    if (!cliVersion) {
+      return {
+        ok: false,
+        message: "Unable to determine CLI version from package.json",
+      };
+    }
+
     // Get plugin version from npm list
     let pluginVersion: string | null = null;
     try {
       const output = execSync("npm list -g @research-copilot/plugin --json", {
         encoding: "utf-8",
         stdio: ["pipe", "pipe", "pipe"],
+        timeout: 5000,
       });
       const parsed = JSON.parse(output);
       // Navigate through the dependencies tree
@@ -65,9 +72,9 @@ export function runDoctor(repo: string): { ok: boolean; report: string[] } {
   const report: string[] = [];
   let ok = true;
   const checks: [string, boolean][] = [
-    [".research/ exists", fs.existsSync(path.join(repo, ".research"))],
-    ["workflow.md exists", fs.existsSync(path.join(repo, ".research/workflow.md"))],
-    [".claude/settings.json exists", fs.existsSync(path.join(repo, ".claude/settings.json"))],
+    [".research/ exists", fs.existsSync(join(repo, ".research"))],
+    ["workflow.md exists", fs.existsSync(join(repo, ".research/workflow.md"))],
+    [".claude/settings.json exists", fs.existsSync(join(repo, ".claude/settings.json"))],
   ];
   for (const [name, pass] of checks) {
     report.push(`${pass ? "OK " : "FAIL"} ${name}`);
