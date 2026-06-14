@@ -29,6 +29,8 @@ Other platforms are designed in the adapter registry; their adapters land in lat
 npx @research-copilot/cli init --user your-name --claude
 ```
 
+This automatically installs both the CLI and the plugin package.
+
 ### NPM (Recommended)
 
 ```bash
@@ -43,6 +45,8 @@ npm install -g @research-copilot/cli
 - **GitHub Releases**: Download pre-built archives (see [Releases](https://github.com/ldm2060/research_copilot/releases))
 
 See [INSTALLATION.md](./INSTALLATION.md) for detailed installation instructions, platform-specific notes, and troubleshooting.
+
+**Note:** The `rc init` command automatically installs `@research-copilot/plugin`, which provides 6 research workflow skills and 10 agents for Claude Code and other supported platforms.
 
 ## Quick Start Guide
 
