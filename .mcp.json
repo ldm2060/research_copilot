@@ -89,6 +89,20 @@
         "PYTHONFAULTHANDLER": "1",
         "OMP_NUM_THREADS": "1"
       }
+    },
+    "research-scholar": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@research-copilot/mcp-scholar"
+      ]
+    },
+    "research-pdf": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@research-copilot/mcp-pdf"
+      ]
     }
   }
 }
