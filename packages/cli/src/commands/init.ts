@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 import { researchPaths } from "@research-copilot/core";
 import { configurePlatform, kitRoot } from "@research-copilot/adapters";
 import type { Command } from "commander";
@@ -8,6 +9,26 @@ import type { Command } from "commander";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export interface InitArgs { repo: string; platforms: string[]; user: string; }
+
+function installPluginPackage(): void {
+  try {
+    // Check if plugin is already installed
+    execSync("npm list -g @research-copilot/plugin", { stdio: "ignore" });
+    process.stdout.write("Plugin already installed globally.\n");
+  } catch {
+    // Not installed, try to install it
+    try {
+      process.stdout.write("Installing @research-copilot/plugin globally...\n");
+      execSync("npm install -g @research-copilot/plugin", { stdio: "inherit" });
+      process.stdout.write("Plugin installed successfully.\n");
+    } catch (error) {
+      process.stderr.write(
+        "Warning: Failed to install @research-copilot/plugin globally.\n" +
+        "You can install it manually with: npm install -g @research-copilot/plugin\n"
+      );
+    }
+  }
+}
 
 export function runInit(args: InitArgs): void {
   const p = researchPaths(args.repo);
@@ -18,6 +39,11 @@ export function runInit(args: InitArgs): void {
   fs.copyFileSync(path.join(KIT, "workflow.md"), p.workflow);
   fs.copyFileSync(path.join(KIT, "config.defaults.yaml"), p.config);
   for (const p of args.platforms) configurePlatform(args.repo, p);
+
+  // Install plugin package if Claude Code platform is enabled
+  if (args.platforms.includes("claude-code")) {
+    installPluginPackage();
+  }
 }
 
 export function registerInit(program: Command, repo: string): void {
