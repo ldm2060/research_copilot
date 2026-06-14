@@ -13,16 +13,17 @@ export interface InitArgs { repo: string; platforms: string[]; user: string; }
 function installPluginPackage(): void {
   try {
     // Check if plugin is already installed
-    execSync("npm list -g @research-copilot/plugin", { stdio: "ignore" });
+    execSync("npm list -g @research-copilot/plugin", { stdio: "ignore", timeout: 30000 });
     process.stdout.write("Plugin already installed globally.\n");
   } catch {
     // Not installed, try to install it
     try {
-      process.stdout.write("Installing @research-copilot/plugin globally...\n");
-      execSync("npm install -g @research-copilot/plugin", { stdio: "inherit" });
+      process.stdout.write("Installing @research-copilot/plugin (this may take a moment)...\n");
+      execSync("npm install -g @research-copilot/plugin", { stdio: "inherit", timeout: 30000 });
       process.stdout.write("Plugin installed successfully.\n");
-    } catch (error) {
+    } catch (err) {
       process.stderr.write(
+        `Error: ${err}\n` +
         "Warning: Failed to install @research-copilot/plugin globally.\n" +
         "You can install it manually with: npm install -g @research-copilot/plugin\n"
       );
