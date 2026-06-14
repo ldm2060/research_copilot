@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "tsx build.ts",
-    "dev": "pnpm build && npm link",
+    "dev": "pnpm build && pnpm link",
     "prepublishOnly": "pnpm run build"
   },
   "keywords": [
