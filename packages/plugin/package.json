@@ -31,7 +31,7 @@
     "directory": "packages/plugin"
   },
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "tsx": "^4.19.0"
   },
   "publishConfig": {
     "access": "public"
