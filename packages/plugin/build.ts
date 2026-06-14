@@ -92,13 +92,181 @@ function copyReadme(): void {
 }
 
 /**
+ * Read version from package.json
+ */
+function getVersion(): string {
+  const packageJsonPath = path.join(PLUGIN_ROOT, 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+  return packageJson.version;
+}
+
+/**
  * Generate platform.json metadata
- * (Implementation pending - Task 3)
  */
 function generatePlatformMetadata(): void {
   console.log('🔧 Generating platform metadata...');
-  // TODO: Implement in Task 3
-  console.log('⚠ Platform metadata generation pending (Task 3)');
+
+  generateClaudeCodeManifest();
+  generateCursorManifest();
+  generateCodexManifest();
+  generateGeminiManifest();
+  generateOpenCodeManifest();
+  generateWindsurfManifest();
+
+  console.log('✓ Generated platform metadata for all 6 platforms');
+}
+
+/**
+ * Generate .claude-plugin/plugin.json
+ */
+function generateClaudeCodeManifest(): void {
+  const version = getVersion();
+  const targetDir = path.join(DIST_DIR, '.claude-plugin');
+  const targetFile = path.join(targetDir, 'plugin.json');
+
+  fs.mkdirSync(targetDir, { recursive: true });
+
+  const manifest = {
+    name: 'research-copilot',
+    version,
+    description: 'AI research automation skills and agents',
+    author: 'ldm2060',
+    homepage: 'https://github.com/ldm2060/research_copilot',
+    autoDiscovery: {
+      agents: 'agents/**/*.md',
+      skills: 'skills/**/*.md',
+    },
+  };
+
+  fs.writeFileSync(targetFile, JSON.stringify(manifest, null, 2));
+  console.log(`  ✓ Claude Code: ${targetFile}`);
+}
+
+/**
+ * Generate .cursor-plugin/plugin.json
+ */
+function generateCursorManifest(): void {
+  const version = getVersion();
+  const targetDir = path.join(DIST_DIR, '.cursor-plugin');
+  const targetFile = path.join(targetDir, 'plugin.json');
+
+  fs.mkdirSync(targetDir, { recursive: true });
+
+  const manifest = {
+    name: 'research-copilot',
+    version,
+    description: 'AI research automation skills and agents',
+    author: 'ldm2060',
+    homepage: 'https://github.com/ldm2060/research_copilot',
+    agents: 'agents/**/*.md',
+    skills: 'skills/**/*.md',
+  };
+
+  fs.writeFileSync(targetFile, JSON.stringify(manifest, null, 2));
+  console.log(`  ✓ Cursor: ${targetFile}`);
+}
+
+/**
+ * Generate .codex-plugin/plugin.toml
+ */
+function generateCodexManifest(): void {
+  const version = getVersion();
+  const targetDir = path.join(DIST_DIR, '.codex-plugin');
+  const targetFile = path.join(targetDir, 'plugin.toml');
+
+  fs.mkdirSync(targetDir, { recursive: true });
+
+  const toml = `name = "research-copilot"
+version = "${version}"
+description = "AI research automation skills and agents"
+author = "ldm2060"
+homepage = "https://github.com/ldm2060/research_copilot"
+
+[discovery]
+agents = "agents/**/*.md"
+skills = "skills/**/*.md"
+`;
+
+  fs.writeFileSync(targetFile, toml);
+  console.log(`  ✓ Codex: ${targetFile}`);
+}
+
+/**
+ * Generate .gemini-plugin/plugin.json
+ */
+function generateGeminiManifest(): void {
+  const version = getVersion();
+  const targetDir = path.join(DIST_DIR, '.gemini-plugin');
+  const targetFile = path.join(targetDir, 'plugin.json');
+
+  fs.mkdirSync(targetDir, { recursive: true });
+
+  const manifest = {
+    name: 'research-copilot',
+    version,
+    description: 'AI research automation skills and agents',
+    author: 'ldm2060',
+    homepage: 'https://github.com/ldm2060/research_copilot',
+    components: {
+      agents: 'agents/**/*.md',
+      skills: 'skills/**/*.md',
+    },
+  };
+
+  fs.writeFileSync(targetFile, JSON.stringify(manifest, null, 2));
+  console.log(`  ✓ Gemini: ${targetFile}`);
+}
+
+/**
+ * Generate .opencode-plugin/plugin.json
+ */
+function generateOpenCodeManifest(): void {
+  const version = getVersion();
+  const targetDir = path.join(DIST_DIR, '.opencode-plugin');
+  const targetFile = path.join(targetDir, 'plugin.json');
+
+  fs.mkdirSync(targetDir, { recursive: true });
+
+  const manifest = {
+    name: 'research-copilot',
+    version,
+    description: 'AI research automation skills and agents',
+    author: 'ldm2060',
+    homepage: 'https://github.com/ldm2060/research_copilot',
+    patterns: {
+      agents: 'agents/**/*.md',
+      skills: 'skills/**/*.md',
+    },
+  };
+
+  fs.writeFileSync(targetFile, JSON.stringify(manifest, null, 2));
+  console.log(`  ✓ OpenCode: ${targetFile}`);
+}
+
+/**
+ * Generate .windsurf-plugin/plugin.json
+ */
+function generateWindsurfManifest(): void {
+  const version = getVersion();
+  const targetDir = path.join(DIST_DIR, '.windsurf-plugin');
+  const targetFile = path.join(targetDir, 'plugin.json');
+
+  fs.mkdirSync(targetDir, { recursive: true });
+
+  const manifest = {
+    name: 'research-copilot',
+    version,
+    description: 'AI research automation skills and agents',
+    author: 'ldm2060',
+    homepage: 'https://github.com/ldm2060/research_copilot',
+    autoload: {
+      agents: 'agents/**/*.md',
+      skills: 'skills/**/*.md',
+    },
+  };
+
+  fs.writeFileSync(targetFile, JSON.stringify(manifest, null, 2));
+  console.log(`  ✓ Windsurf: ${targetFile}`);
 }
 
 /**
