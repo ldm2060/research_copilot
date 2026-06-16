@@ -53,8 +53,9 @@ function parseManifest(filePath: string): ManifestEntry[] {
 
 /**
  * Expand a path pattern (may contain *) into actual paths relative to PROJECT_ROOT.
+ * If dirsOnly is true, * only matches directories (not files).
  */
-function expandGlob(relPattern: string): string[] {
+function expandGlob(relPattern: string, dirsOnly: boolean = false): string[] {
   const parts = relPattern.split('/');
   const results: string[] = [];
 
@@ -62,6 +63,7 @@ function expandGlob(relPattern: string): string[] {
     if (remainingParts.length === 0) {
       const absPath = path.join(PROJECT_ROOT, currentRel);
       if (fs.existsSync(absPath)) {
+        if (dirsOnly && fs.statSync(absPath).isFile()) return;
         results.push(currentRel);
       }
       return;
@@ -77,9 +79,10 @@ function expandGlob(relPattern: string): string[] {
       for (const child of children) {
         const childRel = currentRel ? `${currentRel}/${child}` : child;
         const childAbs = path.join(PROJECT_ROOT, childRel);
-        if (fs.statSync(childAbs).isDirectory()) {
+        const isDir = fs.statSync(childAbs).isDirectory();
+        if (isDir) {
           walk(childRel, restParts);
-        } else if (restParts.length === 0) {
+        } else if (restParts.length === 0 && !dirsOnly) {
           results.push(childRel);
         }
       }
@@ -147,59 +150,67 @@ function copySkills(): void {
   const targetDir = path.join(DIST_DIR, 'skills');
   fs.mkdirSync(targetDir, { recursive: true });
 
-  // Collect paths to delete
-  const delPatterns = entries
-    .filter(e => e.action === 'del')
-    .map(e => e.sourcePath);
+  // Track names deleted by prior del entries — later adds can re-include them
+  const deletedNames = new Set<string>();
+
+  function copySkillItems(expanded: Array<{ absSource: string; relTarget: string }>, checkDel: boolean): void {
+    for (const item of expanded) {
+      // Check del patterns only if requested (not for re-included entries)
+      if (checkDel) {
+        const topDir = item.relTarget.split('/')[0];
+        if (deletedNames.has(topDir) || isDelMatchPath(item.relTarget, [...deletedNames])) {
+          console.log(`  ⊘ Excluded by del: ${item.relTarget}`);
+          continue;
+        }
+      }
+      const targetPath = path.join(DIST_DIR, 'skills', item.relTarget);
+      fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+      fs.copyFileSync(item.absSource, targetPath);
+      console.log(`  ✓ ${item.relTarget}`);
+    }
+  }
 
   for (const entry of entries) {
     if (entry.action === 'del') {
+      deletedNames.add(entry.sourcePath);
       console.log(`  ⊘ Excluding (del): ${entry.sourcePath}`);
+      // Also remove any already-copied files matching this del pattern
+      const delDir = path.join(DIST_DIR, 'skills', entry.sourcePath);
+      if (fs.existsSync(delDir)) {
+        fs.rmSync(delDir, { recursive: true, force: true });
+        console.log(`  ⊘ Removed from dist: ${entry.sourcePath}`);
+      }
       continue;
     }
 
-    const expandedPaths = expandGlob(entry.sourcePath);
+    const expandedPaths = expandGlob(entry.sourcePath, true);
     for (const relPath of expandedPaths) {
       const absSource = path.join(PROJECT_ROOT, relPath);
-
-      // For self/skills (no wildcard at end), copy the whole directory
       if (!entry.sourcePath.endsWith('*') && fs.statSync(absSource).isDirectory()) {
-        // Copy all subdirectories (each skill is a directory)
-        const subdirs = fs.readdirSync(absSource).filter(name => {
-          const subAbs = path.join(absSource, name);
-          if (!fs.statSync(subAbs).isDirectory()) return false;
-          // Check del patterns
-          return !isDelMatch(name, delPatterns);
-        });
+        // Check if the directory itself is a skill (contains SKILL.md)
+        if (fs.existsSync(path.join(absSource, 'SKILL.md'))) {
+          // This directory IS a skill — copy it directly (no del check, re-included)
+          const expanded = expandDirectory(absSource, relPath, true);
+          copySkillItems(expanded, false);
+        } else {
+          // This is a parent directory — copy subdirectories that contain SKILL.md
+          const subdirs = fs.readdirSync(absSource).filter(name => {
+            const subAbs = path.join(absSource, name);
+            if (!fs.statSync(subAbs).isDirectory()) return false;
+            if (!fs.existsSync(path.join(subAbs, 'SKILL.md'))) return false;
+            return !deletedNames.has(name);
+          });
 
-        for (const sub of subdirs) {
-          const subAbs = path.join(absSource, sub);
-          const expanded = expandDirectory(subAbs, `${relPath}/${sub}`);
-          for (const item of expanded) {
-            // Check del patterns against relative path
-            if (isDelMatchPath(item.relTarget, delPatterns)) {
-              console.log(`  ⊘ Excluded by del: ${item.relTarget}`);
-              continue;
-            }
-            const targetPath = path.join(DIST_DIR, 'skills', item.relTarget);
-            fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-            fs.copyFileSync(item.absSource, targetPath);
-            console.log(`  ✓ ${item.relTarget}`);
+          for (const sub of subdirs) {
+            const subAbs = path.join(absSource, sub);
+            const expanded = expandDirectory(subAbs, `${relPath}/${sub}`, true);
+            copySkillItems(expanded, false);
           }
         }
       } else {
-        // Wildcard or file path
-        const expanded = expandDirectory(absSource, relPath);
-        for (const item of expanded) {
-          if (isDelMatchPath(item.relTarget, delPatterns)) {
-            console.log(`  ⊘ Excluded by del: ${item.relTarget}`);
-            continue;
-          }
-          const targetPath = path.join(DIST_DIR, 'skills', item.relTarget);
-          fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-          fs.copyFileSync(item.absSource, targetPath);
-          console.log(`  ✓ ${item.relTarget}`);
-        }
+        // Wildcard or file path — no del check (re-included)
+        const expanded = expandDirectory(absSource, relPath, true);
+        copySkillItems(expanded, false);
       }
     }
   }
@@ -262,10 +273,12 @@ function copyReadme(): void {
 /**
  * Expand a directory recursively into {absSource, relTarget} pairs.
  * relTarget is relative to the top-level skill/agent/hook directory.
+ * If skillMode is true, only include directories that contain SKILL.md.
  */
 function expandDirectory(
   absDir: string,
-  manifestRelPath: string
+  manifestRelPath: string,
+  skillMode: boolean = false
 ): Array<{ absSource: string; relTarget: string }> {
   const results: Array<{ absSource: string; relTarget: string }> = [];
 
@@ -280,30 +293,60 @@ function expandDirectory(
     return [{ absSource: absDir, relTarget: fileName }];
   }
 
+  // In skillMode, only process directories that contain SKILL.md
+  if (skillMode && !fs.existsSync(path.join(absDir, 'SKILL.md'))) {
+    return results;
+  }
+
   // Determine the "name" for this directory in dist
   // e.g. "self/skills/arxivsub-skill" -> "arxivsub-skill"
   // e.g. "third_party/humanizer" -> "humanizer"
   const pathParts = manifestRelPath.split('/');
   const dirName = pathParts[pathParts.length - 1];
 
-  function walk(dir: string, relPrefix: string): void {
+  function walk(dir: string, relPrefix: string, insideSkill: boolean = false): void {
     const items = fs.readdirSync(dir);
     for (const item of items) {
-      // Skip __pycache__ and .pyc files
+      // Skip __pycache__, .pyc, and non-essential files in skillMode
       if (item === '__pycache__' || item.endsWith('.pyc')) continue;
+      if (skillMode && isNonSkillFile(item)) continue;
 
       const absPath = path.join(dir, item);
       const rel = relPrefix ? `${relPrefix}/${item}` : item;
       if (fs.statSync(absPath).isDirectory()) {
-        walk(absPath, rel);
+        if (skillMode && !insideSkill) {
+          // At top level, only recurse into subdirs that contain SKILL.md
+          if (fs.existsSync(path.join(absPath, 'SKILL.md'))) {
+            walk(absPath, rel, true);
+          }
+          // Skip dirs without SKILL.md (e.g. agents/, assets/, figure_*/)
+        } else {
+          // Inside a skill dir or non-skillMode: copy everything
+          walk(absPath, rel, insideSkill);
+        }
       } else {
         results.push({ absSource: absPath, relTarget: rel });
       }
     }
   }
 
-  walk(absDir, dirName);
+  walk(absDir, dirName, skillMode);
   return results;
+}
+
+/**
+ * Check if a file should be excluded from skill packaging.
+ * In skill directories, only SKILL.md and skill.json are essential.
+ */
+function isNonSkillFile(name: string): boolean {
+  const lower = name.toLowerCase();
+  // Skip README, LICENSE, CONTRIBUTING, docs, etc. at skill level
+  // but allow them inside sub-skill directories
+  if (lower.startsWith('readme') && lower.endsWith('.md')) return true;
+  if (lower === 'license' || lower === 'license.md' || lower === 'license.txt') return true;
+  if (lower.startsWith('contributing')) return true;
+  if (lower === '.gitignore' || lower === '.gitattributes') return true;
+  return false;
 }
 
 /**
