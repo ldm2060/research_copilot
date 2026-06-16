@@ -1,5 +1,0 @@
-{
-  "name": "validate-plugin-build",
-  "description": "Build the research-copilot plugin workspace and verify the output is publishable. Use before tagging a release, after editing skills/agents/MCP servers, or when troubleshooting plugin discovery issues. Runs scripts/build_copilot_workspace.py for both targets (github + gitee), then checks skill.json coverage, agent frontmatter, and MCP server entry points.",
-  "entry": "SKILL.md"
-}
