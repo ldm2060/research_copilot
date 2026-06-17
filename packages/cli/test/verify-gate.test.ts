@@ -4,7 +4,7 @@ import { runInit } from "../src/commands/init.js";
 import { taskCreate, taskSetStatus, runVerifyGate } from "../src/commands/task.js";
 
 let repo: string;
-beforeEach(() => { repo = fs.mkdtempSync(path.join(os.tmpdir(), "rc-")); runInit({ repo, platforms: ["claude-code"], user: "t" }); });
+beforeEach(() => { repo = fs.mkdtempSync(path.join(os.tmpdir(), "rc-")); runInit({ repo, platforms: ["claude-code"], user: "t", skipPlugin: true }); });
 
 function seed(id: string, draft: string, artifacts: string) {
   const dir = path.join(repo, ".research/tasks", id, "artifacts");
