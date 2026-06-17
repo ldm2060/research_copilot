@@ -1,50 +1,40 @@
-import * as fs from "node:fs";
-import * as path from "node:path";
-import { fileURLToPath } from "node:url";
-import { execSync } from "node:child_process";
-import { researchPaths } from "@research-copilot/core";
-import { configurePlatform, kitRoot } from "@research-copilot/adapters";
 import type { Command } from "commander";
+import { reconcileProject, type ReconcileResult } from "./reconcile.js";
+import {
+  readCliVersion,
+  syncPluginPackage,
+  type CommandRunner,
+  type PluginSyncResult,
+} from "./plugin.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-export interface InitArgs { repo: string; platforms: string[]; user: string; }
-
-function installPluginPackage(): void {
-  try {
-    // Check if plugin is already installed
-    execSync("npm list -g @research-copilot/plugin", { stdio: "ignore", timeout: 30000 });
-    process.stdout.write("Plugin already installed globally.\n");
-  } catch {
-    // Not installed, try to install it
-    try {
-      process.stdout.write("Installing @research-copilot/plugin (this may take a moment)...\n");
-      execSync("npm install -g @research-copilot/plugin", { stdio: "inherit", timeout: 30000 });
-      process.stdout.write("Plugin installed successfully.\n");
-    } catch (err) {
-      process.stderr.write(
-        `Error: ${err}\n` +
-        "Warning: Failed to install @research-copilot/plugin globally.\n" +
-        "You can install it manually with: npm install -g @research-copilot/plugin\n"
-      );
-    }
-  }
+export interface InitArgs {
+  repo: string;
+  platforms: string[];
+  user: string;
+  skipPlugin?: boolean;
+  strictPlugin?: boolean;
+  runner?: CommandRunner;
 }
 
-export function runInit(args: InitArgs): void {
-  const p = researchPaths(args.repo);
-  for (const d of [p.tasks, p.spec, p.workspace, p.runtime]) fs.mkdirSync(d, { recursive: true });
-  for (const s of ["venue", "writing", "baselines", "methodology", "novelty"])
-    fs.mkdirSync(path.join(p.spec, s), { recursive: true });
-  const KIT = kitRoot(__dirname);
-  fs.copyFileSync(path.join(KIT, "workflow.md"), p.workflow);
-  fs.copyFileSync(path.join(KIT, "config.defaults.yaml"), p.config);
-  for (const p of args.platforms) configurePlatform(args.repo, p);
+export interface InitResult {
+  reconcile: ReconcileResult;
+  plugin: PluginSyncResult | null;
+}
 
-  // Install plugin package if Claude Code platform is enabled
+export function runInit(args: InitArgs): InitResult {
+  const reconcile = reconcileProject({ repo: args.repo, platforms: args.platforms, user: args.user });
+  let plugin: PluginSyncResult | null = null;
+
   if (args.platforms.includes("claude-code")) {
-    installPluginPackage();
+    plugin = syncPluginPackage({
+      version: readCliVersion(),
+      skip: args.skipPlugin ?? false,
+      strict: args.strictPlugin ?? false,
+      runner: args.runner,
+    });
   }
+
+  return { reconcile, plugin };
 }
 
 export function registerInit(program: Command, repo: string): void {
@@ -55,6 +45,8 @@ export function registerInit(program: Command, repo: string): void {
     .option("--gemini", "Gemini CLI", false)
     .option("--cursor", "Cursor", false)
     .option("--windsurf", "Windsurf", false)
+    .option("--skip-plugin", "Skip npm plugin synchronization", false)
+    .option("--strict-plugin", "Fail when npm plugin synchronization fails", false)
     .requiredOption("-u, --user <name>", "developer identity")
     .action((opts) => {
       const platforms: string[] = [];
@@ -64,8 +56,17 @@ export function registerInit(program: Command, repo: string): void {
       if (opts.gemini) platforms.push("gemini");
       if (opts.cursor) platforms.push("cursor");
       if (opts.windsurf) platforms.push("windsurf");
-      if (platforms.length === 0) platforms.push("claude-code"); // default
-      runInit({ repo, platforms, user: opts.user });
+      if (platforms.length === 0) platforms.push("claude-code");
+
+      const result = runInit({
+        repo,
+        platforms,
+        user: opts.user,
+        skipPlugin: opts.skipPlugin,
+        strictPlugin: opts.strictPlugin,
+      });
+
       process.stdout.write(`Initialized .research/ for: ${platforms.join(", ")}\n`);
+      if (result.plugin) process.stdout.write(`${result.plugin.message}\n`);
     });
 }

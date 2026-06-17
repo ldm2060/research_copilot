@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { classifyCliError } from "../src/errors.js";
 import { buildProgram } from "../src/program.js";
 import { applyExitOverride } from "../src/errors.js";
+import * as fs from "node:fs"; import * as os from "node:os"; import * as path from "node:path";
 
 describe("classifyCliError (§16.9)", () => {
   it("maps an illegal FSM transition to exit 2 with a clean message", () => {
@@ -48,5 +49,31 @@ describe("applyExitOverride (subcommand usage → exit 2)", () => {
     try { program.parse(["task", "bogus"], { from: "user" }); } catch (e) { caught = e; }
     expect(caught).toBeTruthy();
     expect(classifyCliError(caught).exitCode).toBe(2);
+  });
+
+  it("accepts init plugin flags", () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "rc-cli-"));
+    const program = buildProgram(repo);
+    applyExitOverride(program);
+    let caught: unknown;
+    try {
+      program.parse(["init", "--skip-plugin", "--strict-plugin", "--user", "tester"], { from: "user" });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeFalsy();
+  });
+
+  it("accepts doctor plugin and fix flags", () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "rc-cli-"));
+    const program = buildProgram(repo);
+    applyExitOverride(program);
+    let caught: unknown;
+    try {
+      program.parse(["doctor", "--fix", "--skip-plugin", "--strict-plugin"], { from: "user" });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeFalsy();
   });
 });

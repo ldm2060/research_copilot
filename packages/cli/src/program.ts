@@ -25,11 +25,19 @@ export function buildProgram(repo = process.cwd()): Command {
     .action((opts) => {
       process.stdout.write(runContext({ repo, format: opts.format, now: new Date().toISOString(), eventName: opts.event }));
     });
-  program.command("doctor").action(() => {
-    const { ok, report } = runDoctor(repo);
-    process.stdout.write(report.join("\n") + "\n");
-    process.exitCode = ok ? 0 : 1;
-  });
+  program.command("doctor")
+    .option("--fix", "Repair missing Research Copilot project configuration", false)
+    .option("--skip-plugin", "Skip npm plugin checks/fixes that install packages", false)
+    .option("--strict-plugin", "Treat plugin warnings as failures", false)
+    .action((opts) => {
+      const { ok, report } = runDoctor(repo, {
+        fix: opts.fix,
+        skipPlugin: opts.skipPlugin,
+        strictPlugin: opts.strictPlugin,
+      });
+      process.stdout.write(report.join("\n") + "\n");
+      process.exitCode = ok ? 0 : 1;
+    });
   registerInit(program, repo);
   registerTask(program, repo);
   program.command("sync")
