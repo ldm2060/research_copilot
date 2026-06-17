@@ -94,4 +94,37 @@ describe("rc init", () => {
     expect(result.plugin?.status).toBe("installed");
     expect(r.calls.some(c => c.startsWith("npm install -g @research-copilot/plugin@"))).toBe(true);
   });
+
+  it("preserves foreign Claude hooks and foreign MCP entries during upgrade reconcile", () => {
+    fs.mkdirSync(path.join(repo, ".claude"), { recursive: true });
+    fs.writeFileSync(path.join(repo, ".claude/settings.json"), JSON.stringify({
+      hooks: { SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: "echo hello" }] }] },
+    }));
+    fs.writeFileSync(path.join(repo, ".mcp.json"), JSON.stringify({
+      mcpServers: { "foreign-server": { command: "node", args: ["server.js"] } },
+    }));
+
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+
+    const settings = JSON.parse(fs.readFileSync(path.join(repo, ".claude/settings.json"), "utf8"));
+    expect(settings.hooks.SessionStart[0].hooks[0].command).toBe("echo hello");
+    expect(settings.hooks.UserPromptSubmit[0].hooks[0].command).toContain("rc context");
+
+    const mcp = JSON.parse(fs.readFileSync(path.join(repo, ".mcp.json"), "utf8"));
+    expect(mcp.mcpServers["foreign-server"].command).toBe("node");
+    expect(mcp.mcpServers["research-scholar"].command).toBe("npx");
+    expect(mcp.mcpServers["research-pdf"].command).toBe("npx");
+  });
+
+  it("does not duplicate Research Copilot hooks after repeated upgrade reconciles", () => {
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+
+    const settings = JSON.parse(fs.readFileSync(path.join(repo, ".claude/settings.json"), "utf8"));
+    const rcHooks = settings.hooks.UserPromptSubmit
+      .flatMap((group: any) => group.hooks ?? [])
+      .filter((hook: any) => typeof hook.command === "string" && hook.command.includes("rc context"));
+    expect(rcHooks.length).toBe(1);
+  });
 });
