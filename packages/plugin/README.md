@@ -4,24 +4,33 @@ Research Copilot plugin for Claude Code - AI-powered research automation with sk
 
 ## Installation
 
-This plugin is automatically installed when you run:
+Most users should install the Research Copilot CLI, then let `rc init` or `rc doctor --fix` synchronize this companion plugin package:
 
 ```bash
-rc init
+npm install -g @research-copilot/cli
+rc init --user your-name --claude
+rc doctor
 ```
 
-The installation happens via the `research-init` command, which:
-1. Detects your Claude Code CLI platform
-2. Installs the plugin to the appropriate location
-3. Creates necessary configuration files
-
-## Manual Installation
-
-If needed, you can also install manually:
+For an existing Research Copilot project after upgrading the CLI:
 
 ```bash
-npm install -g @research-copilot/plugin
+npm install -g @research-copilot/cli@latest
+rc doctor --fix
+rc doctor
 ```
+
+`rc init` and `rc doctor --fix` are idempotent: they preserve existing tasks, specs, workspace files, user hooks, user agents, and unrelated MCP servers.
+
+## Manual Plugin Synchronization
+
+If `rc doctor` reports a plugin version mismatch, install the exact version it prints:
+
+```bash
+npm install -g @research-copilot/plugin@<cli-version>
+```
+
+This npm package is a companion package for plugin content and version synchronization. Project-local Claude Code configuration created by `rc init` remains the reliable runtime path, so npm global installation alone is not the only Research Copilot activation step.
 
 ## What's Included
 

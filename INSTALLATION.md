@@ -178,3 +178,45 @@ rc init --user your-name --claude
 ```
 
 See the main [README](./README.md) for usage documentation.
+
+### Plugin integration and upgrades
+
+`rc init` is safe to run more than once. On a new project it initializes Research Copilot; on an older Research Copilot project it reconciles missing or outdated managed configuration while preserving existing tasks, specs, workspace files, user hooks, user agents, and unrelated MCP servers.
+
+For a fresh install:
+
+```bash
+npm install -g @research-copilot/cli
+rc init --user your-name --claude
+rc doctor
+```
+
+For an existing project upgrading from an older version:
+
+```bash
+npm install -g @research-copilot/cli@latest
+rc doctor
+rc doctor --fix
+rc doctor
+```
+
+When Claude Code support is enabled, `rc init` and `rc doctor --fix` synchronize the companion npm plugin package to the CLI version:
+
+```bash
+npm install -g @research-copilot/plugin@<cli-version>
+```
+
+The plugin synchronization is a packaging/version check. Research Copilot's project-local Claude Code configuration remains the reliable runtime path, so plugin install or Claude Code plugin-list warnings do not block normal initialization unless `--strict-plugin` is used.
+
+Use `--skip-plugin` for offline or CI environments:
+
+```bash
+rc init --user your-name --claude --skip-plugin
+rc doctor --skip-plugin
+```
+
+Use `--strict-plugin` when release validation should fail if the npm plugin is missing or out of sync:
+
+```bash
+rc doctor --strict-plugin
+```
