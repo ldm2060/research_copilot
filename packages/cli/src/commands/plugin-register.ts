@@ -175,6 +175,7 @@ export function installPluginRegistration(options: PluginRegistrationOptions): P
 }
 
 export function statusPluginRegistration(options: PluginRegistrationOptions): PluginRegistrationResult[] {
+  const scopeLabel = options.scope === "user" ? "user plugin" : "project plugin";
   return resultsForTargets(options).map(item => {
     const existing = safeExistingTarget(item.target);
     if (existing === "research-copilot") {
@@ -183,7 +184,7 @@ export function statusPluginRegistration(options: PluginRegistrationOptions): Pl
         scope: options.scope,
         target: item.target,
         status: "ok",
-        message: `project plugin: OK ${relativeToRepo(options.repo, item.target)}`,
+        message: `${scopeLabel}: OK ${relativeToRepo(options.repo, item.target)}`,
       };
     }
     if (existing === "foreign") {
@@ -192,7 +193,7 @@ export function statusPluginRegistration(options: PluginRegistrationOptions): Pl
         scope: options.scope,
         target: item.target,
         status: "failed",
-        message: `project plugin: BLOCKED ${relativeToRepo(options.repo, item.target)} is not Research Copilot-managed`,
+        message: `${scopeLabel}: BLOCKED ${relativeToRepo(options.repo, item.target)} is not Research Copilot-managed`,
       };
     }
     return {
@@ -200,7 +201,7 @@ export function statusPluginRegistration(options: PluginRegistrationOptions): Pl
       scope: options.scope,
       target: item.target,
       status: "missing",
-      message: `project plugin: MISSING ${relativeToRepo(options.repo, item.target)}`,
+      message: `${scopeLabel}: MISSING ${relativeToRepo(options.repo, item.target)}`,
     };
   });
 }

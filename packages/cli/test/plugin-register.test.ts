@@ -192,6 +192,25 @@ describe("plugin registration helpers", () => {
     expect(result.message).toContain(".claude");
   });
 
+  it("labels status messages with user scope for Claude user installs", () => {
+    installPluginRegistration(opts({ platform: "claude", scope: "user" }));
+
+    const [result] = statusPluginRegistration(opts({ platform: "claude", scope: "user" }));
+
+    expect(result.status).toBe("ok");
+    expect(result.message).toContain("user plugin:");
+    expect(result.message).not.toContain("project plugin:");
+  });
+
+  it("labels status messages with project scope for Claude project installs", () => {
+    installPluginRegistration(opts({ platform: "claude", scope: "project" }));
+
+    const [result] = statusPluginRegistration(opts({ platform: "claude", scope: "project" }));
+
+    expect(result.status).toBe("ok");
+    expect(result.message).toContain("project plugin:");
+  });
+
   it("removes only Research Copilot registration target", () => {
     const sibling = path.join(repo, ".claude", "skills", "other-plugin");
     fs.mkdirSync(sibling, { recursive: true });
