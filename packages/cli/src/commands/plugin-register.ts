@@ -91,13 +91,13 @@ export function resolvePluginSource(options: PluginRegistrationOptions): string 
 
   const runner = options.runner ?? defaultCommandRunner;
   const version = options.cliVersion ?? readCliVersion();
-  const sync = syncPluginPackage({
+  // strict: true means sync throws on failure rather than returning warning
+  syncPluginPackage({
     version,
     skip: false,
     strict: true,
     runner,
   });
-  if (sync.status === "warning") throw new Error(sync.message);
   const npmRoot = runner.exec("npm root -g", { timeout: 5000 }).trim();
   if (!npmRoot) throw new Error(`Unable to resolve npm global root. Run: npm install -g ${PLUGIN_PACKAGE}@${version}`);
   const dist = path.join(npmRoot, "@research-copilot", "plugin", "dist");
@@ -137,9 +137,48 @@ function safeExistingTarget(target: string): "missing" | "research-copilot" | "f
 }
 
 function resultsForTargets(options: PluginRegistrationOptions): Array<{ platform: string; target: string }> {
-  return expandPluginPlatforms(options.repo, options.platform).flatMap(platform =>
-    resolvePlatformTargets({ ...options, platform }).map(target => ({ platform, target })),
-  );
+  const isAggregate = options.platform === "all" || options.platform === "configured";
+  const items = expandPluginPlatforms(options.repo, options.platform).flatMap(platform => {
+    try {
+      return resolvePlatformTargets({ ...options, platform }).map(target => ({ platform, target }));
+    } catch (err) {
+      // Aggregate aliases (all/configured) with user scope should return
+      // structured failures instead of throwing out of the command layer.
+      // Direct single-platform calls can still throw for the unit-test contract.
+      if (isAggregate) {
+        return [{
+          platform,
+          target: "",
+        }];
+      }
+      throw err;
+    }
+  });
+
+  // For aggregate aliases, dedupe by absolute physical target path.
+  // Codex and Gemini both target .agents/skills/research-copilot;
+  // operating twice on the same directory is misleading.
+  // Single-platform requests (e.g. --platform gemini) keep all targets.
+  if (isAggregate) {
+    const seen = new Set<string>();
+    return items.filter(item => {
+      if (!item.target) return true; // keep structured-failure placeholders
+      if (seen.has(item.target)) return false;
+      seen.add(item.target);
+      return true;
+    });
+  }
+  return items;
+}
+
+function unsupportedUserScopeResult(platform: string, scope: PluginScope): PluginRegistrationResult {
+  return {
+    platform,
+    scope,
+    target: "",
+    status: "failed",
+    message: `user scope is only supported for claude. ${platform} supports project scope only.`,
+  };
 }
 
 export function installPluginRegistration(options: PluginRegistrationOptions): PluginRegistrationResult[] {
@@ -147,6 +186,11 @@ export function installPluginRegistration(options: PluginRegistrationOptions): P
   const results: PluginRegistrationResult[] = [];
 
   for (const item of resultsForTargets(options)) {
+    if (!item.target) {
+      results.push(unsupportedUserScopeResult(item.platform, options.scope));
+      continue;
+    }
+
     const existing = safeExistingTarget(item.target);
     if (existing === "foreign") {
       results.push({
@@ -177,6 +221,8 @@ export function installPluginRegistration(options: PluginRegistrationOptions): P
 export function statusPluginRegistration(options: PluginRegistrationOptions): PluginRegistrationResult[] {
   const scopeLabel = options.scope === "user" ? "user plugin" : "project plugin";
   return resultsForTargets(options).map(item => {
+    if (!item.target) return unsupportedUserScopeResult(item.platform, options.scope);
+
     const existing = safeExistingTarget(item.target);
     if (existing === "research-copilot") {
       return {
@@ -208,6 +254,8 @@ export function statusPluginRegistration(options: PluginRegistrationOptions): Pl
 
 export function removePluginRegistration(options: PluginRegistrationOptions): PluginRegistrationResult[] {
   return resultsForTargets(options).map(item => {
+    if (!item.target) return unsupportedUserScopeResult(item.platform, options.scope);
+
     const existing = safeExistingTarget(item.target);
     if (existing === "missing") {
       return {

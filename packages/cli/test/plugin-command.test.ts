@@ -108,4 +108,20 @@ describe("rc plugin command", () => {
     expect(result.ok).toBe(false);
     expect(result.report.join("\n")).toContain("refusing to overwrite non-Research-Copilot directory");
   });
+
+  it("returns ok:false with structured failure for --platform all --scope user instead of throwing", () => {
+    const result = runPluginCommand("status", repo, {
+      platform: "all",
+      scope: "user",
+      source: "local",
+      path: dist,
+    });
+
+    expect(result.ok).toBe(false);
+    const report = result.report.join("\n");
+    // Non-Claude platforms should produce structured failure messages
+    expect(report).toContain("user scope is only supported for claude");
+    // Should not throw - result is returned
+    expect(result.report.length).toBeGreaterThan(0);
+  });
 });

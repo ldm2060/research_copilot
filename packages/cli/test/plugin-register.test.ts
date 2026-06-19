@@ -234,4 +234,57 @@ describe("plugin registration helpers", () => {
     expect(result.status).toBe("failed");
     expect(fs.existsSync(target)).toBe(true);
   });
+
+  it("aggregate user-scope operations produce failed results instead of throwing", () => {
+    const statusResults = statusPluginRegistration(opts({ platform: "all", scope: "user" }));
+    const nonClaude = statusResults.filter(r => r.platform !== "claude-code");
+
+    // Should not throw; non-Claude platforms should have structured failed results
+    expect(nonClaude.length).toBeGreaterThan(0);
+    for (const r of nonClaude) {
+      expect(r.status).toBe("failed");
+      expect(r.message).toContain("user scope is only supported for claude");
+    }
+
+    // Claude-code user scope should still be resolved normally
+    const claudeResults = statusResults.filter(r => r.platform === "claude-code");
+    expect(claudeResults.length).toBe(1);
+    expect(claudeResults[0].status).toBe("missing"); // not installed yet
+  });
+
+  it("aggregate install with user scope produces failed results for non-Claude platforms", () => {
+    const results = installPluginRegistration(opts({ platform: "all", scope: "user" }));
+
+    // Only claude-code should succeed (installed); others should be failed
+    const nonClaude = results.filter(r => r.platform !== "claude-code");
+    for (const r of nonClaude) {
+      expect(r.status).toBe("failed");
+      expect(r.message).toContain("user scope is only supported for claude");
+    }
+    const claudeResult = results.find(r => r.platform === "claude-code");
+    expect(claudeResult?.status).toBe("installed");
+  });
+
+  it("aggregate project operations dedupe the shared .agents/skills/research-copilot target", () => {
+    const results = installPluginRegistration(opts({ platform: "all", scope: "project" }));
+    const targets = results.map(r => r.target);
+
+    // No duplicate physical paths
+    expect(targets.length).toBe(new Set(targets).size);
+
+    // Gemini should contribute only its .gemini/skills target when deduped
+    // (codex already claimed .agents/skills/research-copilot earlier in PLATFORM_ORDER)
+    const geminiResults = results.filter(r => r.platform === "gemini");
+    expect(geminiResults.length).toBe(1);
+    expect(geminiResults[0].target).toContain(path.join(".gemini", "skills", "research-copilot"));
+  });
+
+  it("direct Gemini registration preserves both project targets without deduplication", () => {
+    const results = installPluginRegistration(opts({ platform: "gemini", scope: "project" }));
+
+    expect(results.length).toBe(2);
+    expect(results.map(r => r.status)).toEqual(["installed", "installed"]);
+    expect(fs.existsSync(path.join(repo, ".gemini", "skills", "research-copilot", ".claude-plugin", "plugin.json"))).toBe(true);
+    expect(fs.existsSync(path.join(repo, ".agents", "skills", "research-copilot", ".claude-plugin", "plugin.json"))).toBe(true);
+  });
 });

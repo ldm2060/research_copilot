@@ -40,14 +40,22 @@ export function runInit(args: InitArgs): InitResult {
   }
 
   const registration = args.installPlugin
-    ? installPluginRegistration({
-      repo: args.repo,
-      platform: args.platforms.length === 1 ? args.platforms[0] : "configured",
-      scope: "project",
-      source: args.pluginSource ?? "npm",
-      sourcePath: args.pluginSourcePath,
-      runner: args.runner,
-    })
+    ? (args.skipPlugin && (args.pluginSource ?? "npm") === "npm")
+      ? [{
+          platform: args.platforms.length === 1 ? args.platforms[0] : "configured",
+          scope: "project" as const,
+          target: "",
+          status: "failed" as const,
+          message: "Cannot use --install-plugin with --skip-plugin when plugin source is npm. Use --plugin-source local --plugin-path <dist> for offline registration.",
+        }]
+      : installPluginRegistration({
+          repo: args.repo,
+          platform: args.platforms.length === 1 ? args.platforms[0] : "configured",
+          scope: "project",
+          source: args.pluginSource ?? "npm",
+          sourcePath: args.pluginSourcePath,
+          runner: args.runner,
+        })
     : [];
 
   return { reconcile, plugin, registration };
