@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import * as fs from "node:fs"; import * as os from "node:os"; import * as path from "node:path";
 import { runInit } from "../src/commands/init.js";
 import type { CommandRunner } from "../src/commands/plugin.js";
+import type { PluginRegistrationResult } from "../src/commands/plugin-register.js";
 
 let repo: string;
 beforeEach(() => { repo = fs.mkdtempSync(path.join(os.tmpdir(), "rc-")); });
@@ -126,5 +127,33 @@ describe("rc init", () => {
       .flatMap((group: any) => group.hooks ?? [])
       .filter((hook: any) => typeof hook.command === "string" && hook.command.includes("rc context"));
     expect(rcHooks.length).toBe(1);
+  });
+
+  it("registers plugin content when installPlugin is true", () => {
+    const dist = path.join(repo, "dist");
+    fs.mkdirSync(path.join(dist, ".claude-plugin"), { recursive: true });
+    fs.mkdirSync(path.join(dist, "skills"), { recursive: true });
+    fs.writeFileSync(path.join(dist, ".claude-plugin", "plugin.json"), JSON.stringify({ name: "research-copilot" }));
+    const r = fakeRunner();
+
+    const result = runInit({
+      repo,
+      platforms: ["claude-code"],
+      user: "tester",
+      skipPlugin: true,
+      installPlugin: true,
+      pluginSource: "local",
+      pluginSourcePath: dist,
+      runner: r,
+    });
+
+    expect((result.registration as PluginRegistrationResult[])[0].status).toBe("installed");
+    expect(fs.existsSync(path.join(repo, ".claude", "skills", "research-copilot", ".claude-plugin", "plugin.json"))).toBe(true);
+  });
+
+  it("does not register plugin content unless installPlugin is true", () => {
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+
+    expect(fs.existsSync(path.join(repo, ".claude", "skills", "research-copilot"))).toBe(false);
   });
 });

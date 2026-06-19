@@ -6,6 +6,7 @@ import {
   type CommandRunner,
   type PluginSyncResult,
 } from "./plugin.js";
+import { installPluginRegistration, type PluginRegistrationResult, type PluginSource } from "./plugin-register.js";
 
 export interface InitArgs {
   repo: string;
@@ -13,12 +14,16 @@ export interface InitArgs {
   user: string;
   skipPlugin?: boolean;
   strictPlugin?: boolean;
+  installPlugin?: boolean;
+  pluginSource?: PluginSource;
+  pluginSourcePath?: string;
   runner?: CommandRunner;
 }
 
 export interface InitResult {
   reconcile: ReconcileResult;
   plugin: PluginSyncResult | null;
+  registration: PluginRegistrationResult[];
 }
 
 export function runInit(args: InitArgs): InitResult {
@@ -34,7 +39,18 @@ export function runInit(args: InitArgs): InitResult {
     });
   }
 
-  return { reconcile, plugin };
+  const registration = args.installPlugin
+    ? installPluginRegistration({
+      repo: args.repo,
+      platform: args.platforms.length === 1 ? args.platforms[0] : "configured",
+      scope: "project",
+      source: args.pluginSource ?? "npm",
+      sourcePath: args.pluginSourcePath,
+      runner: args.runner,
+    })
+    : [];
+
+  return { reconcile, plugin, registration };
 }
 
 export function registerInit(program: Command, repo: string): void {
@@ -47,6 +63,9 @@ export function registerInit(program: Command, repo: string): void {
     .option("--windsurf", "Windsurf", false)
     .option("--skip-plugin", "Skip npm plugin synchronization", false)
     .option("--strict-plugin", "Fail when npm plugin synchronization fails", false)
+    .option("--install-plugin", "Register plugin content into selected platform discovery paths", false)
+    .option("--plugin-source <source>", "npm|local", "npm")
+    .option("--plugin-path <dist>", "local plugin dist path")
     .requiredOption("-u, --user <name>", "developer identity")
     .action((opts) => {
       const platforms: string[] = [];
@@ -64,9 +83,15 @@ export function registerInit(program: Command, repo: string): void {
         user: opts.user,
         skipPlugin: opts.skipPlugin,
         strictPlugin: opts.strictPlugin,
+        installPlugin: opts.installPlugin,
+        pluginSource: opts.pluginSource,
+        pluginSourcePath: opts.pluginPath,
       });
 
       process.stdout.write(`Initialized .research/ for: ${platforms.join(", ")}\n`);
       if (result.plugin) process.stdout.write(`${result.plugin.message}\n`);
+      for (const registration of result.registration) {
+        process.stdout.write(`${registration.platform} ${registration.message}\n`);
+      }
     });
 }
