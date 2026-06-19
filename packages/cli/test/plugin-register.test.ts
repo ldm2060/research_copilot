@@ -118,4 +118,101 @@ describe("plugin registration helpers", () => {
       "npm root -g",
     ]);
   });
+
+  it("resolves Claude project and user targets", () => {
+    expect(resolvePlatformTargets(opts({ platform: "claude", scope: "project" }))).toEqual([
+      path.join(repo, ".claude", "skills", "research-copilot"),
+    ]);
+    expect(resolvePlatformTargets(opts({ platform: "claude", scope: "user" }))).toEqual([
+      path.join(home, ".claude", "skills", "research-copilot"),
+    ]);
+  });
+
+  it("resolves Gemini project targets from both registry skill paths", () => {
+    expect(resolvePlatformTargets(opts({ platform: "gemini", scope: "project" }))).toEqual([
+      path.join(repo, ".gemini", "skills", "research-copilot"),
+      path.join(repo, ".agents", "skills", "research-copilot"),
+    ]);
+  });
+
+  it("rejects user scope for non-Claude platforms", () => {
+    expect(() => resolvePlatformTargets(opts({ platform: "codex", scope: "user" })))
+      .toThrow(/user scope is only supported for claude/);
+  });
+
+  it("installs Claude project registration by copying plugin dist", () => {
+    const [result] = installPluginRegistration(opts({ platform: "claude", scope: "project" }));
+    const target = path.join(repo, ".claude", "skills", "research-copilot");
+
+    expect(result.status).toBe("installed");
+    expect(result.target).toBe(target);
+    expect(fs.existsSync(path.join(target, ".claude-plugin", "plugin.json"))).toBe(true);
+    expect(fs.existsSync(path.join(target, "skills", "research-workflow", "SKILL.md"))).toBe(true);
+  });
+
+  it("updates an existing Research Copilot registration idempotently", () => {
+    const target = path.join(repo, ".claude", "skills", "research-copilot");
+    installPluginRegistration(opts({ platform: "claude", scope: "project" }));
+    fs.writeFileSync(path.join(target, "old-managed-file.txt"), "old\n");
+
+    const [result] = installPluginRegistration(opts({ platform: "claude", scope: "project" }));
+
+    expect(result.status).toBe("updated");
+    expect(fs.existsSync(path.join(target, "old-managed-file.txt"))).toBe(false);
+    expect(fs.existsSync(path.join(target, ".claude-plugin", "plugin.json"))).toBe(true);
+  });
+
+  it("refuses to overwrite an existing non-Research-Copilot target", () => {
+    const target = path.join(repo, ".claude", "skills", "research-copilot");
+    fs.mkdirSync(target, { recursive: true });
+    fs.writeFileSync(path.join(target, "README.md"), "user-owned\n");
+
+    const [result] = installPluginRegistration(opts({ platform: "claude", scope: "project" }));
+
+    expect(result.status).toBe("failed");
+    expect(result.message).toContain("refusing to overwrite non-Research-Copilot directory");
+    expect(fs.readFileSync(path.join(target, "README.md"), "utf8")).toBe("user-owned\n");
+  });
+
+  it("installs Gemini into both project targets", () => {
+    const results = installPluginRegistration(opts({ platform: "gemini", scope: "project" }));
+
+    expect(results.map(r => r.status)).toEqual(["installed", "installed"]);
+    expect(fs.existsSync(path.join(repo, ".gemini", "skills", "research-copilot", ".claude-plugin", "plugin.json"))).toBe(true);
+    expect(fs.existsSync(path.join(repo, ".agents", "skills", "research-copilot", ".claude-plugin", "plugin.json"))).toBe(true);
+  });
+
+  it("reports missing and ok status for registrations", () => {
+    expect(statusPluginRegistration(opts({ platform: "claude", scope: "project" }))[0].status).toBe("missing");
+    installPluginRegistration(opts({ platform: "claude", scope: "project" }));
+
+    const [result] = statusPluginRegistration(opts({ platform: "claude", scope: "project" }));
+
+    expect(result.status).toBe("ok");
+    expect(result.message).toContain(".claude");
+  });
+
+  it("removes only Research Copilot registration target", () => {
+    const sibling = path.join(repo, ".claude", "skills", "other-plugin");
+    fs.mkdirSync(sibling, { recursive: true });
+    fs.writeFileSync(path.join(sibling, "README.md"), "keep\n");
+    installPluginRegistration(opts({ platform: "claude", scope: "project" }));
+
+    const [result] = removePluginRegistration(opts({ platform: "claude", scope: "project" }));
+
+    expect(result.status).toBe("removed");
+    expect(fs.existsSync(path.join(repo, ".claude", "skills", "research-copilot"))).toBe(false);
+    expect(fs.readFileSync(path.join(sibling, "README.md"), "utf8")).toBe("keep\n");
+  });
+
+  it("refuses to remove a non-Research-Copilot target", () => {
+    const target = path.join(repo, ".claude", "skills", "research-copilot");
+    fs.mkdirSync(target, { recursive: true });
+    fs.writeFileSync(path.join(target, "README.md"), "user-owned\n");
+
+    const [result] = removePluginRegistration(opts({ platform: "claude", scope: "project" }));
+
+    expect(result.status).toBe("failed");
+    expect(fs.existsSync(target)).toBe(true);
+  });
 });

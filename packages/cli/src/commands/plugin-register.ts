@@ -122,14 +122,117 @@ export function resolvePlatformTargets(options: PluginRegistrationOptions & { pl
   return projectTargetRoots(options.repo, platform).map(root => path.join(root, "research-copilot"));
 }
 
-export function installPluginRegistration(_options: PluginRegistrationOptions): PluginRegistrationResult[] {
-  throw new Error("installPluginRegistration is implemented in Task 2");
+function relativeToRepo(repo: string, target: string): string {
+  const rel = path.relative(repo, target);
+  return rel && !rel.startsWith("..") ? rel.replace(/\\/g, "/") : target;
 }
 
-export function statusPluginRegistration(_options: PluginRegistrationOptions): PluginRegistrationResult[] {
-  throw new Error("statusPluginRegistration is implemented in Task 2");
+function copyDir(src: string, dst: string): void {
+  fs.cpSync(src, dst, { recursive: true });
 }
 
-export function removePluginRegistration(_options: PluginRegistrationOptions): PluginRegistrationResult[] {
-  throw new Error("removePluginRegistration is implemented in Task 2");
+function safeExistingTarget(target: string): "missing" | "research-copilot" | "foreign" {
+  if (!fs.existsSync(target)) return "missing";
+  return hasResearchCopilotMetadata(target) ? "research-copilot" : "foreign";
+}
+
+function resultsForTargets(options: PluginRegistrationOptions): Array<{ platform: string; target: string }> {
+  return expandPluginPlatforms(options.repo, options.platform).flatMap(platform =>
+    resolvePlatformTargets({ ...options, platform }).map(target => ({ platform, target })),
+  );
+}
+
+export function installPluginRegistration(options: PluginRegistrationOptions): PluginRegistrationResult[] {
+  const source = resolvePluginSource(options);
+  const results: PluginRegistrationResult[] = [];
+
+  for (const item of resultsForTargets(options)) {
+    const existing = safeExistingTarget(item.target);
+    if (existing === "foreign") {
+      results.push({
+        platform: item.platform,
+        scope: options.scope,
+        target: item.target,
+        status: "failed",
+        message: `refusing to overwrite non-Research-Copilot directory: ${relativeToRepo(options.repo, item.target)}`,
+      });
+      continue;
+    }
+
+    fs.mkdirSync(path.dirname(item.target), { recursive: true });
+    if (existing === "research-copilot") fs.rmSync(item.target, { recursive: true, force: true });
+    copyDir(source, item.target);
+    results.push({
+      platform: item.platform,
+      scope: options.scope,
+      target: item.target,
+      status: existing === "research-copilot" ? "updated" : "installed",
+      message: `${existing === "research-copilot" ? "Updated" : "Installed"} research-copilot plugin at ${relativeToRepo(options.repo, item.target)}`,
+    });
+  }
+
+  return results;
+}
+
+export function statusPluginRegistration(options: PluginRegistrationOptions): PluginRegistrationResult[] {
+  return resultsForTargets(options).map(item => {
+    const existing = safeExistingTarget(item.target);
+    if (existing === "research-copilot") {
+      return {
+        platform: item.platform,
+        scope: options.scope,
+        target: item.target,
+        status: "ok",
+        message: `project plugin: OK ${relativeToRepo(options.repo, item.target)}`,
+      };
+    }
+    if (existing === "foreign") {
+      return {
+        platform: item.platform,
+        scope: options.scope,
+        target: item.target,
+        status: "failed",
+        message: `project plugin: BLOCKED ${relativeToRepo(options.repo, item.target)} is not Research Copilot-managed`,
+      };
+    }
+    return {
+      platform: item.platform,
+      scope: options.scope,
+      target: item.target,
+      status: "missing",
+      message: `project plugin: MISSING ${relativeToRepo(options.repo, item.target)}`,
+    };
+  });
+}
+
+export function removePluginRegistration(options: PluginRegistrationOptions): PluginRegistrationResult[] {
+  return resultsForTargets(options).map(item => {
+    const existing = safeExistingTarget(item.target);
+    if (existing === "missing") {
+      return {
+        platform: item.platform,
+        scope: options.scope,
+        target: item.target,
+        status: "missing",
+        message: `No research-copilot plugin registration at ${relativeToRepo(options.repo, item.target)}`,
+      };
+    }
+    if (existing === "foreign") {
+      return {
+        platform: item.platform,
+        scope: options.scope,
+        target: item.target,
+        status: "failed",
+        message: `refusing to remove non-Research-Copilot directory: ${relativeToRepo(options.repo, item.target)}`,
+      };
+    }
+    fs.rmSync(item.target, { recursive: true, force: true });
+    return {
+      platform: item.platform,
+      scope: options.scope,
+      target: item.target,
+      status: "removed",
+      message: `Removed research-copilot plugin registration at ${relativeToRepo(options.repo, item.target)}`,
+    };
+  });
 }
