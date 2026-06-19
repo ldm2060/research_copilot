@@ -76,4 +76,23 @@ describe("applyExitOverride (subcommand usage → exit 2)", () => {
     }
     expect(caught).toBeFalsy();
   });
+
+  it("accepts plugin subcommands and options", () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "rc-cli-"));
+    const dist = path.join(repo, "dist");
+    fs.mkdirSync(path.join(dist, ".claude-plugin"), { recursive: true });
+    fs.mkdirSync(path.join(dist, "skills"), { recursive: true });
+    fs.writeFileSync(path.join(dist, ".claude-plugin", "plugin.json"), JSON.stringify({ name: "research-copilot" }));
+    const program = buildProgram(repo);
+    applyExitOverride(program);
+    let caught: unknown;
+    try {
+      program.parse(["plugin", "install", "--platform", "claude", "--scope", "project", "--source", "local", "--path", dist], { from: "user" });
+      program.parse(["plugin", "status", "--platform", "claude"], { from: "user" });
+      program.parse(["plugin", "remove", "--platform", "claude"], { from: "user" });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeFalsy();
+  });
 });
