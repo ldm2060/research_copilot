@@ -131,7 +131,17 @@ describe("plugin package helpers", () => {
     expect(checkClaudePluginLoading(r)).toEqual({
       available: false,
       listed: false,
-      message: "Claude Code plugin list unavailable; standalone configuration can still work",
+      message: "Claude Code plugin list unavailable; standalone configuration can still work. To register the npm plugin, run: rc plugin install --platform claude --scope project",
+    });
+  });
+
+  it("reports a registration remediation command when Claude Code does not list research-copilot", () => {
+    const r = runner({ "claude plugin list": "other-plugin 0.0.1" });
+
+    expect(checkClaudePluginLoading(r)).toEqual({
+      available: true,
+      listed: false,
+      message: "Claude Code is available but does not list research-copilot plugin; standalone configuration can still work. To register the npm plugin, run: rc plugin install --platform claude --scope project",
     });
   });
 });
