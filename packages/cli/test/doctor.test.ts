@@ -95,6 +95,46 @@ describe("rc doctor", () => {
     expect(result.report.join("\n")).toContain("rc plugin install --platform claude --scope project");
   });
 
+  it("does not repeat registration remediation when Claude project plugin is installed", () => {
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+    const target = path.join(repo, ".claude", "skills", "research-copilot");
+    fs.mkdirSync(path.join(target, ".claude-plugin"), { recursive: true });
+    fs.writeFileSync(path.join(target, ".claude-plugin", "plugin.json"), JSON.stringify({ name: "research-copilot" }));
+    const r = runner({
+      "npm list -g @research-copilot/plugin --json": JSON.stringify({
+        dependencies: { "@research-copilot/plugin": { version: readCliVersion() } },
+      }),
+      "claude plugin list": "other-plugin 0.0.1",
+    });
+
+    const result = runDoctor(repo, { runner: r });
+    const report = result.report.join("\n");
+
+    expect(result.ok).toBe(true);
+    expect(report).toContain("OK Claude project plugin registration exists");
+    expect(report).toContain("INFO Claude Code is available but does not list project-registered research-copilot plugin; project plugin registration is installed");
+    expect(report).not.toContain("rc plugin install --platform claude --scope project");
+  });
+
+  it("does not repeat registration remediation when Claude Code plugin list is unavailable but project plugin is installed", () => {
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+    const target = path.join(repo, ".claude", "skills", "research-copilot");
+    fs.mkdirSync(path.join(target, ".claude-plugin"), { recursive: true });
+    fs.writeFileSync(path.join(target, ".claude-plugin", "plugin.json"), JSON.stringify({ name: "research-copilot" }));
+    const r = runner({
+      "npm list -g @research-copilot/plugin --json": JSON.stringify({
+        dependencies: { "@research-copilot/plugin": { version: readCliVersion() } },
+      }),
+    }, { "claude plugin list": new Error("not found") });
+
+    const result = runDoctor(repo, { runner: r });
+    const report = result.report.join("\n");
+
+    expect(result.ok).toBe(true);
+    expect(report).toContain("INFO Claude Code plugin list unavailable; project plugin registration is installed");
+    expect(report).not.toContain("rc plugin install --platform claude --scope project");
+  });
+
   it("--fix restores missing core config without syncing plugin when skipPlugin is true", () => {
     fs.mkdirSync(path.join(repo, ".research/tasks/001"), { recursive: true });
     fs.writeFileSync(path.join(repo, ".research/tasks/001/task.json"), "{\"id\":\"001\"}\n");

@@ -10,6 +10,7 @@ import {
   readCliVersion,
   type CommandRunner,
 } from "./plugin.js";
+import { statusPluginRegistration } from "./plugin-register.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -24,6 +25,10 @@ interface Check {
   level: "OK" | "FAIL" | "WARN" | "INFO";
   message: string;
 }
+
+const CLAUDE_PROJECT_PLUGIN_INSTALLED_MESSAGE = "Claude project plugin registration exists";
+const CLAUDE_PLUGIN_LIST_MISSING_WITH_REGISTRATION_MESSAGE = "Claude Code is available but does not list project-registered research-copilot plugin; project plugin registration is installed";
+const CLAUDE_PLUGIN_LIST_UNAVAILABLE_WITH_REGISTRATION_MESSAGE = "Claude Code plugin list unavailable; project plugin registration is installed";
 
 function existsCheck(path: string, label: string): Check {
   return fs.existsSync(path)
@@ -81,7 +86,20 @@ function checkCoreConfig(repo: string): Check[] {
   return checks;
 }
 
-function checkPlugin(options: DoctorOptions): Check[] {
+function checkClaudeProjectPluginRegistration(repo: string): Check {
+  const [registration] = statusPluginRegistration({
+    repo,
+    platform: "claude",
+    scope: "project",
+    source: "npm",
+  });
+
+  return registration?.status === "ok"
+    ? { level: "OK", message: CLAUDE_PROJECT_PLUGIN_INSTALLED_MESSAGE }
+    : { level: "INFO", message: registration?.message ?? "project plugin: MISSING .claude/skills/research-copilot" };
+}
+
+function checkPlugin(repo: string, options: DoctorOptions): Check[] {
   const checks: Check[] = [];
   if (options.skipPlugin) {
     checks.push({ level: "INFO", message: "Skipped plugin checks" });
@@ -106,8 +124,19 @@ function checkPlugin(options: DoctorOptions): Check[] {
     checks.push({ level: "OK", message: `Plugin version matches (${cliVersion})` });
   }
 
+  const registration = checkClaudeProjectPluginRegistration(repo);
+  checks.push(registration);
+
   const claude = checkClaudePluginLoading(options.runner);
-  checks.push({ level: "INFO", message: claude.message });
+  const registered = registration.level === "OK";
+  checks.push({
+    level: "INFO",
+    message: registered && claude.available && !claude.listed
+      ? CLAUDE_PLUGIN_LIST_MISSING_WITH_REGISTRATION_MESSAGE
+      : registered && !claude.available
+        ? CLAUDE_PLUGIN_LIST_UNAVAILABLE_WITH_REGISTRATION_MESSAGE
+        : claude.message,
+  });
   return checks;
 }
 
@@ -126,7 +155,7 @@ export function runDoctor(repo: string, options: DoctorOptions = {}): { ok: bool
     report.push("Fixed: reconciled Research Copilot project configuration");
   }
 
-  const checks = [...checkCoreConfig(repo), ...checkPlugin(options)];
+  const checks = [...checkCoreConfig(repo), ...checkPlugin(repo, options)];
   let ok = true;
   for (const check of checks) {
     report.push(`${check.level} ${check.message}`);
