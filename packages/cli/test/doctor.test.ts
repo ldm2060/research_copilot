@@ -80,6 +80,21 @@ describe("rc doctor", () => {
     expect(result.report.join("\n")).toContain("INFO Claude Code lists research-copilot plugin");
   });
 
+  it("prints plugin registration remediation when Claude Code does not list the plugin", () => {
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+    const r = runner({
+      "npm list -g @research-copilot/plugin --json": JSON.stringify({
+        dependencies: { "@research-copilot/plugin": { version: readCliVersion() } },
+      }),
+      "claude plugin list": "other-plugin 0.0.1",
+    });
+
+    const result = runDoctor(repo, { runner: r });
+
+    expect(result.ok).toBe(true);
+    expect(result.report.join("\n")).toContain("rc plugin install --platform claude --scope project");
+  });
+
   it("--fix restores missing core config without syncing plugin when skipPlugin is true", () => {
     fs.mkdirSync(path.join(repo, ".research/tasks/001"), { recursive: true });
     fs.writeFileSync(path.join(repo, ".research/tasks/001/task.json"), "{\"id\":\"001\"}\n");

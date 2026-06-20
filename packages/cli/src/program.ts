@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { runContext } from "./commands/context.js";
 import { runDoctor } from "./commands/doctor.js";
 import { registerInit } from "./commands/init.js";
+import { registerPluginCommand } from "./commands/plugin-command.js";
 import { registerTask } from "./commands/task.js";
 import { sync } from "./commands/sync.js";
 
@@ -39,6 +40,7 @@ export function buildProgram(repo = process.cwd()): Command {
       process.exitCode = ok ? 0 : 1;
     });
   registerInit(program, repo);
+  registerPluginCommand(program, repo);
   registerTask(program, repo);
   program.command("sync")
     .description("Fetch skillpacks and render agents/specs")

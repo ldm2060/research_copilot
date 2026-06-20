@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 
 export const PLUGIN_PACKAGE = "@research-copilot/plugin";
 
+const CLAUDE_PLUGIN_REMEDIATION = "To register the npm plugin, run: rc plugin install --platform claude --scope project";
+
 export interface ExecOptions {
   timeout?: number;
 }
@@ -127,13 +129,13 @@ export function checkClaudePluginLoading(runner: CommandRunner = defaultCommandR
       listed,
       message: listed
         ? "Claude Code lists research-copilot plugin"
-        : "Claude Code is available but does not list research-copilot plugin; standalone configuration can still work",
+        : `Claude Code is available but does not list research-copilot plugin; standalone configuration can still work. ${CLAUDE_PLUGIN_REMEDIATION}`,
     };
   } catch {
     return {
       available: false,
       listed: false,
-      message: "Claude Code plugin list unavailable; standalone configuration can still work",
+      message: `Claude Code plugin list unavailable; standalone configuration can still work. ${CLAUDE_PLUGIN_REMEDIATION}`,
     };
   }
 }

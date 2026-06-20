@@ -220,3 +220,37 @@ Use `--strict-plugin` when release validation should fail if the npm plugin is m
 ```bash
 rc doctor --strict-plugin
 ```
+
+### Registering plugin content with CLI platforms
+
+`rc init` configures the project-local standalone Research Copilot workflow. To also make the published plugin content discoverable through a platform plugin or skills directory, run `rc plugin install`.
+
+For Claude Code project scope:
+
+```bash
+rc plugin install --platform claude --scope project
+rc plugin status --platform claude
+```
+
+For every platform already configured in the repository:
+
+```bash
+rc plugin install --platform configured --scope project
+rc plugin status --platform configured
+```
+
+For local plugin development:
+
+```bash
+pnpm --filter @research-copilot/plugin build
+rc plugin install --platform claude --scope project --source local --path packages/plugin/dist
+```
+
+To update or remove registered plugin content:
+
+```bash
+rc plugin update --platform claude --scope project
+rc plugin remove --platform claude --scope project
+```
+
+`rc plugin install` copies plugin content into the selected platform discovery path, such as `.claude/skills/research-copilot/` for Claude Code project scope. It refuses to overwrite an existing non-Research-Copilot directory.

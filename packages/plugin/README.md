@@ -32,6 +32,24 @@ npm install -g @research-copilot/plugin@<cli-version>
 
 This npm package is a companion package for plugin content and version synchronization. Project-local Claude Code configuration created by `rc init` remains the reliable runtime path, so npm global installation alone is not the only Research Copilot activation step.
 
+## Platform Registration
+
+Installing this npm package synchronizes plugin content, but platform CLIs discover plugins through their own plugin or skills directories. Use the Research Copilot CLI to register the plugin content:
+
+```bash
+rc plugin install --platform claude --scope project
+rc plugin status --platform claude
+```
+
+For local development against a built plugin dist:
+
+```bash
+pnpm --filter @research-copilot/plugin build
+rc plugin install --platform claude --scope project --source local --path packages/plugin/dist
+```
+
+The registration command copies this package's `dist/` content into the selected platform discovery path and preserves unrelated plugins.
+
 ## What's Included
 
 ### Skills (6 total)
