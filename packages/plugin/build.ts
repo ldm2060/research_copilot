@@ -406,7 +406,7 @@ function generateClaudeCodeManifest(): void {
     name: 'research-copilot',
     version,
     description: 'AI research automation skills and agents',
-    author: 'ldm2060',
+    author: { name: 'ldm2060' },
     homepage: 'https://github.com/ldm2060/research_copilot',
     autoDiscovery: {
       agents: 'agents/**/*.md',
