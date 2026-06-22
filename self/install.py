@@ -41,6 +41,8 @@ RESEARCH_COPILOT_GUARD_SCRIPT = SELF_DIR / "hooks" / "scripts" / "research_copil
 SESSION_MEMORY_INJECTOR_SCRIPT = SELF_DIR / "hooks" / "scripts" / "session_start_memory_injector.py"
 DISPATCH_REMINDER_SCRIPT = SELF_DIR / "hooks" / "scripts" / "user_prompt_dispatch_reminder.py"
 LOOP_ARMER_SCRIPT = SELF_DIR / "hooks" / "scripts" / "post_tool_loop_armer.py"
+COPILOT_WRITE_GUARD_SCRIPT = SELF_DIR / "hooks" / "scripts" / "copilot_write_guard.py"
+COPILOT_SUBAGENT_STOP_SCRIPT = SELF_DIR / "hooks" / "scripts" / "copilot_subagent_stop.py"
 RESEARCH_COPILOT_GUARD_PROMPT = (
     "You are the research-copilot-guard fallback, running in parallel with a "
     "primary Python guard (if Python is available). The main session acts as the "
@@ -317,6 +319,58 @@ def register_research_copilot_guard(target: Path, dry_run: bool) -> None:
     info(f"Adding PreToolUse block (matcher: {RESEARCH_COPILOT_GUARD_MATCHER})")
     pre_tool_use.append(desired_block)
 
+    if dry_run:
+        return
+    settings_dir.mkdir(parents=True, exist_ok=True)
+    settings_path.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def register_copilot_write_guard(target: Path, dry_run: bool) -> None:
+    step("Step 3g/5: register copilot write guard PreToolUse hook")
+    if not COPILOT_WRITE_GUARD_SCRIPT.is_file():
+        warn(f"copilot write guard script missing: {COPILOT_WRITE_GUARD_SCRIPT}; skipping")
+        return
+    settings_dir = target / ".claude"
+    settings_path = settings_dir / "settings.json"
+    settings = json.loads(settings_path.read_text(encoding="utf-8")) if settings_path.is_file() else {}
+    hooks = settings.setdefault("hooks", {})
+    pre_tool = hooks.setdefault("PreToolUse", [])
+    hook_cmd = f'python "{COPILOT_WRITE_GUARD_SCRIPT.resolve()}"'.replace("\\", "/")
+    for block in pre_tool:
+        if block.get("matcher") == "Write|Edit":
+            for hk in block.get("hooks", []):
+                if "copilot_write_guard.py" in hk.get("command", ""):
+                    info("copilot_write_guard already registered; skipping.")
+                    return
+    pre_tool.append({
+        "matcher": "Write|Edit",
+        "hooks": [{"type": "command", "command": hook_cmd, "timeout": 10}],
+    })
+    if dry_run:
+        return
+    settings_dir.mkdir(parents=True, exist_ok=True)
+    settings_path.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def register_copilot_subagent_stop(target: Path, dry_run: bool) -> None:
+    step("Step 3h/5: register copilot subagent stop hook")
+    if not COPILOT_SUBAGENT_STOP_SCRIPT.is_file():
+        warn(f"copilot subagent stop script missing: {COPILOT_SUBAGENT_STOP_SCRIPT}; skipping")
+        return
+    settings_dir = target / ".claude"
+    settings_path = settings_dir / "settings.json"
+    settings = json.loads(settings_path.read_text(encoding="utf-8")) if settings_path.is_file() else {}
+    hooks = settings.setdefault("hooks", {})
+    stop_hooks = hooks.setdefault("SubagentStop", [])
+    hook_cmd = f'python "{COPILOT_SUBAGENT_STOP_SCRIPT.resolve()}"'.replace("\\", "/")
+    for block in stop_hooks:
+        for hk in block.get("hooks", []):
+            if "copilot_subagent_stop.py" in hk.get("command", ""):
+                info("copilot_subagent_stop already registered; skipping.")
+                return
+    stop_hooks.append({
+        "hooks": [{"type": "command", "command": hook_cmd, "timeout": 10}],
+    })
     if dry_run:
         return
     settings_dir.mkdir(parents=True, exist_ok=True)
@@ -613,6 +667,8 @@ def main() -> int:
     register_dispatch_reminder(target, args.dry_run)
     register_loop_armer(target, args.dry_run)
     register_conductor_agent(target, args.dry_run)
+    register_copilot_write_guard(target, args.dry_run)
+    register_copilot_subagent_stop(target, args.dry_run)
     regenerate_skill_jsons(args.dry_run)
 
     if not args.skip_verify and not args.dry_run:

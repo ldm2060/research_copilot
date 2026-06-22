@@ -60,6 +60,13 @@ Assert ($out -match '"allow"') "SubagentStop allows on first boot (SOFT degrade)
 $log = Get-Content "$workspace/.copilot/__violations.log" -Raw -ErrorAction SilentlyContinue
 Assert ($log -and $log -match "NO-SNAPSHOT") "violations.log records NO-SNAPSHOT entry"
 
+$writeSpec = Join-Path $repo "self/hooks/copilot-write-guard.json"
+$stopSpec = Join-Path $repo "self/hooks/copilot-subagent-stop.json"
+if (-not (Test-Path $writeSpec)) { throw "missing copilot-write-guard.json" }
+if (-not (Test-Path $stopSpec)) { throw "missing copilot-subagent-stop.json" }
+(Get-Content $writeSpec -Raw | ConvertFrom-Json).hooks.PreToolUse | Out-Null
+(Get-Content $stopSpec -Raw | ConvertFrom-Json).hooks.SubagentStop | Out-Null
+
 Write-Host "ALL INTEGRATION CHECKS PASSED" -ForegroundColor Green
 Remove-Item -Recurse -Force $tmpRoot
 exit 0

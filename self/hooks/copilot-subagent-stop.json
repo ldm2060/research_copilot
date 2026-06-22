@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python self/hooks/scripts/copilot_subagent_stop.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
