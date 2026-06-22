@@ -30,4 +30,13 @@ describe("rc context", () => {
     expect(out).toContain("Mode: soft");
     expect(out).toContain("Strict sub-agent-only execution cannot be guaranteed on this platform.");
   });
+
+  it("falls back to unavailable mode for unknown platforms", () => {
+    const out = runContext({ repo, platform: "acme-ide", format: "text", now: "2026-06-05T00:00:00Z" });
+    expect(out).toContain("[trellis-enforcement]");
+    expect(out).toContain("Platform: acme-ide");
+    expect(out).toContain("Mode: unavailable");
+    expect(out).toContain('unknown platform "acme-ide"');
+    expect(out).toContain("Strict sub-agent-only execution cannot be guaranteed on this platform.");
+  });
 });

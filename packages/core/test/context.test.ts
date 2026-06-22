@@ -47,4 +47,19 @@ describe("buildContext (§16.6)", () => {
     expect(out).toContain("Platform: claude-code");
     expect(out).toContain("Reason: supports hooks and executable sub-agents");
   });
+  it("json format includes trellis-enforcement in additionalContext when enforcement is supplied", () => {
+    const out = buildContext(repo, {
+      format: "json",
+      now: "2026-06-05T02:00:00Z",
+      enforcement: {
+        platform: "claude-code",
+        mode: "hard",
+        reason: "supports hooks and executable sub-agents",
+      },
+    });
+    const parsed = JSON.parse(out);
+    expect(parsed.hookSpecificOutput.additionalContext).toContain("[trellis-enforcement]");
+    expect(parsed.hookSpecificOutput.additionalContext).toContain("Mode: hard");
+    expect(parsed.hookSpecificOutput.additionalContext).toContain("Platform: claude-code");
+  });
 });
