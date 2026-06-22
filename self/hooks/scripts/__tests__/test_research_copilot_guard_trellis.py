@@ -31,7 +31,7 @@ def test_no_active_node_denies_research_mcp_and_logs_event(tmp_path, monkeypatch
     decision = guard._decide(payload)
 
     assert decision["hookSpecificOutput"]["permissionDecision"] == "deny"
-    assert "create a Trellis task node first" in decision["systemMessage"]
+    assert "Create a Trellis task node first" in decision["systemMessage"]
     event_path = tmp_path / ".research" / ".runtime" / "enforcement-events.jsonl"
     event = json.loads(event_path.read_text(encoding="utf-8").splitlines()[-1])
     assert event["event"] == "main_attempted_leaf_work_without_active_node"
@@ -91,6 +91,20 @@ def test_rc_subagent_with_agent_id_is_exempt_for_leaf_tools(tmp_path, monkeypatc
     decision = guard._decide({
         "agent_id": "agent-1",
         "agent_type": "rc-literature",
+        "tool_name": "mcp__research-scholar__scholar_search",
+        "tool_input": {"query": "diffusion"},
+    })
+
+    assert decision["hookSpecificOutput"]["permissionDecision"] == "allow"
+
+
+def test_copilot_subagent_with_agent_id_is_exempt_for_leaf_tools(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    write_task(tmp_path, "2026-06-22-lit", "literature", "in_progress")
+
+    decision = guard._decide({
+        "agent_id": "agent-2",
+        "agent_type": "copilot-literature",
         "tool_name": "mcp__research-scholar__scholar_search",
         "tool_input": {"query": "diffusion"},
     })

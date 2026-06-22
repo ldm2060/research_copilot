@@ -1,8 +1,9 @@
 """Research Copilot Workflow Guard hook (PreToolUse).
 
 Polices the MAIN SESSION acting as conductor. The main session must delegate
-domain work to copilot-* sub-agents and must publish a TaskCreate plan list
-before dispatching. copilot-* sub-agents run freely (exempt).
+domain work to rc-* / copilot-* research executors and may only dispatch the
+executor that matches the active Trellis task node's status and kind. Research
+executors (rc-* / copilot-*) running inside a sub-agent call are exempt.
 
 Origin attribution uses the authoritative `agent_id` payload field: it is
 present ONLY inside a sub-agent call, so its absence => main session. Any
@@ -159,41 +160,6 @@ def _log_event(event: dict[str, Any]) -> None:
         fh.write(json.dumps(base, ensure_ascii=False, sort_keys=True) + "\n")
 
 
-def _iter_transcript_tool_uses(transcript_path: str | None):
-    if not transcript_path:
-        return
-    p = Path(transcript_path)
-    if not p.is_file():
-        return
-    try:
-        text = p.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return
-    for line in text.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            rec = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if isinstance(rec, dict) and rec.get("type") == "tool_use":
-            yield {"name": rec.get("name", ""), "input": rec.get("input", {}) or {}}
-            continue
-        content = None
-        if isinstance(rec, dict):
-            content = rec.get("content")
-            if content is None:
-                msg = rec.get("message")
-                if isinstance(msg, dict):
-                    content = msg.get("content")
-        if isinstance(content, list):
-            for item in content:
-                if isinstance(item, dict) and item.get("type") == "tool_use":
-                    yield {"name": item.get("name", ""),
-                           "input": item.get("input", {}) or {}}
-
-
 def _deny_leaf_work(event_name: str, tool_name: str, default_executor: str, reason: str) -> str:
     task = _load_active_task()
     if task is None:
@@ -204,7 +170,7 @@ def _deny_leaf_work(event_name: str, tool_name: str, default_executor: str, reas
         })
         return ("Blocked by research-copilot-guard (Trellis claim gate): the conductor "
                 "cannot perform research-domain leaf work without an active task node. "
-                "create a Trellis task node first with `rc task create --kind <kind> --title \"<title>\"`.")
+                "Create a Trellis task node first with `rc task create --kind <kind> --title \"<title>\"`.")
 
     expected = _expected_executor(task) or default_executor
     _log_event({
@@ -298,6 +264,10 @@ def check_m2_task_list(tool_name: str, tool_input: dict[str, Any],
         "expectedExecutor": expected,
         "decision": "deny",
     })
+    if expected is None:
+        return (f"Blocked by research-copilot-guard (Trellis dispatch gate): active task "
+                f"{task.get('id')} has unsupported status={task.get('status')} kind={task.get('kind')}. "
+                f"Cannot dispatch research executors until task metadata is repaired.")
     return (f"Blocked by research-copilot-guard (Trellis dispatch gate): active task "
             f"{task.get('id')} is status={task.get('status')} kind={task.get('kind')}. "
             f"Legal executor is {expected}; cannot dispatch {sub_type}.")
