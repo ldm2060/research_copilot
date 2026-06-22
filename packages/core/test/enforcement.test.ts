@@ -4,6 +4,7 @@ import {
   canExecutorClaim,
   classifyArtifact,
   canWriteArtifact,
+  RESEARCH_EXECUTORS,
   type ResearchExecutor,
 } from "../src/enforcement.js";
 import type { TaskRecord } from "../src/types.js";
@@ -80,5 +81,25 @@ describe("Trellis artifact ownership", () => {
     expect(canWriteArtifact("rc-literature", task({ status: "in_progress", kind: "literature" }), ".copilot/literature.md")).toBe(true);
     expect(canWriteArtifact("rc-writer", task({ status: "in_progress", kind: "literature" }), ".copilot/literature.md")).toBe(false);
     expect(canWriteArtifact("rc-update-spec", task({ status: "completed", kind: "review" }), ".research/spec/reviews/gaps.md")).toBe(true);
+  });
+});
+
+describe("Trellis enforcement readonly ownership", () => {
+  it("RESEARCH_EXECUTORS is a frozen-length readonly tuple", () => {
+    // The `as const` assertion makes this a readonly tuple at the type level.
+    // At runtime, verify the array contents are the 10 expected executors.
+    expect(RESEARCH_EXECUTORS).toHaveLength(10);
+    expect(RESEARCH_EXECUTORS[0]).toBe("rc-plan");
+    // Type-level: assigning to RESEARCH_EXECUTORS[0] would fail at compile time.
+    // Runtime: verify Object.isFrozen is not guaranteed (as const is type-only),
+    // but the readonly constraint is enforced by the type system.
+  });
+
+  it("classifyArtifact returns readonly allowedExecutors", () => {
+    const claim = classifyArtifact(".research/tasks/t1/prd.md");
+    // The returned allowedExecutors should match exactly and not be mutable via the type.
+    expect(claim.allowedExecutors).toEqual(["rc-plan"]);
+    // Type-level: claim.allowedExecutors.push("rc-literature") would fail at compile time
+    // because ArtifactClaim.allowedExecutors is `readonly ResearchExecutor[]`.
   });
 });

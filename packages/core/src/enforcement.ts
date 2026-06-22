@@ -26,7 +26,7 @@ export type ArtifactOwner = "conductor" | ResearchExecutor | "kind-executor" | "
 
 export interface ArtifactClaim {
   owner: ArtifactOwner;
-  allowedExecutors: ResearchExecutor[];
+  allowedExecutors: readonly ResearchExecutor[];
   reason: string;
 }
 
@@ -40,7 +40,7 @@ const KIND_EXECUTOR: Record<Kind, ResearchExecutor> = {
   rebuttal: "rc-rebuttal",
 };
 
-const KIND_EXECUTORS = Object.values(KIND_EXECUTOR);
+const KIND_EXECUTORS: readonly ResearchExecutor[] = Object.values(KIND_EXECUTOR);
 
 export function expectedExecutorFor(task: Pick<TaskRecord, "kind" | "status">): ResearchExecutor {
   if (task.status === "planning") return "rc-plan";
@@ -70,7 +70,7 @@ function underSegment(filePath: string, segment: string): boolean {
   return norm(filePath).split("/").includes(segment);
 }
 
-function claim(owner: ArtifactOwner, allowedExecutors: ResearchExecutor[], reason: string): ArtifactClaim {
+function claim(owner: ArtifactOwner, allowedExecutors: readonly ResearchExecutor[], reason: string): ArtifactClaim {
   return { owner, allowedExecutors, reason };
 }
 
