@@ -170,4 +170,14 @@ describe("rc doctor", () => {
     expect(report).toContain("WARN Research workflow enforcement: soft (windsurf)");
     expect(report).toContain("Strict sub-agent-only execution cannot be guaranteed on this platform.");
   });
+
+  it("reports FAIL for unknown platform", () => {
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+    const r = runner({}, { "npm list -g @research-copilot/plugin --json": new Error("missing") });
+
+    const result = runDoctor(repo, { runner: r, platform: "unknown-platform" });
+
+    expect(result.ok).toBe(false);
+    expect(result.report.join("\n")).toContain("FAIL Research workflow enforcement: unavailable (unknown-platform) — unknown platform");
+  });
 });
