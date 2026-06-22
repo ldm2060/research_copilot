@@ -173,7 +173,7 @@ Before completing:
 
 ### Gate definition unclear
 ```bash
-rc task add-gap <id> --desc "Gate X definition unclear in verify.jsonl" --suggest plan
+rc task add-gap <id> --desc "Gate X definition unclear in verify.jsonl" --suggest ideation
 ```
 
 ### Artifact missing

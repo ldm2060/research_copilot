@@ -144,7 +144,7 @@ rc task add-gap <id> --desc "Need more baselines for claim Y" --suggest literatu
 rc task add-gap <id> --desc "Novelty vs Paper Z unclear, need detailed comparison" --suggest literature
 
 # Unclear problem definition
-rc task add-gap <id> --desc "Success criteria ambiguous, need clarification" --suggest plan
+rc task add-gap <id> --desc "Success criteria ambiguous, need clarification" --suggest ideation
 ```
 
 ## Quality Gate (Self-Check Before Reporting)

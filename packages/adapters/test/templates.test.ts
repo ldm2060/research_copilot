@@ -53,4 +53,20 @@ describe("research-kit templates", () => {
       expect(md).not.toContain("rc task add-gap --desc");
     }
   });
+
+  it("no agent template uses --suggest plan and every --suggest uses a valid kind", () => {
+    const validKinds = ["literature", "ideation", "experiment", "writing", "polish", "review", "rebuttal"];
+    const suggestRe = /--suggest\s+(\S+)/g;
+    for (const file of agentFiles) {
+      const md = fs.readFileSync(path.join(KIT, "agents", file), "utf8");
+      let match;
+      while ((match = suggestRe.exec(md)) !== null) {
+        const kind = match[1];
+        // Skip template placeholders like <kind> or <appropriate-kind>
+        if (kind.startsWith("<")) continue;
+        expect(kind).not.toBe("plan");
+        expect(validKinds).toContain(kind);
+      }
+    }
+  });
 });

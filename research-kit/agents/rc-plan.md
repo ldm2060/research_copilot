@@ -145,12 +145,12 @@ Before `rc task set-status <id> verify`:
 
 ### Missing spec reference
 ```bash
-rc task add-gap <id> --desc "Spec for X missing, need to create .research/spec/X.md" --suggest plan
+rc task add-gap <id> --desc "Spec for X missing, need to create .research/spec/X.md" --suggest writing
 ```
 
 ### Circular dependency
 ```bash
-rc task add-gap <id> --desc "Task depends on task Y, which depends on this task (circular)" --suggest plan
+rc task add-gap <id> --desc "Task depends on task Y, which depends on this task (circular)" --suggest ideation
 ```
 
 ## Report Format

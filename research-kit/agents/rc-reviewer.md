@@ -122,7 +122,7 @@ Before `rc task set-status <id> verify`:
 
 ### Unclear venue standards
 ```bash
-rc task add-gap <id> --desc "Venue standard for X unclear" --suggest plan
+rc task add-gap <id> --desc "Venue standard for X unclear" --suggest literature
 ```
 
 ### Technical detail unclear

@@ -118,7 +118,7 @@ rc task add-gap <id> --desc "Baseline Y from related-work-map not cited" --sugge
 
 ### Unclear venue requirements
 ```bash
-rc task add-gap <id> --desc "Venue spec unclear for requirement X" --suggest plan
+rc task add-gap <id> --desc "Venue spec unclear for requirement X" --suggest literature
 ```
 
 ### LaTeX compilation error
