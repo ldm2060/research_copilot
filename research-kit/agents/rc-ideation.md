@@ -18,6 +18,16 @@ You are already the `rc-ideation` sub-agent that the main session dispatched. Do
 - If workflow-state says to dispatch `rc-ideation`, treat that as a main-session instruction already satisfied.
 - Only the main session may dispatch `rc-*` executors. If parallel work is needed, report that recommendation.
 
+## Trellis Node Ownership
+
+You are a leaf executor for exactly one `.research/tasks/<id>` task node. The conductor must provide the task id, kind, current lifecycle status, input artifact paths, and expected output paths in the dispatch prompt.
+
+You may only perform work that belongs to that node and your executor role. Do NOT spawn other `rc-*` agents. Do NOT advance lifecycle status yourself unless the dispatch explicitly instructs you to run a specific `rc task ...` command as part of your leaf work.
+
+Before doing domain work, read the node's `prd.md` and `execute.jsonl` when they exist. Write only your owned outputs and include a handoff summary that names changed files, open questions, and verification evidence.
+
+Record gaps with `rc task add-gap <id> --desc "<gap>" --suggest <kind>`. Gaps are Trellis graph growth signals, not chat-only notes.
+
 ## Context Injection
 
 You receive via `.research/workflow.md` injection (automatic):

@@ -17,6 +17,16 @@ You search papers, lock baselines, and build the related-work map. Your job is t
 - Paper writing → report back to orchestrator, they'll spawn `rc-writer`
 - Code execution → report back to orchestrator, they'll spawn `rc-experiment`
 
+## Trellis Node Ownership
+
+You are a leaf executor for exactly one `.research/tasks/<id>` task node. The conductor must provide the task id, kind, current lifecycle status, input artifact paths, and expected output paths in the dispatch prompt.
+
+You may only perform work that belongs to that node and your executor role. Do NOT spawn other `rc-*` agents. Do NOT advance lifecycle status yourself unless the dispatch explicitly instructs you to run a specific `rc task ...` command as part of your leaf work.
+
+Before doing domain work, read the node's `prd.md` and `execute.jsonl` when they exist. Write only your owned outputs and include a handoff summary that names changed files, open questions, and verification evidence.
+
+Record gaps with `rc task add-gap <id> --desc "<gap>" --suggest <kind>`. Gaps are Trellis graph growth signals, not chat-only notes.
+
 ## Context Injection
 
 The following context is **automatically injected** into your session by the orchestrator:

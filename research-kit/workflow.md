@@ -1,21 +1,23 @@
 # Research Copilot Workflow
 
+MAIN SESSION = Trellis conductor. Every research-domain action must belong to a .research/tasks/<id> task node and be executed by the legal rc-* leaf executor for that node's current lifecycle state and kind. The conductor advances the frontier; it does not consume the frontier itself. Do not consume the frontier yourself.
+
 [workflow-state:no_task]
-No active task. Either answer directly, or run `rc task create --kind <k> --title "<t>"` to start one. Consult [research-state] for recommended next activities.
+No active task node. If the user asks for research-domain work and there is no active task, create a task node first with `rc task create --kind <k> --title "<t>"`, publish the orchestration task list, then dispatch `rc-plan`. If the user asks for repository development or general explanation, answer normally without creating a research task.
 [/workflow-state]
 
 [workflow-state:planning]
-Active task is in PLANNING. Use the rc-plan helper to clarify it into prd.md and curate execute.jsonl / verify.jsonl. Then `rc task start <id>`.
+Active task is in PLANNING. The only legal research executor is `rc-plan`. Dispatch `rc-plan` with task id, kind, status, input context, expected `prd.md` / `execute.jsonl` / `verify.jsonl`, and the no-recursive-dispatch rule. When `rc-plan` returns with planning artifacts, run `rc task start <id>`.
 [/workflow-state]
 
 [workflow-state:in_progress]
-Active task is IN PROGRESS. Dispatch the rc-{kind} executor with prd.md + execute.jsonl specs. Do NOT do domain work inline. When the executor returns, run `rc task verify <id>`.
+Active task is IN PROGRESS. Dispatch the kind-specific leaf executor: literature → `rc-literature`, ideation → `rc-ideation`, experiment → `rc-experiment`, writing → `rc-writer`, polish → `rc-polisher`, review → `rc-reviewer`, rebuttal → `rc-rebuttal`. Provide `prd.md`, `execute.jsonl`, task id, ownership paths, and gap reporting expectations. Do not do domain work inline. When the executor returns, run `rc task verify <id>`.
 [/workflow-state]
 
 [workflow-state:verify]
-Active task is in VERIFY. Dispatch rc-verify to run the kind's quality gate. On pass: `rc task complete <id>`. On fail: fix and `rc task set-status <id> in_progress`.
+Active task is in VERIFY. The only legal research executor is `rc-verify`. Dispatch `rc-verify` to run the kind's quality gate. On pass: `rc task complete <id>`. On fail: record gaps, run `rc task set-status <id> in_progress`, and dispatch the kind executor for repair.
 [/workflow-state]
 
 [workflow-state:completed]
-Active task COMPLETED. Run rc-update-spec to sediment learnings into spec/, append a journal entry, then consult [research-state] for the next activity.
+Active task COMPLETED. The only legal research executor is `rc-update-spec`. Dispatch `rc-update-spec` to sediment learnings into `.research/spec/`, append a journal entry, and surface gap-driven recommendations. Then consult [research-state] to decide whether to create the next Trellis node or report completion to the user.
 [/workflow-state]
