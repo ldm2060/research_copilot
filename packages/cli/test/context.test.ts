@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import * as fs from "node:fs"; import * as os from "node:os"; import * as path from "node:path";
-import { runContext } from "../src/commands/context.js";
+import { runContext, enforcementForPlatform } from "../src/commands/context.js";
 
 let repo: string;
 beforeEach(() => {
@@ -38,5 +38,26 @@ describe("rc context", () => {
     expect(out).toContain("Mode: unavailable");
     expect(out).toContain('unknown platform "acme-ide"');
     expect(out).toContain("Strict sub-agent-only execution cannot be guaranteed on this platform.");
+  });
+});
+
+describe("enforcementForPlatform", () => {
+  it("returns hard enforcement for claude-code by default (no argument)", () => {
+    const result = enforcementForPlatform();
+    expect(result.platform).toBe("claude-code");
+    expect(result.mode).toBe("hard");
+    expect(result.reason).toContain("hooks and executable sub-agents");
+  });
+  it("returns the enforcement for a known platform", () => {
+    const result = enforcementForPlatform("cursor");
+    expect(result.platform).toBe("cursor");
+    expect(result.mode).toBe("soft");
+    expect(result.reason).toContain("advisory");
+  });
+  it("falls back to unavailable mode for an unknown platform", () => {
+    const result = enforcementForPlatform("acme-ide");
+    expect(result.platform).toBe("acme-ide");
+    expect(result.mode).toBe("unavailable");
+    expect(result.reason).toContain('unknown platform "acme-ide"');
   });
 });

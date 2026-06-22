@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import * as fs from "node:fs"; import * as os from "node:os"; import * as path from "node:path";
 import { createTask, setStatus } from "../src/task-store.js";
 import { setActive } from "../src/active.js";
-import { buildContext } from "../src/context.js";
+import { buildContext, renderEnforcementSummary } from "../src/context.js";
 
 let repo: string;
 beforeEach(() => {
@@ -61,5 +61,26 @@ describe("buildContext (§16.6)", () => {
     expect(parsed.hookSpecificOutput.additionalContext).toContain("[trellis-enforcement]");
     expect(parsed.hookSpecificOutput.additionalContext).toContain("Mode: hard");
     expect(parsed.hookSpecificOutput.additionalContext).toContain("Platform: claude-code");
+  });
+  it("renderEnforcementSummary includes risk warning for soft mode", () => {
+    const out = renderEnforcementSummary({
+      platform: "cursor",
+      mode: "soft",
+      reason: "platform lacks hook-based hard deny; breadcrumb rules and agents are advisory",
+    });
+    expect(out).toContain("[trellis-enforcement]");
+    expect(out).toContain("Platform: cursor");
+    expect(out).toContain("Mode: soft");
+    expect(out).toContain("Strict sub-agent-only execution cannot be guaranteed on this platform.");
+    expect(out).toContain("[/trellis-enforcement]");
+  });
+  it("renderEnforcementSummary omits risk warning for hard mode", () => {
+    const out = renderEnforcementSummary({
+      platform: "claude-code",
+      mode: "hard",
+      reason: "supports hooks and executable sub-agents",
+    });
+    expect(out).toContain("Mode: hard");
+    expect(out).not.toContain("Strict sub-agent-only execution cannot be guaranteed on this platform.");
   });
 });
