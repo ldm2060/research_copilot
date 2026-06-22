@@ -27,6 +27,9 @@ RESEARCH_MCP_PREFIXES = (
     "mcp__arxivsub-search__",
     "mcp__google-scholar__",
     "mcp__dblp-bib__",
+    "mcp__research-scholar__scholar_search",
+    "mcp__research-scholar__bibtex",
+    "mcp__research-scholar__scholar_metadata",
 )
 # Conductor-owned artifacts: the main session MAY write these.
 CONDUCTOR_OWNED_ARTIFACTS = (".copilot/state.md", ".copilot/decisions.md")
@@ -38,6 +41,28 @@ DELEGATED_ARTIFACT_FILES = (".copilot/ideas.md", ".copilot/experiments.md",
 READ_ONLY_TOOLS = ("Read", "Grep", "Glob", "TaskCreate", "TaskUpdate",
                    "TaskList", "TaskGet", "Skill", "AskUserQuestion")
 COPILOT_SUBAGENT_PREFIX = "copilot-"
+RC_SUBAGENT_PREFIX = "rc-"
+RESEARCH_EXECUTOR_PREFIXES = (COPILOT_SUBAGENT_PREFIX, RC_SUBAGENT_PREFIX)
+KIND_EXECUTOR = {
+    "literature": "rc-literature",
+    "ideation": "rc-ideation",
+    "experiment": "rc-experiment",
+    "writing": "rc-writer",
+    "polish": "rc-polisher",
+    "review": "rc-reviewer",
+    "rebuttal": "rc-rebuttal",
+}
+COPILOT_TO_RC = {
+    "copilot-literature": "rc-literature",
+    "copilot-ideation": "rc-ideation",
+    "copilot-experiment": "rc-experiment",
+    "copilot-writer": "rc-writer",
+    "copilot-polisher": "rc-polisher",
+    "copilot-reviewer": "rc-reviewer",
+    "copilot-rebuttal": "rc-rebuttal",
+    "copilot-verify": "rc-verify",
+    "copilot-update-spec": "rc-update-spec",
+}
 
 
 def allow() -> dict[str, Any]:
@@ -58,7 +83,7 @@ def is_main_session(payload: dict[str, Any]) -> bool:
 def is_exempt_subagent(payload: dict[str, Any]) -> bool:
     if is_main_session(payload):
         return False
-    return str(payload.get("agent_type") or "").startswith(COPILOT_SUBAGENT_PREFIX)
+    return _is_research_executor(str(payload.get("agent_type") or ""))
 
 
 def is_read_only(command: str) -> bool:
@@ -76,6 +101,62 @@ def _path_matches(path: str, target: str) -> bool:
     'old_references.bib', or '.copilot/ideas.md' matching an unrelated path."""
     p = _norm(path)
     return p == target or p.endswith("/" + target)
+
+
+def _canonical_executor(name: str) -> str:
+    return COPILOT_TO_RC.get(name, name)
+
+
+def _is_research_executor(name: str) -> bool:
+    return name.startswith(RESEARCH_EXECUTOR_PREFIXES)
+
+
+def _runtime_dir() -> Path:
+    return Path.cwd() / ".research" / ".runtime"
+
+
+def _load_active_task() -> dict[str, Any] | None:
+    active_path = _runtime_dir() / "active-task"
+    if not active_path.is_file():
+        return None
+    task_id = active_path.read_text(encoding="utf-8", errors="replace").strip()
+    if not task_id:
+        return None
+    task_path = Path.cwd() / ".research" / "tasks" / task_id / "task.json"
+    if not task_path.is_file():
+        return None
+    try:
+        task = json.loads(task_path.read_text(encoding="utf-8", errors="replace"))
+    except json.JSONDecodeError:
+        return None
+    return task if isinstance(task, dict) else None
+
+
+def _expected_executor(task: dict[str, Any]) -> str | None:
+    status = task.get("status")
+    kind = task.get("kind")
+    if status == "planning":
+        return "rc-plan"
+    if status == "verify":
+        return "rc-verify"
+    if status == "completed":
+        return "rc-update-spec"
+    if status == "in_progress":
+        return KIND_EXECUTOR.get(str(kind))
+    return None
+
+
+def _log_event(event: dict[str, Any]) -> None:
+    runtime = _runtime_dir()
+    runtime.mkdir(parents=True, exist_ok=True)
+    path = runtime / "enforcement-events.jsonl"
+    base = {
+        "platform": "claude-code",
+        "mode": "hard",
+    }
+    base.update(event)
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(base, ensure_ascii=False, sort_keys=True) + "\n")
 
 
 def _iter_transcript_tool_uses(transcript_path: str | None):
@@ -113,6 +194,34 @@ def _iter_transcript_tool_uses(transcript_path: str | None):
                            "input": item.get("input", {}) or {}}
 
 
+def _deny_leaf_work(event_name: str, tool_name: str, default_executor: str, reason: str) -> str:
+    task = _load_active_task()
+    if task is None:
+        _log_event({
+            "event": "main_attempted_leaf_work_without_active_node",
+            "tool": tool_name,
+            "decision": "deny",
+        })
+        return ("Blocked by research-copilot-guard (Trellis claim gate): the conductor "
+                "cannot perform research-domain leaf work without an active task node. "
+                "create a Trellis task node first with `rc task create --kind <kind> --title \"<title>\"`.")
+
+    expected = _expected_executor(task) or default_executor
+    _log_event({
+        "event": event_name,
+        "taskId": task.get("id"),
+        "status": task.get("status"),
+        "kind": task.get("kind"),
+        "tool": tool_name,
+        "decision": "deny",
+        "expectedExecutor": expected,
+    })
+    return (f"Blocked by research-copilot-guard (Trellis claim gate): active task "
+            f"{task.get('id')} is status={task.get('status')} kind={task.get('kind')}. "
+            f"Legal executor is {expected}. The conductor must not do this leaf work inline. "
+            f"{reason}")
+
+
 def check_m1_delegation(tool_name: str, tool_input: dict[str, Any]) -> str | None:
     """M1 delegation gate: deny main-session execution-class work."""
     # Experiment scripts via shell.
@@ -121,15 +230,21 @@ def check_m1_delegation(tool_name: str, tool_input: dict[str, Any]) -> str | Non
         if not command or is_read_only(command):
             return None
         if any(kw in command for kw in EXPERIMENT_KEYWORDS) or EXPERIMENT_REGEX.search(command):
-            return ("Blocked by research-copilot-guard (M1 delegation gate): the "
-                    "conductor must not run experiments inline. Delegate via "
-                    "Agent(subagent_type='copilot-experiment').")
+            return _deny_leaf_work(
+                "main_attempted_experiment",
+                tool_name,
+                "rc-experiment",
+                "Delegate experiment work to the legal task executor.",
+            )
         return None
     # Paper-retrieval MCP tools.
     if any(tool_name.startswith(p) for p in RESEARCH_MCP_PREFIXES):
-        return ("Blocked by research-copilot-guard (M1 delegation gate): the "
-                "conductor must not search papers inline. Delegate via "
-                "Agent(subagent_type='copilot-literature').")
+        return _deny_leaf_work(
+            "main_attempted_literature_search",
+            tool_name,
+            "rc-literature",
+            "Delegate literature search to the legal task executor.",
+        )
     # Writes to delegated research artifacts (segment-anchored, not substring).
     if tool_name in ("Write", "Edit"):
         path = _norm((tool_input or {}).get("file_path", ""))
@@ -138,29 +253,54 @@ def check_m1_delegation(tool_name: str, tool_input: dict[str, Any]) -> str | Non
         segments = path.split("/")
         is_sections_tex = "sections" in segments and path.endswith(".tex")
         if is_sections_tex or any(_path_matches(path, f) for f in DELEGATED_ARTIFACT_FILES):
-            return ("Blocked by research-copilot-guard (M1 delegation gate): the "
-                    "conductor must not write research artifacts (sections/*.tex, "
-                    "references.bib, .copilot/{ideas,experiments,literature}.md) "
-                    "inline. Delegate to the matching copilot-* sub-agent.")
+            return _deny_leaf_work(
+                "main_attempted_artifact_write",
+                tool_name,
+                "rc-writer",
+                "Delegate artifact writing to the legal task executor.",
+            )
     return None
 
 
 def check_m2_task_list(tool_name: str, tool_input: dict[str, Any],
                        transcript_path: str | None) -> str | None:
-    """M2 task-list gate: deny copilot-* dispatch with no TaskCreate this turn."""
+    """M2 task-list gate: deny research executor dispatch without Trellis legality."""
     if tool_name != "Agent":
         return None
     sub_type = str((tool_input or {}).get("subagent_type", ""))
-    if not sub_type.startswith(COPILOT_SUBAGENT_PREFIX):
+    if not _is_research_executor(sub_type):
         return None
-    if not transcript_path:
-        return None  # fail-open: cannot inspect
-    for entry in _iter_transcript_tool_uses(transcript_path):
-        if entry["name"] == "TaskCreate":
-            return None
-    return ("Blocked by research-copilot-guard (M2 task-list gate): dispatching "
-            "a copilot-* sub-agent requires a TaskCreate plan list (one task per "
-            "planned dispatch) in this turn. Call TaskCreate first, then Agent().")
+
+    task = _load_active_task()
+    if task is None:
+        _log_event({
+            "event": "dispatch_without_active_node",
+            "tool": "Agent",
+            "subagent_type": sub_type,
+            "decision": "deny",
+        })
+        return ("Blocked by research-copilot-guard (Trellis dispatch gate): "
+                "research executor dispatch requires an active .research/tasks/<id> task node. "
+                "Create a Trellis task node first with `rc task create --kind <kind> --title \"<title>\"`.")
+
+    expected = _expected_executor(task)
+    actual = _canonical_executor(sub_type)
+    if expected and actual == expected:
+        return None
+
+    _log_event({
+        "event": "executor_mismatch",
+        "taskId": task.get("id"),
+        "status": task.get("status"),
+        "kind": task.get("kind"),
+        "tool": "Agent",
+        "subagent_type": sub_type,
+        "expectedExecutor": expected,
+        "decision": "deny",
+    })
+    return (f"Blocked by research-copilot-guard (Trellis dispatch gate): active task "
+            f"{task.get('id')} is status={task.get('status')} kind={task.get('kind')}. "
+            f"Legal executor is {expected}; cannot dispatch {sub_type}.")
 
 
 def main() -> int:

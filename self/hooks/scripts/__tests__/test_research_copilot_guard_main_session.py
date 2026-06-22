@@ -9,6 +9,26 @@ def _write_transcript(path: Path, entries: list[dict]) -> None:
     path.write_text("\n".join(json.dumps(e) for e in entries) + "\n", encoding="utf-8")
 
 
+def _write_task(repo: Path, task_id: str, kind: str, status: str) -> None:
+    task_dir = repo / ".research" / "tasks" / task_id
+    task_dir.mkdir(parents=True, exist_ok=True)
+    runtime = repo / ".research" / ".runtime"
+    runtime.mkdir(parents=True, exist_ok=True)
+    (runtime / "active-task").write_text(task_id, encoding="utf-8")
+    (task_dir / "task.json").write_text(json.dumps({
+        "id": task_id,
+        "title": "node",
+        "kind": kind,
+        "status": status,
+        "priority": "P2",
+        "children": [],
+        "depends_on": [],
+        "gaps": [],
+        "created": "2026-06-22T00:00:00Z",
+        "updated": "2026-06-22T00:00:00Z",
+    }), encoding="utf-8")
+
+
 # ---- M1 delegation gate (main session) ----
 
 def test_m1_blocks_main_session_experiment_bash(tmp_path):
@@ -76,36 +96,38 @@ def test_m1_allows_powershell_read_only(tmp_path):
     assert check_m1_delegation("PowerShell", {"command": "Get-Content results.txt"}) is None
 
 
-# ---- M2 task-list gate (main session) ----
+# ---- M2 Trellis dispatch gate (main session) ----
 
-def test_m2_blocks_dispatch_without_taskcreate(tmp_path):
+def test_m2_blocks_dispatch_without_active_node(tmp_path, monkeypatch):
+    """Dispatching a research executor with no active task node is denied."""
+    monkeypatch.chdir(tmp_path)
     from research_copilot_guard import check_m2_task_list
-    t = tmp_path / "s.jsonl"
-    _write_transcript(t, [{"type": "tool_use", "name": "Read",
-                           "input": {"file_path": ".copilot/state.md"}}])
-    msg = check_m2_task_list("Agent", {"subagent_type": "copilot-literature"}, str(t))
-    assert msg is not None and "taskcreate" in msg.lower()
+    msg = check_m2_task_list("Agent", {"subagent_type": "copilot-literature"}, None)
+    assert msg is not None and "trellis dispatch gate" in msg.lower()
 
 
-def test_m2_allows_dispatch_with_taskcreate(tmp_path):
+def test_m2_allows_dispatch_with_matching_active_node(tmp_path, monkeypatch):
+    """Dispatching the legal executor for the active task node is allowed."""
     from research_copilot_guard import check_m2_task_list
-    t = tmp_path / "s.jsonl"
-    _write_transcript(t, [{"type": "tool_use", "name": "TaskCreate",
-                           "input": {"subject": "S1"}}])
-    assert check_m2_task_list("Agent", {"subagent_type": "copilot-literature"}, str(t)) is None
+    monkeypatch.chdir(tmp_path)
+    _write_task(tmp_path, "2026-06-22-lit", "literature", "in_progress")
+    assert check_m2_task_list("Agent", {"subagent_type": "copilot-literature"}, None) is None
 
 
-def test_m2_skips_non_copilot_dispatch(tmp_path):
+def test_m2_skips_non_copilot_dispatch(tmp_path, monkeypatch):
+    """Non-research-executor dispatch is not policed by M2."""
+    monkeypatch.chdir(tmp_path)
     from research_copilot_guard import check_m2_task_list
-    t = tmp_path / "s.jsonl"
-    _write_transcript(t, [])
-    assert check_m2_task_list("Agent", {"subagent_type": "general-purpose"}, str(t)) is None
+    assert check_m2_task_list("Agent", {"subagent_type": "general-purpose"}, None) is None
 
 
-def test_m2_fail_open_no_transcript(tmp_path):
-    """No transcript_path => cannot inspect => fail-open (allow)."""
+def test_m2_blocks_executor_mismatch(tmp_path, monkeypatch):
+    """Dispatching the wrong executor for the active task node is denied."""
+    monkeypatch.chdir(tmp_path)
     from research_copilot_guard import check_m2_task_list
-    assert check_m2_task_list("Agent", {"subagent_type": "copilot-writer"}, "") is None
+    _write_task(tmp_path, "2026-06-22-lit", "literature", "in_progress")
+    msg = check_m2_task_list("Agent", {"subagent_type": "copilot-writer"}, None)
+    assert msg is not None and "executor" in msg.lower()
 
 
 # ---- main() integration: attribution via agent_id ----
