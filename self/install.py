@@ -330,16 +330,25 @@ def register_copilot_write_guard(target: Path, dry_run: bool) -> None:
     if not COPILOT_WRITE_GUARD_SCRIPT.is_file():
         warn(f"copilot write guard script missing: {COPILOT_WRITE_GUARD_SCRIPT}; skipping")
         return
-    settings_path, settings = _load_settings(target)
+    settings_path, settings, valid = _load_settings(target)
+    if not valid:
+        return
     hooks = settings.setdefault("hooks", {})
     pre_tool = hooks.setdefault("PreToolUse", [])
     hook_cmd = f'python "{COPILOT_WRITE_GUARD_SCRIPT.resolve()}"'.replace("\\", "/")
-    for block in pre_tool:
-        if block.get("matcher") == "Write|Edit":
-            for hk in block.get("hooks", []):
-                if "copilot_write_guard.py" in hk.get("command", ""):
-                    info("copilot_write_guard already registered; skipping.")
-                    return
+    # Remove any prior copilot_write_guard registrations so reruns refresh paths
+    def _is_write_guard_block(block: Any) -> bool:
+        if not isinstance(block, dict):
+            return False
+        if block.get("matcher") != "Write|Edit":
+            return False
+        for hk in block.get("hooks", []):
+            if not isinstance(hk, dict):
+                continue
+            if "copilot_write_guard.py" in hk.get("command", ""):
+                return True
+        return False
+    pre_tool[:] = [b for b in pre_tool if not _is_write_guard_block(b)]
     pre_tool.append({
         "matcher": "Write|Edit",
         "hooks": [{"type": "command", "command": hook_cmd, "timeout": 10}],
@@ -354,15 +363,23 @@ def register_copilot_subagent_stop(target: Path, dry_run: bool) -> None:
     if not COPILOT_SUBAGENT_STOP_SCRIPT.is_file():
         warn(f"copilot subagent stop script missing: {COPILOT_SUBAGENT_STOP_SCRIPT}; skipping")
         return
-    settings_path, settings = _load_settings(target)
+    settings_path, settings, valid = _load_settings(target)
+    if not valid:
+        return
     hooks = settings.setdefault("hooks", {})
     stop_hooks = hooks.setdefault("SubagentStop", [])
     hook_cmd = f'python "{COPILOT_SUBAGENT_STOP_SCRIPT.resolve()}"'.replace("\\", "/")
-    for block in stop_hooks:
+    # Remove any prior copilot_subagent_stop registrations so reruns refresh paths
+    def _is_subagent_stop_block(block: Any) -> bool:
+        if not isinstance(block, dict):
+            return False
         for hk in block.get("hooks", []):
+            if not isinstance(hk, dict):
+                continue
             if "copilot_subagent_stop.py" in hk.get("command", ""):
-                info("copilot_subagent_stop already registered; skipping.")
-                return
+                return True
+        return False
+    stop_hooks[:] = [b for b in stop_hooks if not _is_subagent_stop_block(b)]
     stop_hooks.append({
         "hooks": [{"type": "command", "command": hook_cmd, "timeout": 10}],
     })
@@ -373,18 +390,24 @@ def register_copilot_subagent_stop(target: Path, dry_run: bool) -> None:
 
 # -------- Step 3c-3e: register the three new hooks --------
 
-def _load_settings(target: Path) -> tuple[Path, dict]:
+def _load_settings(target: Path) -> tuple[Path, dict, bool]:
+    """Load .claude/settings.json.
+
+    Returns (settings_path, settings_dict, json_was_valid).
+    When json_was_valid is False the file existed but contained invalid JSON;
+    callers should skip writing to avoid overwriting a corrupted file.
+    """
     settings_dir = target / ".claude"
     settings_path = settings_dir / "settings.json"
     if settings_path.is_file():
         try:
             settings = json.loads(settings_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
-            error(f"existing settings.json is invalid JSON ({exc}); treating as empty")
-            settings = {}
+            error(f"existing settings.json is invalid JSON ({exc}); skipping registration")
+            return settings_path, {}, False
     else:
         settings = {}
-    return settings_path, settings
+    return settings_path, settings, True
 
 
 def _save_settings(settings_path: Path, settings: dict) -> None:
@@ -409,7 +432,9 @@ def _already_registered(blocks: list, identifier_substr: str) -> bool:
 
 def _add_session_start_hook(target: Path, dry_run: bool, script: Path,
                             identifier_substr: str, timeout: int) -> None:
-    settings_path, settings = _load_settings(target)
+    settings_path, settings, valid = _load_settings(target)
+    if not valid:
+        return
     blocks = settings.setdefault("hooks", {}).setdefault("SessionStart", [])
     if _already_registered(blocks, identifier_substr):
         info(f"  {identifier_substr} already registered; skipping.")
@@ -425,7 +450,9 @@ def _add_session_start_hook(target: Path, dry_run: bool, script: Path,
 
 def _add_user_prompt_submit_hook(target: Path, dry_run: bool, script: Path,
                                  identifier_substr: str, timeout: int) -> None:
-    settings_path, settings = _load_settings(target)
+    settings_path, settings, valid = _load_settings(target)
+    if not valid:
+        return
     blocks = settings.setdefault("hooks", {}).setdefault("UserPromptSubmit", [])
     if _already_registered(blocks, identifier_substr):
         info(f"  {identifier_substr} already registered; skipping.")
@@ -442,7 +469,9 @@ def _add_user_prompt_submit_hook(target: Path, dry_run: bool, script: Path,
 
 def _add_post_tool_use_hook(target: Path, dry_run: bool, script: Path,
                             matcher: str, identifier_substr: str, timeout: int) -> None:
-    settings_path, settings = _load_settings(target)
+    settings_path, settings, valid = _load_settings(target)
+    if not valid:
+        return
     blocks = settings.setdefault("hooks", {}).setdefault("PostToolUse", [])
     if _already_registered(blocks, identifier_substr):
         info(f"  {identifier_substr} already registered; skipping.")
@@ -504,7 +533,9 @@ def register_conductor_agent(target: Path, dry_run: bool) -> None:
     """Set 'agent': 'copilot-conductor' in .claude/settings.json so the main
     session loads the conductor's system prompt at highest priority."""
     step("Step 3f/5: register copilot-conductor as main-session agent")
-    settings_path, settings = _load_settings(target)
+    settings_path, settings, valid = _load_settings(target)
+    if not valid:
+        return
     if settings.get("agent") == "copilot-conductor":
         info("agent key already set to copilot-conductor; skipping.")
         return
