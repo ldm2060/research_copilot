@@ -330,9 +330,7 @@ def register_copilot_write_guard(target: Path, dry_run: bool) -> None:
     if not COPILOT_WRITE_GUARD_SCRIPT.is_file():
         warn(f"copilot write guard script missing: {COPILOT_WRITE_GUARD_SCRIPT}; skipping")
         return
-    settings_dir = target / ".claude"
-    settings_path = settings_dir / "settings.json"
-    settings = json.loads(settings_path.read_text(encoding="utf-8")) if settings_path.is_file() else {}
+    settings_path, settings = _load_settings(target)
     hooks = settings.setdefault("hooks", {})
     pre_tool = hooks.setdefault("PreToolUse", [])
     hook_cmd = f'python "{COPILOT_WRITE_GUARD_SCRIPT.resolve()}"'.replace("\\", "/")
@@ -348,8 +346,7 @@ def register_copilot_write_guard(target: Path, dry_run: bool) -> None:
     })
     if dry_run:
         return
-    settings_dir.mkdir(parents=True, exist_ok=True)
-    settings_path.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _save_settings(settings_path, settings)
 
 
 def register_copilot_subagent_stop(target: Path, dry_run: bool) -> None:
@@ -357,9 +354,7 @@ def register_copilot_subagent_stop(target: Path, dry_run: bool) -> None:
     if not COPILOT_SUBAGENT_STOP_SCRIPT.is_file():
         warn(f"copilot subagent stop script missing: {COPILOT_SUBAGENT_STOP_SCRIPT}; skipping")
         return
-    settings_dir = target / ".claude"
-    settings_path = settings_dir / "settings.json"
-    settings = json.loads(settings_path.read_text(encoding="utf-8")) if settings_path.is_file() else {}
+    settings_path, settings = _load_settings(target)
     hooks = settings.setdefault("hooks", {})
     stop_hooks = hooks.setdefault("SubagentStop", [])
     hook_cmd = f'python "{COPILOT_SUBAGENT_STOP_SCRIPT.resolve()}"'.replace("\\", "/")
@@ -373,8 +368,7 @@ def register_copilot_subagent_stop(target: Path, dry_run: bool) -> None:
     })
     if dry_run:
         return
-    settings_dir.mkdir(parents=True, exist_ok=True)
-    settings_path.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _save_settings(settings_path, settings)
 
 
 # -------- Step 3c-3e: register the three new hooks --------
@@ -383,7 +377,11 @@ def _load_settings(target: Path) -> tuple[Path, dict]:
     settings_dir = target / ".claude"
     settings_path = settings_dir / "settings.json"
     if settings_path.is_file():
-        settings = json.loads(settings_path.read_text(encoding="utf-8"))
+        try:
+            settings = json.loads(settings_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            error(f"existing settings.json is invalid JSON ({exc}); treating as empty")
+            settings = {}
     else:
         settings = {}
     return settings_path, settings
