@@ -54,6 +54,7 @@ KIND_EXECUTOR = {
     "rebuttal": "rc-rebuttal",
 }
 COPILOT_TO_RC = {
+    "copilot-plan": "rc-plan",
     "copilot-literature": "rc-literature",
     "copilot-ideation": "rc-ideation",
     "copilot-experiment": "rc-experiment",

@@ -110,3 +110,24 @@ def test_copilot_subagent_with_agent_id_is_exempt_for_leaf_tools(tmp_path, monke
     })
 
     assert decision["hookSpecificOutput"]["permissionDecision"] == "allow"
+
+
+def test_copilot_plan_canonicalized_to_rc_plan_for_planning_task(tmp_path, monkeypatch):
+    """copilot-plan is canonicalized to rc-plan and allowed for a planning task."""
+    monkeypatch.chdir(tmp_path)
+    write_task(tmp_path, "2026-06-22-lit", "literature", "planning")
+
+    allowed = guard._decide({
+        "tool_name": "Agent",
+        "tool_input": {"subagent_type": "copilot-plan"},
+        "transcript_path": None,
+    })
+    denied = guard._decide({
+        "tool_name": "Agent",
+        "tool_input": {"subagent_type": "copilot-literature"},
+        "transcript_path": None,
+    })
+
+    assert allowed["hookSpecificOutput"]["permissionDecision"] == "allow"
+    assert denied["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert "Legal executor is rc-plan" in denied["systemMessage"]
