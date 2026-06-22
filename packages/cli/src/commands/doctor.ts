@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { kitRoot, MCP_SERVERS } from "@research-copilot/adapters";
+import { kitRoot, MCP_SERVERS, AI_TOOLS } from "@research-copilot/adapters";
 import { runInit } from "./init.js";
 import {
   checkClaudePluginLoading,
@@ -19,6 +19,7 @@ export interface DoctorOptions {
   fix?: boolean;
   skipPlugin?: boolean;
   runner?: CommandRunner;
+  platform?: string;
 }
 
 interface Check {
@@ -83,6 +84,28 @@ function checkCoreConfig(repo: string): Check[] {
     ? { level: "OK", message: "CLAUDE.md contains Research Copilot workflow instruction" }
     : { level: "FAIL", message: "CLAUDE.md contains Research Copilot workflow instruction" });
 
+  return checks;
+}
+
+function checkEnforcement(platform = "claude-code"): Check[] {
+  const entry = AI_TOOLS[platform];
+  if (!entry) {
+    return [{
+      level: "FAIL",
+      message: `Research workflow enforcement: unavailable (${platform}) — unknown platform`,
+    }];
+  }
+  const level: Check["level"] = entry.enforcement.mode === "hard" ? "OK" : "WARN";
+  const checks: Check[] = [{
+    level,
+    message: `Research workflow enforcement: ${entry.enforcement.mode} (${entry.enforcement.platform}) — ${entry.enforcement.reason}`,
+  }];
+  if (entry.enforcement.mode !== "hard") {
+    checks.push({
+      level: "WARN",
+      message: "Strict sub-agent-only execution cannot be guaranteed on this platform.",
+    });
+  }
   return checks;
 }
 
@@ -155,7 +178,7 @@ export function runDoctor(repo: string, options: DoctorOptions = {}): { ok: bool
     report.push("Fixed: reconciled Research Copilot project configuration");
   }
 
-  const checks = [...checkCoreConfig(repo), ...checkPlugin(repo, options)];
+  const checks = [...checkCoreConfig(repo), ...checkEnforcement(options.platform), ...checkPlugin(repo, options)];
   let ok = true;
   for (const check of checks) {
     report.push(`${check.level} ${check.message}`);

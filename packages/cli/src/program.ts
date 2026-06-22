@@ -36,11 +36,13 @@ export function buildProgram(repo = process.cwd()): Command {
     .option("--fix", "Repair missing Research Copilot project configuration", false)
     .option("--skip-plugin", "Skip npm plugin checks/fixes that install packages", false)
     .option("--strict-plugin", "Treat plugin warnings as failures", false)
+    .option("--platform <p>", "platform", "claude-code")
     .action((opts) => {
       const { ok, report } = runDoctor(repo, {
         fix: opts.fix,
         skipPlugin: opts.skipPlugin,
         strictPlugin: opts.strictPlugin,
+        platform: opts.platform,
       });
       process.stdout.write(report.join("\n") + "\n");
       process.exitCode = ok ? 0 : 1;

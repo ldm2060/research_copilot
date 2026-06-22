@@ -149,4 +149,25 @@ describe("rc doctor", () => {
     expect(r.calls).toEqual([]);
     expect(result.report.join("\n")).toContain("Fixed: reconciled Research Copilot project configuration");
   });
+
+  it("reports hard Trellis enforcement for Claude Code", () => {
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+    const r = runner({}, { "npm list -g @research-copilot/plugin --json": new Error("missing") });
+
+    const result = runDoctor(repo, { runner: r, platform: "claude-code" });
+
+    expect(result.report.join("\n")).toContain("OK Research workflow enforcement: hard (claude-code)");
+    expect(result.report.join("\n")).toContain("supports hooks and executable sub-agents");
+  });
+
+  it("reports soft Trellis enforcement for Windsurf", () => {
+    runInit({ repo, platforms: ["windsurf"], user: "tester", skipPlugin: true });
+    const r = runner({}, { "npm list -g @research-copilot/plugin --json": new Error("missing") });
+
+    const result = runDoctor(repo, { runner: r, platform: "windsurf" });
+
+    const report = result.report.join("\n");
+    expect(report).toContain("WARN Research workflow enforcement: soft (windsurf)");
+    expect(report).toContain("Strict sub-agent-only execution cannot be guaranteed on this platform.");
+  });
 });
