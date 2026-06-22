@@ -24,7 +24,13 @@ export function buildProgram(repo = process.cwd()): Command {
     .option("--format <f>", "text|json", "text")
     .option("--event <name>", "hook event name for json envelope")
     .action((opts) => {
-      process.stdout.write(runContext({ repo, format: opts.format, now: new Date().toISOString(), eventName: opts.event }));
+      process.stdout.write(runContext({
+        repo,
+        platform: opts.platform,
+        format: opts.format,
+        now: new Date().toISOString(),
+        eventName: opts.event,
+      }));
     });
   program.command("doctor")
     .option("--fix", "Repair missing Research Copilot project configuration", false)

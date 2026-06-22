@@ -16,4 +16,18 @@ describe("rc context", () => {
     expect(out).toContain("[workflow-state:no_task]");
     expect(out).toContain("[research-state]");
   });
+
+  it("includes hard enforcement for claude-code by default", () => {
+    const out = runContext({ repo, format: "text", now: "2026-06-05T00:00:00Z" });
+    expect(out).toContain("[trellis-enforcement]");
+    expect(out).toContain("Platform: claude-code");
+    expect(out).toContain("Mode: hard");
+  });
+
+  it("includes soft enforcement for class-2 platforms", () => {
+    const out = runContext({ repo, platform: "windsurf", format: "text", now: "2026-06-05T00:00:00Z" });
+    expect(out).toContain("Platform: windsurf");
+    expect(out).toContain("Mode: soft");
+    expect(out).toContain("Strict sub-agent-only execution cannot be guaranteed on this platform.");
+  });
 });

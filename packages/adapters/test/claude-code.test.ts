@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import * as fs from "node:fs"; import * as os from "node:os"; import * as path from "node:path";
 import { configureClaudeCode } from "../src/configurators/claude-code.js";
+import { AI_TOOLS } from "../src/registry.js";
 
 let repo: string;
 beforeEach(() => { repo = fs.mkdtempSync(path.join(os.tmpdir(), "rc-")); });
@@ -61,5 +62,12 @@ describe("claude-code configurator", () => {
     const mcp = JSON.parse(fs.readFileSync(path.join(repo, ".mcp.json"), "utf8"));
     expect(Object.keys(mcp.mcpServers).filter(k => k === "research-scholar").length).toBe(1);
     expect(mcp.mcpServers["research-scholar"].args).toEqual(["-y", "@research-copilot/mcp-scholar"]);
+  });
+  it("declares hard Trellis enforcement capability", () => {
+    expect(AI_TOOLS["claude-code"].enforcement).toEqual({
+      platform: "claude-code",
+      mode: "hard",
+      reason: "supports hooks and executable sub-agents",
+    });
   });
 });

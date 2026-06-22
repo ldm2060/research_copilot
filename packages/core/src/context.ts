@@ -4,8 +4,9 @@ import { listTasks } from "./task-store.js";
 import { getActive } from "./active.js";
 import { computeResearchState, type ResearchState } from "./research-state.js";
 import { extractWorkflowState } from "./workflow.js";
+import type { EnforcementSummary } from "./enforcement.js";
 
-export interface BuildOptions { format: "text" | "json"; now: string; eventName?: string; }
+export interface BuildOptions { format: "text" | "json"; now: string; eventName?: string; enforcement?: EnforcementSummary; }
 
 export function renderResearchState(rs: ResearchState): string {
   const lines: string[] = ["[research-state]"];
@@ -23,6 +24,20 @@ export function renderResearchState(rs: ResearchState): string {
   return lines.join("\n");
 }
 
+export function renderEnforcementSummary(summary: EnforcementSummary): string {
+  const lines = [
+    "[trellis-enforcement]",
+    `Platform: ${summary.platform}`,
+    `Mode: ${summary.mode}`,
+    `Reason: ${summary.reason}`,
+  ];
+  if (summary.mode !== "hard") {
+    lines.push("Strict sub-agent-only execution cannot be guaranteed on this platform.");
+  }
+  lines.push("[/trellis-enforcement]");
+  return lines.join("\n");
+}
+
 export function buildContext(repo: string, opts: BuildOptions): string {
   const tasks = listTasks(repo);
   const active = getActive(repo) ?? undefined;
@@ -34,8 +49,12 @@ export function buildContext(repo: string, opts: BuildOptions): string {
   const stateKey = activeStatus ?? "no_task";
   const wfBlock = extractWorkflowState(wfMd, stateKey) ?? "Refer to workflow.md for current step.";
 
-  const text =
-    `[workflow-state:${stateKey}]\n${wfBlock}\n[/workflow-state]\n\n${renderResearchState(rs)}`;
+  const blocks = [
+    `[workflow-state:${stateKey}]\n${wfBlock}\n[/workflow-state]`,
+    renderResearchState(rs),
+  ];
+  if (opts.enforcement) blocks.push(renderEnforcementSummary(opts.enforcement));
+  const text = blocks.join("\n\n");
 
   if (opts.format === "json") {
     return JSON.stringify({

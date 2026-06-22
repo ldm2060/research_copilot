@@ -32,4 +32,19 @@ describe("buildContext (§16.6)", () => {
     const out = buildContext(repo, { format: "json", now: "2026-06-05T02:00:00Z", eventName: "BeforeAgent" });
     expect(JSON.parse(out).hookSpecificOutput.hookEventName).toBe("BeforeAgent");
   });
+  it("renders a Trellis enforcement block when enforcement summary is supplied", () => {
+    const out = buildContext(repo, {
+      format: "text",
+      now: "2026-06-05T02:00:00Z",
+      enforcement: {
+        platform: "claude-code",
+        mode: "hard",
+        reason: "supports hooks and executable sub-agents",
+      },
+    });
+    expect(out).toContain("[trellis-enforcement]");
+    expect(out).toContain("Mode: hard");
+    expect(out).toContain("Platform: claude-code");
+    expect(out).toContain("Reason: supports hooks and executable sub-agents");
+  });
 });

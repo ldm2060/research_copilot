@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import * as fs from "node:fs"; import * as os from "node:os"; import * as path from "node:path";
 import { configureWindsurf } from "../src/configurators/windsurf.js";
+import { AI_TOOLS } from "../src/registry.js";
 
 let repo: string;
 beforeEach(() => { repo = fs.mkdtempSync(path.join(os.tmpdir(), "rc-")); });
@@ -47,5 +48,12 @@ describe("windsurf configurator (class-2, agent-less)", () => {
     expect(rule.split("mcp_config.json").length - 1).toBeGreaterThanOrEqual(1);
     // the heading anchoring the note must appear exactly once
     expect(rule.split("## MCP servers").length - 1).toBe(1);
+  });
+  it("declares soft Trellis enforcement because hooks and executable agents are unavailable", () => {
+    expect(AI_TOOLS.windsurf.enforcement).toEqual({
+      platform: "windsurf",
+      mode: "soft",
+      reason: "platform lacks hook-based hard deny and executable sub-agents; workflows are advisory",
+    });
   });
 });

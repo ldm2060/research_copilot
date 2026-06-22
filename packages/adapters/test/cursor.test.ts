@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import * as fs from "node:fs"; import * as os from "node:os"; import * as path from "node:path";
 import { configureCursor } from "../src/configurators/cursor.js";
+import { AI_TOOLS } from "../src/registry.js";
 
 let repo: string;
 beforeEach(() => { repo = fs.mkdtempSync(path.join(os.tmpdir(), "rc-")); });
@@ -37,5 +38,12 @@ describe("cursor configurator (class-2 breadcrumb)", () => {
     const mcp = JSON.parse(fs.readFileSync(path.join(repo, ".cursor/mcp.json"), "utf8"));
     expect(mcp.mcpServers.other).toBeDefined();
     expect(mcp.mcpServers["research-scholar"].args).toEqual(["-y", "@research-copilot/mcp-scholar"]);
+  });
+  it("declares soft Trellis enforcement because hooks are unavailable", () => {
+    expect(AI_TOOLS.cursor.enforcement).toEqual({
+      platform: "cursor",
+      mode: "soft",
+      reason: "platform lacks hook-based hard deny; breadcrumb rules and agents are advisory",
+    });
   });
 });
