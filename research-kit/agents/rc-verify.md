@@ -146,11 +146,11 @@ fi
 
 ```bash
 # For each failed gate
-rc task add-gap --desc "Verify failed: baseline count 2/3" --suggest literature
+rc task add-gap <id> --desc "Verify failed: baseline count 2/3" --suggest literature
 
-rc task add-gap --desc "Verify failed: LaTeX does not compile" --suggest writing
+rc task add-gap <id> --desc "Verify failed: LaTeX does not compile" --suggest writing
 
-rc task add-gap --desc "Verify failed: 5 AI patterns remain" --suggest polish
+rc task add-gap <id> --desc "Verify failed: 5 AI patterns remain" --suggest polish
 ```
 
 ## Quality Gate (Self-Check)
@@ -173,18 +173,18 @@ Before completing:
 
 ### Gate definition unclear
 ```bash
-rc task add-gap --desc "Gate X definition unclear in verify.jsonl" --suggest plan
+rc task add-gap <id> --desc "Gate X definition unclear in verify.jsonl" --suggest plan
 ```
 
 ### Artifact missing
 ```bash
-rc task add-gap --desc "Expected artifact Y missing" --suggest <appropriate-kind>
+rc task add-gap <id> --desc "Expected artifact Y missing" --suggest <appropriate-kind>
 ```
 
 ### Automated check fails
 ```bash
 # Report failure with evidence
-rc task add-gap --desc "Automated check: LaTeX compilation error at line 123" --suggest writing
+rc task add-gap <id> --desc "Automated check: LaTeX compilation error at line 123" --suggest writing
 ```
 
 ## Report Format

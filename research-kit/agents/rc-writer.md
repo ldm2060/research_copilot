@@ -45,7 +45,7 @@ Our method achieves 95.2\% accuracy\footnote{See \texttt{.research/tasks/exp-001
 
 NO bare numbers without source. If data missing, record gap:
 ```bash
-rc task add-gap --desc "Missing data for claim X" --suggest experiment
+rc task add-gap <id> --desc "Missing data for claim X" --suggest experiment
 ```
 
 ### 2. Section-by-Section Writing
@@ -108,24 +108,24 @@ Before `rc task set-status <id> verify`:
 
 ### Missing experiment data
 ```bash
-rc task add-gap --desc "Missing data for claim X in Section Y" --suggest experiment
+rc task add-gap <id> --desc "Missing data for claim X in Section Y" --suggest experiment
 ```
 
 ### Baseline not cited
 ```bash
-rc task add-gap --desc "Baseline Y from related-work-map not cited" --suggest literature
+rc task add-gap <id> --desc "Baseline Y from related-work-map not cited" --suggest literature
 ```
 
 ### Unclear venue requirements
 ```bash
-rc task add-gap --desc "Venue spec unclear for requirement X" --suggest plan
+rc task add-gap <id> --desc "Venue spec unclear for requirement X" --suggest plan
 ```
 
 ### LaTeX compilation error
 ```bash
 # Check error log
 ERROR=$(pdflatex paper.tex 2>&1 | grep "Error")
-rc task add-gap --desc "LaTeX error: $ERROR" --suggest writing
+rc task add-gap <id> --desc "LaTeX error: $ERROR" --suggest writing
 ```
 
 ## Report Format

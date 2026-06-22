@@ -135,16 +135,16 @@ Propose 2-3 concrete approaches, ranked by feasibility × impact:
 When you encounter issues:
 ```bash
 # Low feasibility
-rc task add-gap --desc "Component X unavailable, need to implement from scratch" --suggest experiment
+rc task add-gap <id> --desc "Component X unavailable, need to implement from scratch" --suggest experiment
 
 # Unclear evidence
-rc task add-gap --desc "Need more baselines for claim Y" --suggest literature
+rc task add-gap <id> --desc "Need more baselines for claim Y" --suggest literature
 
 # Similar prior work
-rc task add-gap --desc "Novelty vs Paper Z unclear, need detailed comparison" --suggest literature
+rc task add-gap <id> --desc "Novelty vs Paper Z unclear, need detailed comparison" --suggest literature
 
 # Unclear problem definition
-rc task add-gap --desc "Success criteria ambiguous, need clarification" --suggest plan
+rc task add-gap <id> --desc "Success criteria ambiguous, need clarification" --suggest plan
 ```
 
 ## Quality Gate (Self-Check Before Reporting)
@@ -171,7 +171,7 @@ Before calling `rc task set-status <id> verify`:
 2. Check related-work-map.md for gaps in existing work
 3. If still unclear, record as gap:
 ```bash
-rc task add-gap --desc "Novelty unclear vs existing work, need deeper literature review" --suggest literature
+rc task add-gap <id> --desc "Novelty unclear vs existing work, need deeper literature review" --suggest literature
 ```
 
 ### Unclear feasibility
@@ -179,7 +179,7 @@ rc task add-gap --desc "Novelty unclear vs existing work, need deeper literature
 2. Check if baseline code available
 3. Record as gap:
 ```bash
-rc task add-gap --desc "Feasibility of component X unclear, need prototype" --suggest experiment
+rc task add-gap <id> --desc "Feasibility of component X unclear, need prototype" --suggest experiment
 ```
 
 ### User decision needed

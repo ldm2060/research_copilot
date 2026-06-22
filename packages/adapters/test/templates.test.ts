@@ -46,4 +46,11 @@ describe("research-kit templates", () => {
       expect(md).toContain("Record gaps with `rc task add-gap <id> --desc \"<gap>\" --suggest <kind>`.");
     }
   });
+
+  it("no agent template contains stale add-gap syntax missing <id>", () => {
+    for (const file of agentFiles) {
+      const md = fs.readFileSync(path.join(KIT, "agents", file), "utf8");
+      expect(md).not.toContain("rc task add-gap --desc");
+    }
+  });
 });

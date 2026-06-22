@@ -83,13 +83,13 @@ Example:
 
 ```bash
 # For each P0 gap
-rc task add-gap --desc "P0: Missing baseline X comparison" --suggest literature
+rc task add-gap <id> --desc "P0: Missing baseline X comparison" --suggest literature
 
 # For P1 gaps
-rc task add-gap --desc "P1: Clarity issue in Method section Y" --suggest writing
+rc task add-gap <id> --desc "P1: Clarity issue in Method section Y" --suggest writing
 
 # For P2 gaps
-rc task add-gap --desc "P2: Consider additional dataset Z" --suggest experiment
+rc task add-gap <id> --desc "P2: Consider additional dataset Z" --suggest experiment
 ```
 
 ### 5. Six-Dimension Review
@@ -122,13 +122,13 @@ Before `rc task set-status <id> verify`:
 
 ### Unclear venue standards
 ```bash
-rc task add-gap --desc "Venue standard for X unclear" --suggest plan
+rc task add-gap <id> --desc "Venue standard for X unclear" --suggest plan
 ```
 
 ### Technical detail unclear
 ```bash
 # Don't guess - mark as concern
-rc task add-gap --desc "P1: Method detail X unclear, needs clarification" --suggest writing
+rc task add-gap <id> --desc "P1: Method detail X unclear, needs clarification" --suggest writing
 ```
 
 ## Report Format

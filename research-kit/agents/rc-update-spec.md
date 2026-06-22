@@ -152,9 +152,9 @@ EOF
 If learning unclear or needs validation:
 
 ```bash
-rc task add-gap --desc "Learning X unclear, need more evidence before sedimentation" --suggest literature
+rc task add-gap <id> --desc "Learning X unclear, need more evidence before sedimentation" --suggest literature
 
-rc task add-gap --desc "Protocol Y failed, need to investigate before spec update" --suggest experiment
+rc task add-gap <id> --desc "Protocol Y failed, need to investigate before spec update" --suggest experiment
 ```
 
 ## Quality Gate (Self-Check)
@@ -178,7 +178,7 @@ Before `rc task set-status <id> verify`:
 ### Unclear whether to sediment
 ```bash
 # If doubt, don't sediment yet
-rc task add-gap --desc "Learning X needs validation before sedimentation" --suggest <kind>
+rc task add-gap <id> --desc "Learning X needs validation before sedimentation" --suggest <kind>
 ```
 
 ### Spec file doesn't exist

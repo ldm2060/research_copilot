@@ -125,13 +125,13 @@ git checkout paper.tex
 
 ### Venue style unclear
 ```bash
-rc task add-gap --desc "Venue style for X unclear in spec" --suggest plan
+rc task add-gap <id> --desc "Venue style for X unclear in spec" --suggest plan
 ```
 
 ### Technical error found
 ```bash
 # Do NOT fix it yourself
-rc task add-gap --desc "Technical error in Section Y: <description>" --suggest writing
+rc task add-gap <id> --desc "Technical error in Section Y: <description>" --suggest writing
 ```
 
 ## Report Format

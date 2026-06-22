@@ -90,7 +90,7 @@ ACCURACY=$(grep "Final accuracy" train.log | tail -1 | awk '{print $3}')
 TARGET=$(grep "target accuracy" .research/tasks/<id>/prd.md | awk '{print $3}')
 
 if (( $(echo "$ACCURACY < $TARGET" | bc -l) )); then
-  rc task add-gap --desc "Accuracy $ACCURACY < target $TARGET" --suggest experiment
+  rc task add-gap <id> --desc "Accuracy $ACCURACY < target $TARGET" --suggest experiment
 fi
 ```
 
@@ -158,23 +158,23 @@ Before `rc task set-status <id> verify`:
 ERROR=$(grep -i "error\\|exception" train.log | tail -1)
 
 # Record as gap
-rc task add-gap --desc "Training failed: $ERROR" --suggest experiment
+rc task add-gap <id> --desc "Training failed: $ERROR" --suggest experiment
 ```
 
 ### Metric below target
 ```bash
-rc task add-gap --desc "Accuracy $ACCURACY below target $TARGET, need hyperparameter tuning" --suggest experiment
+rc task add-gap <id> --desc "Accuracy $ACCURACY below target $TARGET, need hyperparameter tuning" --suggest experiment
 ```
 
 ### Out of memory
 ```bash
-rc task add-gap --desc "OOM error, reduce batch size or model size" --suggest ideation
+rc task add-gap <id> --desc "OOM error, reduce batch size or model size" --suggest ideation
 # (May need different approach)
 ```
 
 ### Baseline comparison missing
 ```bash
-rc task add-gap --desc "Missing baseline X for comparison" --suggest literature
+rc task add-gap <id> --desc "Missing baseline X for comparison" --suggest literature
 ```
 
 ## Report Format

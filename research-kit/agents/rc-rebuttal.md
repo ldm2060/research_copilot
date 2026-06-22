@@ -102,7 +102,7 @@ on the remaining 3 datasets for the camera-ready version.
 
 Then record commitment:
 ```bash
-rc task add-gap --desc "Committed to Reviewer 3: test on 3 more datasets" --suggest experiment
+rc task add-gap <id> --desc "Committed to Reviewer 3: test on 3 more datasets" --suggest experiment
 ```
 
 ### 4. Track All Changes
@@ -146,7 +146,7 @@ Before `rc task set-status <id> verify`:
 
 ### Missing evidence for claim
 ```bash
-rc task add-gap --desc "Need evidence for rebuttal claim X" --suggest experiment
+rc task add-gap <id> --desc "Need evidence for rebuttal claim X" --suggest experiment
 ```
 
 ### Change requested is unclear
