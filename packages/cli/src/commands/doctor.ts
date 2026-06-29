@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { kitRoot, MCP_SERVERS, AI_TOOLS } from "@research-copilot/adapters";
 import { runInit } from "./init.js";
 import {
@@ -30,6 +30,12 @@ interface Check {
 const CLAUDE_PROJECT_PLUGIN_INSTALLED_MESSAGE = "Claude project plugin registration exists";
 const CLAUDE_PLUGIN_LIST_MISSING_WITH_REGISTRATION_MESSAGE = "Claude Code is available but does not list project-registered research-copilot plugin; project plugin registration is installed";
 const CLAUDE_PLUGIN_LIST_UNAVAILABLE_WITH_REGISTRATION_MESSAGE = "Claude Code plugin list unavailable; project plugin registration is installed";
+const CLAUDE_PLUGIN_ID = "research-copilot@research-copilot";
+
+function sameRepo(a: string, b: string): boolean {
+  const norm = (p: string) => resolve(p).replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase();
+  return norm(a) === norm(b) && norm(a) !== "";
+}
 
 function existsCheck(path: string, label: string): Check {
   return fs.existsSync(path)
@@ -150,17 +156,52 @@ function checkPlugin(repo: string, options: DoctorOptions): Check[] {
   const registration = checkClaudeProjectPluginRegistration(repo);
   checks.push(registration);
 
-  const claude = checkClaudePluginLoading(options.runner);
+  const claude = checkClaudePluginLoading(options.runner, { repo, expectedVersion: cliVersion });
   const registered = registration.level === "OK";
-  checks.push({
-    level: "INFO",
-    message: registered && claude.available && !claude.listed
-      ? CLAUDE_PLUGIN_LIST_MISSING_WITH_REGISTRATION_MESSAGE
-      : registered && !claude.available
+  checks.push(claudeLoadingCheck(claude, registered, repo, cliVersion));
+  return checks;
+}
+
+function claudeLoadingCheck(
+  claude: ReturnType<typeof checkClaudePluginLoading>,
+  registered: boolean,
+  repo: string,
+  expectedVersion: string,
+): Check {
+  // Claude Code itself unavailable / plugin list not JSON.
+  if (!claude.available) {
+    return {
+      level: "INFO",
+      message: registered
         ? CLAUDE_PLUGIN_LIST_UNAVAILABLE_WITH_REGISTRATION_MESSAGE
         : claude.message,
-  });
-  return checks;
+    };
+  }
+  // Available but research-copilot is not listed at all.
+  if (!claude.listed) {
+    return {
+      level: registered ? "INFO" : "WARN",
+      message: registered
+        ? CLAUDE_PLUGIN_LIST_MISSING_WITH_REGISTRATION_MESSAGE
+        : claude.message,
+    };
+  }
+  // Listed but disabled — skills will not load. This is the previously-hidden failure.
+  if (!claude.enabled) {
+    return { level: "WARN", message: claude.message };
+  }
+  // Enabled but stale relative to the CLI/plugin version.
+  if (claude.version && claude.version !== expectedVersion) {
+    return { level: "WARN", message: claude.message };
+  }
+  // Enabled and current, but bound to a different project — it will not load here.
+  if (claude.projectPath && !sameRepo(repo, claude.projectPath)) {
+    return {
+      level: "INFO",
+      message: `${claude.message}. Note: plugin is bound to ${claude.projectPath}; it will not load in this project. Re-add: claude plugin install ${CLAUDE_PLUGIN_ID}`,
+    };
+  }
+  return { level: "OK", message: claude.message };
 }
 
 export function runDoctor(repo: string, options: DoctorOptions = {}): { ok: boolean; report: string[] } {

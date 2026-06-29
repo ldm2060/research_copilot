@@ -66,18 +66,79 @@ describe("rc doctor", () => {
     expect(result.report.join("\n")).toMatch(/npm install -g @research-copilot\/plugin@/);
   });
 
-  it("reports Claude Code plugin loading as informational", () => {
+  it("reports Claude Code plugin loading as OK when enabled and version matches", () => {
     runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
     const r = runner({
       "npm list -g @research-copilot/plugin --json": JSON.stringify({
         dependencies: { "@research-copilot/plugin": { version: readCliVersion() } },
       }),
-      "claude plugin list": "research-copilot 1.1.17",
+      "claude plugin list --json": JSON.stringify([
+        { id: "research-copilot@research-copilot", version: readCliVersion(), enabled: true, scope: "project", projectPath: repo },
+      ]),
     });
 
     const result = runDoctor(repo, { runner: r });
+    const report = result.report.join("\n");
 
-    expect(result.report.join("\n")).toContain("INFO Claude Code lists research-copilot plugin");
+    expect(report).toContain("OK Claude Code research-copilot plugin enabled");
+  });
+
+  it("warns when the Claude Code research-copilot plugin is disabled", () => {
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+    const r = runner({
+      "npm list -g @research-copilot/plugin --json": JSON.stringify({
+        dependencies: { "@research-copilot/plugin": { version: readCliVersion() } },
+      }),
+      "claude plugin list --json": JSON.stringify([
+        { id: "research-copilot@research-copilot", version: "1.0.54", enabled: false, scope: "project", projectPath: "C:\\SomeOther\\Project" },
+      ]),
+    });
+
+    const result = runDoctor(repo, { runner: r });
+    const report = result.report.join("\n");
+
+    // WARN does not flip ok (only FAIL does), but it surfaces the actionable problem.
+    expect(result.ok).toBe(true);
+    expect(report).toContain("WARN Claude Code research-copilot plugin is DISABLED");
+    expect(report).toContain("claude plugin enable research-copilot@research-copilot");
+  });
+
+  it("warns on version drift for an enabled Claude Code plugin", () => {
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+    const r = runner({
+      "npm list -g @research-copilot/plugin --json": JSON.stringify({
+        dependencies: { "@research-copilot/plugin": { version: readCliVersion() } },
+      }),
+      "claude plugin list --json": JSON.stringify([
+        { id: "research-copilot@research-copilot", version: "1.0.54", enabled: true, scope: "project", projectPath: repo },
+      ]),
+    });
+
+    const result = runDoctor(repo, { runner: r });
+    const report = result.report.join("\n");
+
+    expect(report).toContain("WARN Claude Code research-copilot plugin enabled but stale");
+    expect(report).toContain("v1.0.54");
+    expect(report).toContain(`v${readCliVersion()}`);
+  });
+
+  it("notes when an enabled plugin is bound to a different project", () => {
+    runInit({ repo, platforms: ["claude-code"], user: "tester", skipPlugin: true });
+    const otherProject = path.join(path.dirname(repo), "other-project");
+    const r = runner({
+      "npm list -g @research-copilot/plugin --json": JSON.stringify({
+        dependencies: { "@research-copilot/plugin": { version: readCliVersion() } },
+      }),
+      "claude plugin list --json": JSON.stringify([
+        { id: "research-copilot@research-copilot", version: readCliVersion(), enabled: true, scope: "project", projectPath: otherProject },
+      ]),
+    });
+
+    const result = runDoctor(repo, { runner: r });
+    const report = result.report.join("\n");
+
+    expect(report).toContain("INFO Claude Code research-copilot plugin enabled");
+    expect(report).toContain("it will not load in this project");
   });
 
   it("prints plugin registration remediation when Claude Code does not list the plugin", () => {
@@ -86,7 +147,9 @@ describe("rc doctor", () => {
       "npm list -g @research-copilot/plugin --json": JSON.stringify({
         dependencies: { "@research-copilot/plugin": { version: readCliVersion() } },
       }),
-      "claude plugin list": "other-plugin 0.0.1",
+      "claude plugin list --json": JSON.stringify([
+        { id: "other-plugin@other", version: "0.0.1", enabled: true, scope: "user" },
+      ]),
     });
 
     const result = runDoctor(repo, { runner: r });
@@ -104,7 +167,9 @@ describe("rc doctor", () => {
       "npm list -g @research-copilot/plugin --json": JSON.stringify({
         dependencies: { "@research-copilot/plugin": { version: readCliVersion() } },
       }),
-      "claude plugin list": "other-plugin 0.0.1",
+      "claude plugin list --json": JSON.stringify([
+        { id: "other-plugin@other", version: "0.0.1", enabled: true, scope: "user" },
+      ]),
     });
 
     const result = runDoctor(repo, { runner: r });
@@ -125,7 +190,7 @@ describe("rc doctor", () => {
       "npm list -g @research-copilot/plugin --json": JSON.stringify({
         dependencies: { "@research-copilot/plugin": { version: readCliVersion() } },
       }),
-    }, { "claude plugin list": new Error("not found") });
+    }, { "claude plugin list --json": new Error("not found") });
 
     const result = runDoctor(repo, { runner: r });
     const report = result.report.join("\n");
